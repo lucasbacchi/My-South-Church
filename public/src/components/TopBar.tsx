@@ -8,12 +8,12 @@ const TopBar = () => {
             <div className="flex items-center justify-center w-16 h-16 bg-zinc-600">
                 <span className="material-symbols-outlined text-white text-2xl">account_circle</span>
             </div>
-            <div className="flex items-center justify-center w-16 h-16 bg-zinc-600">
+            {/* <div className="flex items-center justify-center w-16 h-16 bg-zinc-600">
                 <span className="material-symbols-outlined text-white text-2xl">search</span>
             </div>
             <div className="flex items-center justify-center w-16 h-16 bg-zinc-600">
                 <span className="material-symbols-outlined text-white text-2xl">notifications</span>
-            </div>
+            </div> */}
         </div>
     );
 };

@@ -3,10 +3,10 @@ import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 
 const sideNavBarPages: string[][] = [
-    ["Home", "home", "/"],
-    ["About", "info", "/about"],
-    ["Google Groups (Email)", "email", "/groups"],
-    ["Google Drive", "folder", "/drive"]
+    ["Home", "home", "/"]
+    // ["About", "info", "/about"],
+    // ["Google Groups (Email)", "email", "/groups"],
+    // ["Google Drive", "folder", "/drive"]
 ];
 
 const SideNavBar = () => {
