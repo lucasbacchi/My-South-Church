@@ -1,5 +1,3 @@
-import React from "react";
-
 const TopBar = () => {
     return (
         <div className="flex sticky top-0 left-0 h-16 flex-row bg-zinc-600">
