@@ -1,4 +1,3 @@
-import React from "react";
 import { useState } from "react";
 import { auth } from "../main";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";

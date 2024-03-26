@@ -14,6 +14,6 @@ module.exports = {
             'warn',
             { allowConstantExport: true },
         ],
-        "linebreak-style": ["error", "windows"],
+        "linebreak-style": ["error", "windows"]
     },
 }

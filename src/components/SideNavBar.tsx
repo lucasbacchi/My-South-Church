@@ -1,4 +1,3 @@
-import React from "react";
 import { useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 
@@ -12,7 +11,8 @@ const sideNavBarPages: string[][] = [
 const SideNavBar = () => {
     const location = useLocation();
     const [currentPage, setCurrentPage] = useState(location.pathname);
-    document.title = `My South Church - ${currentPage}`;
+    const pageName = sideNavBarPages.find((page) => page[2] == location.pathname)?.[0] || "";
+    document.title = pageName + " || My South Church";
 
     // useEffect(() => {
     //     setCurrentPage(location.pathname);
