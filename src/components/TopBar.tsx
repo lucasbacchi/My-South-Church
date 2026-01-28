@@ -37,7 +37,7 @@ export default function TopBar() {
                     to="/"
                     className="flex items-center hover:opacity-85 transition-opacity duration-200 group px-3 sm:px-4 md:px-6"
                 >
-                    <h1 className="text-primary text-xl my-5 sm:text-2xl md:text-4xl select-none font-bold group-hover:text-primary-lighter transition-colors">
+                    <h1 className="text-primary text-xl py-5 sm:text-2xl md:text-4xl select-none font-bold group-hover:text-primary-lighter transition-colors">
                         <span className="hidden sm:inline">My South Church</span>
                         <span className="sm:hidden">MSC</span>
                     </h1>
