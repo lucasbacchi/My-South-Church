@@ -1,5 +1,6 @@
 package com.southchurch.my;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,5 +29,14 @@ public class SystemController {
     @GetMapping("/ping")
     public String ping() {
         return "pong";
+    }
+
+    // Google Connectivity Test
+    @Autowired
+    private GoogleWorkspaceService googleService;
+
+    @GetMapping("/google-test")
+    public String testGoogle() {
+        return googleService.runConnectivityTest();
     }
 }
