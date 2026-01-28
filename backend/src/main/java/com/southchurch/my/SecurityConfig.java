@@ -32,6 +32,7 @@ public class SecurityConfig {
 
                         // 2. Allow Swagger UI (The "Admin" Page)
                         .requestMatchers(
+                                "/",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html")
