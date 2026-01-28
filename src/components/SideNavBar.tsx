@@ -1,40 +1,33 @@
-import { useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink } from "react-router";
 
 const sideNavBarPages: string[][] = [
-    ["Home", "home", "/"]
-    // ["About", "info", "/about"],
-    // ["Google Groups (Email)", "email", "/groups"],
-    // ["Google Drive", "folder", "/drive"]
+    ["Home", "home", "/"],
+    ["About", "info", "/about"],
+    ["Google Groups", "email", "/groups"],
+    ["Google Drive", "folder", "/drive"],
 ];
 
-const SideNavBar = () => {
-    const location = useLocation();
-    const [currentPage, setCurrentPage] = useState(location.pathname);
-    const pageName = sideNavBarPages.find((page) => page[2] == location.pathname)?.[0] || "";
-    document.title = pageName + " || My South Church";
-
-    // useEffect(() => {
-    //     setCurrentPage(location.pathname);
-    // }, [location]);
-
+export default function SideNavBar() {
     return (
-        <div className="flex flex-col grow top-0 left-0 max-w-40 bg-zinc-700">
+        <nav className="hidden md:flex flex-col top-0 left-0 w-48 lg:w-56 bg-card border-r border-border py-4 px-3 gap-2 shrink-0">
             {sideNavBarPages.map((page) => (
                 <NavLink
                     key={page[1]}
                     to={page[2]}
-                    onClick={() => setCurrentPage(page[2])}
-                    className={(page[2] == currentPage ? "active " : "") + "text-white hover:text-green-200"}
+                    className={({ isActive }) =>
+                        `flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 relative overflow-hidden group ${
+                            isActive
+                                ? "bg-primary/15 text-primary font-semibold border-l-4 border-primary pl-3 shadow-md"
+                                : "text-foreground hover:bg-primary/8 hover:text-primary"
+                        }`
+                    }
                 >
-                    <div className="side-nav-bar-item p-3 m-1">
-                        <span className="material-symbols-outlined block p-2">{page[1]}</span>
-                        <span>{page[0]}</span>
-                    </div>
+                    <span className="material-symbols-outlined text-xl shrink-0 transition-transform duration-200 group-hover:scale-110">
+                        {page[1]}
+                    </span>
+                    <span className="text-sm lg:text-base truncate">{page[0]}</span>
                 </NavLink>
             ))}
-        </div>
+        </nav>
     );
-};
-
-export default SideNavBar;
+}

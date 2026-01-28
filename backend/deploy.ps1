@@ -1,0 +1,29 @@
+# deploy.ps1
+
+# 1. Get the token safely into a variable
+Write-Host "Getting Google Access Token..."
+$token = gcloud.cmd auth print-access-token
+
+# 2. Check if we actually got a token
+if (-not $token) {
+    Write-Error "Failed to get token from gcloud."
+    exit 1
+}
+
+# 3. Build the Container with Maven
+Write-Host "Building Container Image..."
+mvn compile jib:build "-Djib.to.auth.username=oauth2accesstoken" "-Djib.to.auth.password=$token"
+
+# Check if build failed
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Maven build failed."
+    exit 1
+}
+
+# 4. Deploy to Cloud Run
+Write-Host "Deploying to Google Cloud Run..."
+gcloud.cmd run deploy backend-api `
+  --image gcr.io/my-south-church/backend-api `
+  --platform managed `
+  --region us-east1 `
+  --allow-unauthenticated

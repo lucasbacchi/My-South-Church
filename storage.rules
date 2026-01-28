@@ -1,8 +1,8 @@
 rules_version = '2';
 
-// allow write: if firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin;
 service firebase.storage {
     match /b/{bucket}/o {
+        // Deny all access by default
         match /{allPaths=**} {
             allow read, write: if false;
         }

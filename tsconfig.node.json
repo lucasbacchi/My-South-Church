@@ -1,11 +1,8 @@
 {
+    "extends": "./tsconfig.json",
     "compilerOptions": {
-        "composite": true,
-        "skipLibCheck": true,
-        "module": "ESNext",
-        "moduleResolution": "node",
-        "allowSyntheticDefaultImports": true,
-        "strict": true
+        "types": ["node"],
+        "allowJs": true
     },
-    "include": ["vite.config.ts"]
+    "include": ["vite.config.ts", "react-router.config.ts", "eslint.config.js"]
 }

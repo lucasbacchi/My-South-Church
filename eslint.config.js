@@ -1,0 +1,138 @@
+import globals from "globals";
+import pluginJs from "@eslint/js";
+import tseslint from "typescript-eslint";
+import pluginReact from "eslint-plugin-react";
+import pluginReactHooks from "eslint-plugin-react-hooks";
+import pluginReactRefresh from "eslint-plugin-react-refresh";
+import pluginJsxA11y from "eslint-plugin-jsx-a11y";
+import eslintConfigPrettier from "eslint-config-prettier";
+
+export default [
+    // Global ignores
+    {
+        ignores: [
+            "**/dist/**",
+            "**/public/**",
+            "**/node_modules/**",
+            "**/.firebase/**",
+            "**/.react-router/**",
+            "**/*.config.js",
+            "**/*.config.ts",
+            "**/components/ui/**",
+        ],
+    },
+
+    // Base configs
+    {
+        files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
+        languageOptions: {
+            globals: {
+                ...globals.browser,
+                ...globals.es2022,
+            },
+            parserOptions: {
+                ecmaVersion: 2022,
+                sourceType: "module",
+                ecmaFeatures: {
+                    jsx: true,
+                },
+            },
+        },
+    },
+
+    // Apply recommended configs
+    pluginJs.configs.recommended,
+    ...tseslint.configs.recommendedTypeChecked,
+    ...tseslint.configs.stylisticTypeChecked, // consistent type definitions
+
+    // React configuration
+    {
+        files: ["**/*.{jsx,tsx}"],
+        plugins: {
+            react: pluginReact,
+            "react-hooks": pluginReactHooks,
+            "react-refresh": pluginReactRefresh,
+            "jsx-a11y": pluginJsxA11y,
+        },
+        rules: {
+            ...pluginReact.configs.recommended.rules,
+            ...pluginReact.configs["jsx-runtime"].rules, // React 17+
+            ...pluginReactHooks.configs.recommended.rules,
+            ...pluginJsxA11y.configs.recommended.rules,
+
+            // React 19 optimizations
+            "react/react-in-jsx-scope": "off",
+            "react/jsx-uses-react": "off",
+
+            // React Refresh
+            "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+
+            // React best practices
+            "react/prop-types": "off", // Using TypeScript
+            "react/jsx-no-leaked-render": "warn", // Avoid rendering 0 or NaN
+            "react/no-array-index-key": "warn",
+            "react/self-closing-comp": "warn",
+            "react/display-name": "warn", // Help identify components in DevTools
+        },
+        settings: {
+            react: {
+                version: "19.0",
+            },
+        },
+    },
+
+    // TypeScript specific rules
+    {
+        files: ["**/*.{ts,tsx}"],
+        languageOptions: {
+            parserOptions: {
+                project: ["./tsconfig.app.json"],
+                tsconfigRootDir: import.meta.dirname,
+            },
+        },
+        rules: {
+            // TypeScript optimizations
+            "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
+            "@typescript-eslint/no-explicit-any": "warn",
+            "@typescript-eslint/consistent-type-imports": [
+                "warn",
+                { prefer: "type-imports", fixStyle: "inline-type-imports" },
+            ], // Optimization for bundlers
+            "@typescript-eslint/prefer-nullish-coalescing": "warn", // Better null handling
+
+            // Disable rules that conflict with Prettier or are too strict
+            "@typescript-eslint/no-empty-function": "off",
+        },
+    },
+
+    // Build and config files
+    {
+        files: ["vite.config.ts", "react-router.config.ts", "eslint.config.js"],
+        languageOptions: {
+            globals: {
+                ...globals.node,
+            },
+        },
+    },
+
+    // Custom project rules
+    {
+        rules: {
+            "no-var": "error",
+            "prefer-const": "warn",
+            eqeqeq: ["error", "always"],
+
+            // Import organization
+            "sort-imports": [
+                "error",
+                {
+                    ignoreDeclarationSort: true, // let IDE/prettier handle this mostly for groups
+                    ignoreMemberSort: false,
+                },
+            ],
+        },
+    },
+
+    // Prettier integration (must be last)
+    eslintConfigPrettier,
+];

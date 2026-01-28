@@ -1,13 +1,17 @@
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import { reactRouter } from "@react-router/dev/vite";
+import tailwindcss from "@tailwindcss/vite";
+import tsconfigPaths from "vite-tsconfig-paths";
+import path from "path";
 
-// https://vitejs.dev/config/
 export default defineConfig({
-    root: "src",
-    plugins: [react()],
+    plugins: [reactRouter(), tailwindcss(), tsconfigPaths()],
     build: {
-        outDir: "../public",
-        emptyOutDir: true
+        emptyOutDir: true,
     },
-    assetsInclude: ["**/*.png", "**/*.jpg", "**/*.svg", "**/*.ico"]
+    resolve: {
+        alias: {
+            "@": path.resolve(__dirname, "./src"),
+        },
+    },
 });
