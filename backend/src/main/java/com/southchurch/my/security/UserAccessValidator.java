@@ -1,4 +1,4 @@
-package com.southchurch.my;
+package com.southchurch.my.security;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.converter.Converter;
@@ -8,6 +8,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.stereotype.Component;
+
+import com.southchurch.my.services.GoogleWorkspaceService;
 
 import java.util.Collection;
 import java.io.IOException;

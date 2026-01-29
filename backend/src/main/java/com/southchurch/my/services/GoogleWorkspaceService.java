@@ -1,4 +1,4 @@
-package com.southchurch.my;
+package com.southchurch.my.services;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

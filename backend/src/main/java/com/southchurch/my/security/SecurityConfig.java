@@ -1,4 +1,4 @@
-package com.southchurch.my;
+package com.southchurch.my.security;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

@@ -1,4 +1,4 @@
-package com.southchurch.my;
+package com.southchurch.my.security;
 
 import org.springdoc.core.utils.SpringDocUtils;
 import org.springframework.context.annotation.Configuration;
