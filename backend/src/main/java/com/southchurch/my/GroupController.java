@@ -17,7 +17,7 @@ public class GroupController {
     @Autowired
     private GoogleWorkspaceService workspaceService;
 
-    @GetMapping("/api/groups")
+    @GetMapping("/groups")
     public ResponseEntity<?> getGroups(@RequestHeader("Authorization") String authHeader) {
         try {
             // 1. Strip "Bearer " from the header

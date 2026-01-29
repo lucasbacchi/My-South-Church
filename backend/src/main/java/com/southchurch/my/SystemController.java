@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/system")
+@RequestMapping("/system")
 public class SystemController {
 
     // Public Health Check (Used by Cloud Run / Load Balancers)
