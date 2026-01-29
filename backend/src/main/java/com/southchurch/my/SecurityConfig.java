@@ -1,5 +1,6 @@
 package com.southchurch.my;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -15,6 +16,8 @@ import java.util.Arrays;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+    @Autowired
+    private UserAccessValidator userAccessValidator;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -43,7 +46,8 @@ public class SecurityConfig {
 
                 // 4. Set up the OAuth2 Resource Server (Verifies Firebase/Google Tokens)
                 .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(Customizer.withDefaults()));
+                        .jwt(jwt -> jwt
+                                .jwtAuthenticationConverter(userAccessValidator)));
 
         return http.build();
     }
