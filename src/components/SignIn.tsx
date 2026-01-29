@@ -55,7 +55,7 @@ export default function SignIn() {
 
                 {/* Custom Google Sign-In Button */}
                 <button
-                    onClick={void handleGoogleSignIn}
+                    onClick={() => void handleGoogleSignIn()}
                     disabled={isLoading}
                     className="flex items-center justify-center gap-3 px-6 py-2.5 bg-white border border-gray-300 rounded-lg shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200 active:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed"
                     aria-label="Sign in with Google"
