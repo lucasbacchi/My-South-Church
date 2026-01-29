@@ -28,7 +28,7 @@ public class SecurityConfig {
                 // 3. Define URL Rules
                 .authorizeHttpRequests(auth -> auth
                         // 1. Allow System/Health checks
-                        .requestMatchers("/api/system/**").permitAll()
+                        .requestMatchers("/system/**").permitAll()
 
                         // 2. Allow Swagger UI (The "Admin" Page)
                         .requestMatchers(
