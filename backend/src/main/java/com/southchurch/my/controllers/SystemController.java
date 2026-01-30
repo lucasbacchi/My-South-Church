@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.southchurch.my.repositories.UserRepository;
 import com.southchurch.my.services.GoogleWorkspaceService;
 
 import java.time.LocalDateTime;
@@ -15,6 +16,12 @@ import java.util.Map;
 @RestController
 @RequestMapping("/system")
 public class SystemController {
+
+    private final UserRepository userRepository;
+
+    public SystemController(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     // Public Health Check (Used by Cloud Run / Load Balancers)
     @GetMapping("/health")
@@ -40,5 +47,28 @@ public class SystemController {
     @GetMapping("/google-test")
     public String testGoogle() {
         return googleService.runConnectivityTest();
+    }
+
+    // Database Connectivity Test
+    @GetMapping("/db-test")
+    public Map<String, Object> testDatabaseConnection() {
+        Map<String, Object> status = new HashMap<>();
+        status.put("timestamp", LocalDateTime.now());
+
+        try {
+            long count = userRepository.count();
+
+            status.put("status", "UP");
+            status.put("message", "Database connection established successfully");
+            status.put("user_count", count);
+
+        } catch (Exception e) {
+            status.put("status", "DOWN");
+            status.put("error", e.getMessage());
+            // Log the full error in the console for you to debug
+            e.printStackTrace();
+        }
+
+        return status;
     }
 }
