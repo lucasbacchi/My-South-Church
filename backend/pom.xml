@@ -29,6 +29,8 @@
 	</scm>
 	<properties>
 		<java.version>17</java.version>
+		<jib.alwaysPullBaseImage>true</jib.alwaysPullBaseImage>
+		<skipTests>true</skipTests>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -100,6 +102,18 @@
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
 			<version>2.3.0</version>
 		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.18.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>33.1.0-jre</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -133,9 +147,11 @@
 				<artifactId>jib-maven-plugin</artifactId>
 				<version>3.4.0</version>
 				<configuration>
+
 					<from>
-						<image>gcr.io/distroless/java17-debian11</image>
+						<image>eclipse-temurin:17-jre-alpine</image>
 					</from>
+
 					<to>
 						<image>gcr.io/my-south-church/backend-api</image>
 						<credHelper>gcloud</credHelper>
