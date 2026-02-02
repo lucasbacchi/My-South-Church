@@ -66,6 +66,13 @@ public class GetGroupsService implements Query<Void, List<Group>> {
     }
 
     public boolean isMemberOfGroup(String userEmail, String groupEmail) throws IOException, GeneralSecurityException {
+        // Remove whitespace and accidentally included quotes
+        String cleanUser = userEmail.trim().replace("\"", "").replace("'", "");
+        String cleanGroup = groupEmail.trim().replace("\"", "").replace("'", "");
+
+        // Log
+        System.out.println("Checking Google API: Group=[" + cleanGroup + "] Member=[" + cleanUser + "]");
+
         try {
             return directory.members().hasMember(groupEmail, userEmail)
                     .execute()
