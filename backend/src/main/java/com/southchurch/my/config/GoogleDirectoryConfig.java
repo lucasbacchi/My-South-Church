@@ -1,11 +1,8 @@
 package com.southchurch.my.config;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Value;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -19,32 +16,29 @@ import com.google.auth.oauth2.GoogleCredentials;
 
 @Configuration
 public class GoogleDirectoryConfig {
-    
-    @Value("${google.credentials.json}")
-    private String credentialsJson;
-
     private static final String APPLICATION_NAME = "My South Church Backend";
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
-    @Bean
-    public Directory directoryClient() throws Exception {
-        if (credentialsJson == null || credentialsJson.isBlank()) {
-            throw new IllegalStateException("google.credentials.json is missing");
-        }
-       
-        InputStream credentialsStream = new ByteArrayInputStream(
-            credentialsJson.getBytes(StandardCharsets.UTF_8));
+    private GoogleCredentials credentials;
 
-        GoogleCredentials creds = GoogleCredentials
-            .fromStream(credentialsStream)
-            .createScoped(List.of(DirectoryScopes.ADMIN_DIRECTORY_GROUP_READONLY));
+    @Bean
+    public Directory directoryClient() throws IOException, GeneralSecurityException {
+        this.credentials = GoogleCredentials.getApplicationDefault();
+
+        // ERROR CHECK: Fail fast if the key is missing
+        if (credentials == null) {
+            throw new IllegalStateException(
+                    "GOOGLE_APPLICATION_CREDENTIALS is missing! Check your environment variables.");
+        }
+
+        GoogleCredentials scopedCredentials = credentials
+                .createScoped(Collections.singletonList(DirectoryScopes.ADMIN_DIRECTORY_GROUP_READONLY));
 
         return new Directory.Builder(
-            GoogleNetHttpTransport.newTrustedTransport(),
-            JSON_FACTORY,
-            new HttpCredentialsAdapter(creds)
-        )
-        .setApplicationName(APPLICATION_NAME)
-        .build();
+                GoogleNetHttpTransport.newTrustedTransport(),
+                JSON_FACTORY,
+                new HttpCredentialsAdapter(scopedCredentials))
+                .setApplicationName(APPLICATION_NAME)
+                .build();
     }
 }
