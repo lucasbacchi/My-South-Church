@@ -46,7 +46,14 @@ public class SystemController {
 
     @GetMapping("/google-test")
     public String testGoogle() {
-        return googleService.runConnectivityTest();
+        try {
+            return googleService.runConnectivityTest();
+        } catch (Exception e) {
+            // Log the full error on the server for debugging
+            e.printStackTrace();
+            // Return a generic error message to the client to avoid leaking details
+            return "Google connectivity test failed";
+        }
     }
 
     // Database Connectivity Test
