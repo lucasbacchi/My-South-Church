@@ -9,7 +9,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.stereotype.Component;
 
-import com.southchurch.my.services.GoogleWorkspaceService;
+import com.southchurch.my.services.GetGroupsService;
 
 import java.util.Collection;
 import java.io.IOException;
@@ -18,14 +18,14 @@ import java.security.GeneralSecurityException;
 @Component
 public class UserAccessValidator implements Converter<Jwt, AbstractAuthenticationToken> {
 
-    private final GoogleWorkspaceService googleService;
+    private final GetGroupsService googleService;
     private final JwtGrantedAuthoritiesConverter defaultConverter = new JwtGrantedAuthoritiesConverter();
 
     // Inject the group email from application.properties
     @Value("${google.groups.root-group}")
     private String rootGroupEmail;
 
-    public UserAccessValidator(GoogleWorkspaceService googleService) {
+    public UserAccessValidator(GetGroupsService googleService) {
         this.googleService = googleService;
     }
 

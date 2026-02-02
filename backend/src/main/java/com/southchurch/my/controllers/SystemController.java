@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.southchurch.my.repositories.UserRepository;
-import com.southchurch.my.services.GoogleWorkspaceService;
+import com.southchurch.my.services.GetGroupsService;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -42,7 +42,7 @@ public class SystemController {
 
     // Google Connectivity Test
     @Autowired
-    private GoogleWorkspaceService googleService;
+    private GetGroupsService googleService;
 
     @GetMapping("/google-test")
     public String testGoogle() {

@@ -1,29 +1,27 @@
 package com.southchurch.my.controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.southchurch.my.services.GoogleWorkspaceService;
+import com.google.api.services.directory.model.Group;
+import com.southchurch.my.services.GetGroupsService;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
+import java.util.List;
 
 @RestController
 public class GroupController {
 
-    @Autowired
-    private GoogleWorkspaceService workspaceService;
+    private final GetGroupsService getGroupsService;
+    // Constructor injection
+    public GroupController(GetGroupsService getGroupsService) {
+        this.getGroupsService = getGroupsService;
+    }
 
     @GetMapping("/groups")
-    public ResponseEntity<?> getGroups(@AuthenticationPrincipal Jwt principal) {
-        try {
-            return ResponseEntity.ok(workspaceService.listGroups());
-        } catch (IOException | GeneralSecurityException e) {
-            return ResponseEntity.status(500).body("Error retrieving groups: " + e.getMessage());
-        }
+    public ResponseEntity<List<Group>> getGroups(@AuthenticationPrincipal Jwt principal) {
+       return getGroupsService.execute(null);
     }
 }
