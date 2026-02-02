@@ -17,13 +17,13 @@ import com.southchurch.my.Query;
 
 @Service
 public class GetGroupsService implements Query<Void, List<Group>> {
- 
+
     private final Directory directory;
 
-    @Value("${google.workspace.domain:southchurch.com}")
+    @Value("${google.workspace.domain}")
     private String domain;
 
-    //Constructor injection of the Directory bean
+    // Constructor injection of the Directory bean
     public GetGroupsService(Directory directory) {
         this.directory = directory;
     }
@@ -31,7 +31,9 @@ public class GetGroupsService implements Query<Void, List<Group>> {
     /**
      * Executes the query to retrieve a list of groups.
      * 
-     * @return A ResponseEntity containing a list of Group objects. If an error occurs during the execution of the query, a ResponseEntity with a status of 500 and an empty list is returned.
+     * @return A ResponseEntity containing a list of Group objects. If an error
+     *         occurs during the execution of the query, a ResponseEntity with a
+     *         status of 500 and an empty list is returned.
      */
     @Override
     public ResponseEntity<List<Group>> execute(Void input) {
@@ -43,21 +45,23 @@ public class GetGroupsService implements Query<Void, List<Group>> {
             return ResponseEntity.status(500).body(Collections.emptyList());
         }
     }
-    
+
     /**
      * Retrieves a list of groups from the configured Google Workspace domain.
      *
      * @return A list of Group objects.
-     * @throws IOException If an I/O error occurs while executing the query.
-     * @throws GeneralSecurityException If an authentication error occurs while executing the query.
+     * @throws IOException              If an I/O error occurs while executing the
+     *                                  query.
+     * @throws GeneralSecurityException If an authentication error occurs while
+     *                                  executing the query.
      */
     public List<Group> listGroups() throws IOException, GeneralSecurityException {
-        
+
         Groups result = directory
-        .groups()
-        .list()
-            .setDomain(domain)
-            .execute();
+                .groups()
+                .list()
+                .setDomain(domain)
+                .execute();
         return result.getGroups();
     }
 

@@ -15,6 +15,7 @@ import java.util.List;
 public class GroupController {
 
     private final GetGroupsService getGroupsService;
+
     // Constructor injection
     public GroupController(GetGroupsService getGroupsService) {
         this.getGroupsService = getGroupsService;
@@ -22,6 +23,6 @@ public class GroupController {
 
     @GetMapping("/groups")
     public ResponseEntity<List<Group>> getGroups(@AuthenticationPrincipal Jwt principal) {
-       return getGroupsService.execute(null);
+        return getGroupsService.execute(null);
     }
 }
