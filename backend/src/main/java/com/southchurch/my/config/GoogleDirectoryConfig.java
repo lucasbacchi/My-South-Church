@@ -13,6 +13,8 @@ import com.google.api.services.directory.Directory;
 import com.google.api.services.directory.DirectoryScopes;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
+import com.google.api.services.cloudidentity.v1.CloudIdentity;
+import com.google.api.services.cloudidentity.v1.CloudIdentityScopes;
 
 @Configuration
 public class GoogleDirectoryConfig {
@@ -40,5 +42,27 @@ public class GoogleDirectoryConfig {
                 new HttpCredentialsAdapter(scopedCredentials))
                 .setApplicationName(APPLICATION_NAME)
                 .build();
+    }
+
+    @Bean
+    public CloudIdentity cloudIdentityClient() throws IOException, GeneralSecurityException {
+        this.credentials = GoogleCredentials.getApplicationDefault();
+
+        // ERROR CHECK: Fail fast if the key is missing
+        if (credentials == null) {
+            throw new IllegalStateException(
+                    "GOOGLE_APPLICATION_CREDENTIALS is missing! Check your environment variables.");
+        }
+        
+        GoogleCredentials scopedCredentials = credentials
+                .createScoped(Collections.singletonList(CloudIdentityScopes.CLOUD_IDENTITY_GROUPS_READONLY));
+
+        CloudIdentity ciService = new CloudIdentity.Builder(
+                GoogleNetHttpTransport.newTrustedTransport(),
+                JSON_FACTORY,
+                new HttpCredentialsAdapter(scopedCredentials))
+                .setApplicationName(APPLICATION_NAME)
+                .build();
+        return ciService;
     }
 }

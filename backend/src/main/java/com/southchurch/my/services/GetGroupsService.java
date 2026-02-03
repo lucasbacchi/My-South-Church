@@ -10,6 +10,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.google.api.services.cloudidentity.v1.CloudIdentity;
+import com.google.api.services.cloudidentity.v1.model.LookupGroupNameResponse;
 import com.google.api.services.directory.Directory;
 import com.google.api.services.directory.model.Group;
 import com.google.api.services.directory.model.Groups;
@@ -19,13 +21,15 @@ import com.southchurch.my.Query;
 public class GetGroupsService implements Query<Void, List<Group>> {
 
     private final Directory directory;
+    private final CloudIdentity ciService;
 
     @Value("${google.workspace.domain}")
     private String domain;
 
     // Constructor injection of the Directory bean
-    public GetGroupsService(Directory directory) {
+    public GetGroupsService(Directory directory, CloudIdentity ciService) {
         this.directory = directory;
+        this.ciService = ciService;
     }
 
     /**
@@ -66,21 +70,33 @@ public class GetGroupsService implements Query<Void, List<Group>> {
     }
 
     public boolean isMemberOfGroup(String userEmail, String groupEmail) throws IOException, GeneralSecurityException {
-        // Remove whitespace and accidentally included quotes
-        String cleanUser = userEmail.trim().replace("\"", "").replace("'", "");
-        String cleanGroup = groupEmail.trim().replace("\"", "").replace("'", "");
-
-        // Log
-        System.out.println("Checking Google API: Group=[" + cleanGroup + "] Member=[" + cleanUser + "]");
-
         try {
-            return directory.members().hasMember(groupEmail, userEmail)
+            return directory.members().hasMember(userEmail, groupEmail)
                     .execute()
                     .getIsMember();
         } catch (IOException e) {
             System.err.println("Error checking group membership: " + e.getMessage());
             return false; // Fail safe: access denied if we can't check
         }
+    }
+
+    public boolean isMemberViaCloudIdentity(String userEmail, String groupEmail)
+            throws IOException {
+
+        LookupGroupNameResponse lookup = ciService.groups().lookup()
+                .setGroupKeyId(groupEmail)
+                .execute();
+
+        String parentGroup = lookup.getName();
+        String query = "member_key_id == '" + userEmail + "'";
+
+        var response = ciService.groups().memberships()
+                .checkTransitiveMembership(parentGroup)
+                .setQuery(query)
+                .execute();
+
+        // If the user IS a member, response.getHasMembership() returns true.
+        return response.getHasMembership() != null && response.getHasMembership();
     }
 
     public String runConnectivityTest() {

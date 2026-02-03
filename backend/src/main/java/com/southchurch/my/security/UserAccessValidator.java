@@ -13,7 +13,6 @@ import com.southchurch.my.services.GetGroupsService;
 
 import java.util.Collection;
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 
 @Component
 public class UserAccessValidator implements Converter<Jwt, AbstractAuthenticationToken> {
@@ -33,11 +32,10 @@ public class UserAccessValidator implements Converter<Jwt, AbstractAuthenticatio
     public AbstractAuthenticationToken convert(Jwt jwt) {
         String userEmail = jwt.getClaimAsString("email");
 
-        // THE CHECK: Ask Google directly every single time
         boolean isTrusted;
         try {
-            isTrusted = googleService.isMemberOfGroup(userEmail, rootGroupEmail);
-        } catch (IOException | GeneralSecurityException e) {
+            isTrusted = googleService.isMemberViaCloudIdentity(userEmail, rootGroupEmail);
+        } catch (IOException e) {
             throw new InvalidUserException("Error verifying group membership: " + e.getMessage(), e);
         }
 
