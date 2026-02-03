@@ -4,7 +4,7 @@ import { useContext, useState } from "react";
 import { UserContext } from "../contexts/UserContextDefinition";
 
 export default function AccountPage() {
-    const [user] = useContext(UserContext);
+    const [user, , cachedPhotoURL] = useContext(UserContext);
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [primaryEmail, setPrimaryEmail] = useState("");
@@ -71,7 +71,8 @@ export default function AccountPage() {
                     <div className="bg-card border border-border rounded-xl p-6 sm:p-8 shadow-lg flex flex-col gap-6">
                         <div className="text-center border-b border-border pb-4 sm:pb-6">
                             <img
-                                src={user.photoURL?.replace(/=s\d+-c$/, "=s240-c") ?? ""}
+                                key={cachedPhotoURL ?? user.photoURL ?? "fallback"}
+                                src={(cachedPhotoURL ?? user.photoURL)?.replace(/=s\d+-c$/, "=s240-c") ?? ""}
                                 alt="user profile"
                                 className="mx-auto mb-3 sm:mb-4 rounded-full w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 object-cover ring-4 ring-primary/20"
                             />

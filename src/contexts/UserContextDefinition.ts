@@ -5,9 +5,9 @@ import { type User } from "firebase/auth";
 // Although setUser might not be used for auth updates (since Firebase handles it),
 // keeping the signature prevents breaking existing code that expects a tuple.
 export type ReactSetter<Data> = Dispatch<SetStateAction<Data | undefined>>;
-export type ContextData = [User | undefined | null, ReactSetter<User | undefined | null>];
+export type ContextData = [User | undefined | null, ReactSetter<User | undefined | null>, string | null | undefined];
 
-export const UserContext = createContext<ContextData>([undefined, () => {}]);
+export const UserContext = createContext<ContextData>([undefined, () => {}, undefined]);
 
 export function useUser() {
     return useContext(UserContext);

@@ -17,12 +17,29 @@ async function fetchAndCachePhoto(photoURL: string, uid: string): Promise<string
         // Modify the URL to get a larger photo (256px instead of default 96px)
         const largePhotoURL = photoURL.replace(/=s\d+-c$/, "=s256-c");
 
-        const response = await fetch(largePhotoURL);
+        const response = await fetch(largePhotoURL, { cache: "no-store" });
+        if (!response.ok) {
+            console.warn("Photo fetch failed:", response.status, response.statusText);
+            return photoURL;
+        }
+
+        const contentType = response.headers.get("content-type") ?? "";
+        if (!contentType.startsWith("image/")) {
+            console.warn("Photo fetch returned non-image content:", contentType);
+            return photoURL;
+        }
+
         const blob = await response.blob();
 
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onloadend = () => {
+                const result = reader.result;
+                if (typeof result !== "string" || !result.startsWith("data:image/")) {
+                    console.warn("Photo cache produced invalid data URL.");
+                    resolve(photoURL);
+                    return;
+                }
                 const dataURL = reader.result as string;
                 const cacheData: CachedUserData = {
                     photoDataURL: dataURL,
@@ -43,6 +60,7 @@ async function fetchAndCachePhoto(photoURL: string, uid: string): Promise<string
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<User | undefined | null>(undefined);
+    const [cachedPhotoURL, setCachedPhotoURL] = useState<string | null | undefined>(undefined);
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -68,12 +86,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
                             // Use cached photo if it's fresh
                             if (cacheAge < CACHE_DURATION && parsed.originalURL === currentUser.photoURL) {
-                                // Override photoURL with cached data URL
-                                Object.defineProperty(currentUser, "photoURL", {
-                                    value: parsed.photoDataURL,
-                                    writable: true,
-                                    configurable: true,
-                                });
+                                setCachedPhotoURL(parsed.photoDataURL);
                                 setUser(currentUser);
                                 return;
                             }
@@ -84,11 +97,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
                     // Cache is stale or doesn't exist - fetch and cache new photo
                     const cachedPhotoURL = await fetchAndCachePhoto(currentUser.photoURL, currentUser.uid);
-                    Object.defineProperty(currentUser, "photoURL", {
-                        value: cachedPhotoURL,
-                        writable: true,
-                        configurable: true,
-                    });
+                    setCachedPhotoURL(cachedPhotoURL);
+                } else {
+                    setCachedPhotoURL(null);
                 }
 
                 setUser(currentUser);
@@ -97,5 +108,5 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         return () => unsubscribe();
     }, []);
 
-    return <UserContext.Provider value={[user, setUser]}>{children}</UserContext.Provider>;
+    return <UserContext.Provider value={[user, setUser, cachedPhotoURL]}>{children}</UserContext.Provider>;
 }

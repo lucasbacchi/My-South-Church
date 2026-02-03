@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function TopBar() {
     const [accountIsOpen, setAccountIsOpen] = useState(false);
-    const [user] = useContext(UserContext);
+    const [user, , cachedPhotoURL] = useContext(UserContext);
     const [theme, setTheme] = useState<"light" | "dark">(() => {
         if (typeof window === "undefined") return "dark";
         const stored = localStorage.getItem("theme");
@@ -83,7 +83,11 @@ export default function TopBar() {
                         type="button"
                     >
                         <Avatar className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 ring-2 transition-all duration-200 group-hover:shadow-lg">
-                            <AvatarImage src={user.photoURL ?? ""} alt={user.displayName ?? ""} />
+                            <AvatarImage
+                                key={cachedPhotoURL ?? user.photoURL ?? "fallback"}
+                                src={cachedPhotoURL ?? user.photoURL ?? ""}
+                                alt={user.displayName ?? ""}
+                            />
                             <AvatarFallback className="bg-linear-to-br from-primary-darker to-secondary-darker text-primary-foreground font-semibold">
                                 {user.displayName?.slice(0, 2).toUpperCase() ?? "U"}
                             </AvatarFallback>

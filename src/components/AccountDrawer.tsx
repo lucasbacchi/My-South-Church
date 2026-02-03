@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function AccountDrawer(props: { onClose: () => void; isOpen: boolean }) {
-    const user = useContext(UserContext)[0];
+    const [user, , cachedPhotoURL] = useContext(UserContext);
 
     if (!user) {
         return null;
@@ -21,7 +21,11 @@ export default function AccountDrawer(props: { onClose: () => void; isOpen: bool
                 </SheetHeader>
                 <div className="flex flex-col gap-4 items-center my-6">
                     <Avatar className="w-24 h-24">
-                        <AvatarImage src={user.photoURL ?? ""} alt={user.displayName ?? ""} />
+                        <AvatarImage
+                            key={cachedPhotoURL ?? user.photoURL ?? "fallback"}
+                            src={cachedPhotoURL ?? user.photoURL ?? ""}
+                            alt={user.displayName ?? ""}
+                        />
                         <AvatarFallback>{user.displayName?.slice(0, 2).toUpperCase() ?? "U"}</AvatarFallback>
                     </Avatar>
                     <div className="text-center">
