@@ -30,6 +30,7 @@ gcloud.cmd run deploy backend-api `
   --set-secrets="SPRING_SECURITY_USER_NAME=SPRING_SECURITY_USER_NAME:latest" `
   --set-secrets="SPRING_SECURITY_USER_PASSWORD=SPRING_SECURITY_USER_PASSWORD:latest" `
   --set-secrets="GOOGLE_ROOT_GROUP_EMAIL=GOOGLE_ROOT_GROUP_EMAIL:latest" `
+  --set-secrets="GOOGLE_WORKSPACE_DOMAIN=GOOGLE_WORKSPACE_DOMAIN:latest" `
   --set-secrets="DB_URL=DB_URL:latest" `
   --set-secrets="DB_USERNAME=DB_USERNAME:latest" `
   --set-secrets="DB_PASSWORD=DB_PASSWORD:latest" `
