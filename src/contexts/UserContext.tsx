@@ -10,23 +10,62 @@ interface CachedUserData {
     timestamp: number;
 }
 
-const CACHE_DURATION = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
+interface PhotoBackoffState {
+    attempt: number;
+    nextAttempt: number;
+}
 
-async function fetchAndCachePhoto(photoURL: string, uid: string): Promise<string> {
+const CACHE_DURATION = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
+const BACKOFF_BASE_MS = 30 * 1000; // 30 seconds
+const BACKOFF_MAX_MS = 30 * 60 * 1000; // 30 minutes
+
+function getBackoffState(uid: string): PhotoBackoffState | null {
+    const raw = localStorage.getItem(`user_photo_backoff_${uid}`);
+    if (!raw) return null;
     try {
+        return JSON.parse(raw) as PhotoBackoffState;
+    } catch {
+        return null;
+    }
+}
+
+function setBackoffState(uid: string, state: PhotoBackoffState) {
+    localStorage.setItem(`user_photo_backoff_${uid}`, JSON.stringify(state));
+}
+
+function clearBackoffState(uid: string) {
+    localStorage.removeItem(`user_photo_backoff_${uid}`);
+}
+
+async function fetchAndCachePhoto(
+    photoURL: string,
+    uid: string,
+    fallbackPhotoURL?: string
+): Promise<string> {
+    try {
+        const backoffState = getBackoffState(uid);
+        if (backoffState && Date.now() < backoffState.nextAttempt) {
+            return fallbackPhotoURL ?? photoURL;
+        }
+
         // Modify the URL to get a larger photo (256px instead of default 96px)
         const largePhotoURL = photoURL.replace(/=s\d+-c$/, "=s256-c");
 
         const response = await fetch(largePhotoURL, { cache: "no-store" });
         if (!response.ok) {
             console.warn("Photo fetch failed:", response.status, response.statusText);
-            return photoURL;
+            if (response.status === 429) {
+                const attempt = (backoffState?.attempt ?? 0) + 1;
+                const delay = Math.min(BACKOFF_MAX_MS, BACKOFF_BASE_MS * 2 ** (attempt - 1));
+                setBackoffState(uid, { attempt, nextAttempt: Date.now() + delay });
+            }
+            return fallbackPhotoURL ?? photoURL;
         }
 
         const contentType = response.headers.get("content-type") ?? "";
         if (!contentType.startsWith("image/")) {
             console.warn("Photo fetch returned non-image content:", contentType);
-            return photoURL;
+            return fallbackPhotoURL ?? photoURL;
         }
 
         const blob = await response.blob();
@@ -37,7 +76,7 @@ async function fetchAndCachePhoto(photoURL: string, uid: string): Promise<string
                 const result = reader.result;
                 if (typeof result !== "string" || !result.startsWith("data:image/")) {
                     console.warn("Photo cache produced invalid data URL.");
-                    resolve(photoURL);
+                    resolve(fallbackPhotoURL ?? photoURL);
                     return;
                 }
                 const dataURL = reader.result as string;
@@ -47,6 +86,7 @@ async function fetchAndCachePhoto(photoURL: string, uid: string): Promise<string
                     timestamp: Date.now(),
                 };
                 localStorage.setItem(`user_photo_${uid}`, JSON.stringify(cacheData));
+                clearBackoffState(uid);
                 resolve(dataURL);
             };
             reader.onerror = reject;
@@ -54,7 +94,7 @@ async function fetchAndCachePhoto(photoURL: string, uid: string): Promise<string
         });
     } catch (error) {
         console.error("Failed to cache photo:", error);
-        return photoURL; // Fallback to original URL
+        return fallbackPhotoURL ?? photoURL; // Fallback to cached/original URL
     }
 }
 
@@ -78,11 +118,13 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                 if (currentUser?.photoURL) {
                     const cacheKey = `user_photo_${currentUser.uid}`;
                     const cachedData = localStorage.getItem(cacheKey);
+                    let cachedPhotoFallback: string | undefined;
 
                     if (cachedData) {
                         try {
                             const parsed: CachedUserData = JSON.parse(cachedData) as CachedUserData;
                             const cacheAge = Date.now() - parsed.timestamp;
+                            cachedPhotoFallback = parsed.photoDataURL;
 
                             // Use cached photo if it's fresh
                             if (cacheAge < CACHE_DURATION && parsed.originalURL === currentUser.photoURL) {
@@ -96,7 +138,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                     }
 
                     // Cache is stale or doesn't exist - fetch and cache new photo
-                    const cachedPhotoURL = await fetchAndCachePhoto(currentUser.photoURL, currentUser.uid);
+                    const cachedPhotoURL = await fetchAndCachePhoto(
+                        currentUser.photoURL,
+                        currentUser.uid,
+                        cachedPhotoFallback
+                    );
                     setCachedPhotoURL(cachedPhotoURL);
                 } else {
                     setCachedPhotoURL(null);
