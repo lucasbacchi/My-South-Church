@@ -2,6 +2,10 @@ import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
 import { useContext, useState } from "react";
 import { UserContext } from "../contexts/UserContextDefinition";
+import { requireAuthClientLoader } from "../lib/clientLoaders";
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const clientLoader = requireAuthClientLoader;
 
 export default function AccountPage() {
     const [user, , cachedPhotoURL] = useContext(UserContext);

@@ -1,22 +1,26 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { UserContext } from "../contexts/UserContextDefinition";
-import { useNavigate } from "react-router";
+import { useNavigate, useSearchParams } from "react-router";
 
 import { auth } from "../firebase";
 
 export default function SignIn() {
     const [user] = useContext(UserContext);
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    // Get the redirect URL from query params
+    const redirectTo = searchParams.get("redirect") ?? "/";
 
     // Redirect if already logged in
     useEffect(() => {
         if (user) {
-            void navigate("/");
+            void navigate(redirectTo);
         }
-    }, [user, navigate]);
+    }, [user, navigate, redirectTo]);
 
     // Handle Google Sign-In with popup
     const handleGoogleSignIn = useCallback(async () => {
@@ -27,6 +31,7 @@ export default function SignIn() {
             const provider = new GoogleAuthProvider();
             await signInWithPopup(auth, provider);
             // UserContext will automatically update via onAuthStateChanged
+            // The useEffect above will handle the redirect
         } catch (err) {
             const errorMessage =
                 err instanceof Error ? err.message : "Failed to sign in with Google. Please try again.";

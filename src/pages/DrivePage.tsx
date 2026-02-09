@@ -1,3 +1,8 @@
+import { requireAuthClientLoader } from "../lib/clientLoaders";
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const clientLoader = requireAuthClientLoader;
+
 export default function DrivePage() {
     return (
         <div className="flex flex-col gap-6 sm:gap-8">
