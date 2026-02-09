@@ -2,9 +2,12 @@ package com.southchurch.my.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.southchurch.my.models.Person;
+import com.southchurch.my.models.Role;
 
 import lombok.Data;
 
@@ -21,6 +24,10 @@ public class PersonResponse {
         this.dateOfBirth = person.getDateOfBirth();
         this.firebaseUID = person.getFirebaseUID();
         this.lastLogin = person.getLastLogin();
+
+        this.roles = person.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet());
     }
 
     private UUID id;
@@ -32,4 +39,6 @@ public class PersonResponse {
     private LocalDate dateOfBirth;
     private String firebaseUID;
     private LocalDateTime lastLogin;
+
+    private Set<String> roles;
 }

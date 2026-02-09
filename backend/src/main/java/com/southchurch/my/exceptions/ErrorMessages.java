@@ -8,7 +8,9 @@ public enum ErrorMessages {
     PRIMARY_EMAIL_REQUIRED("Primary Email is required"),
 
     PRIMARY_EMAIL_ALREADY_EXISTS("Primary Email already exists"),
-    FIREBASE_UID_ALREADY_EXISTS("FirebaseUID already exists");
+    FIREBASE_UID_ALREADY_EXISTS("FirebaseUID already exists"),
+
+    INVALID_ROLE("Invalid Role");
 
     private final String message;
 

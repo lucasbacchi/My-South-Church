@@ -2,15 +2,21 @@ package com.southchurch.my.models;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import com.southchurch.my.dto.CreatePersonRequest;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Entity
 @Data
+@ToString(exclude = "roles")
+@EqualsAndHashCode(exclude = "roles")
 @Table(name = "peoplev2")
 public class Person {
 
@@ -53,6 +59,22 @@ public class Person {
 
     @Column(name = "firebaseUID", length = 128, unique = true)
     private String firebaseUID;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "peoplev2_roles",
+        joinColumns = @JoinColumn(name = "person_id"),
+        inverseJoinColumns = @JoinColumn(name = "role_id")
+    )
+    private Set<Role> roles = new HashSet<>();
+
+    public void addRole(Role role) {
+        this.roles.add(role);
+    }
+
+    public void removeRole(Role role) {
+        this.roles.remove(role);
+    }
 
     @PrePersist
     private void prePersist() {
