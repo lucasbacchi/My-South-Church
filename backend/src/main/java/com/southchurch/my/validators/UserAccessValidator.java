@@ -1,4 +1,4 @@
-package com.southchurch.my.security;
+package com.southchurch.my.validators;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.convert.converter.Converter;
@@ -9,7 +9,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.stereotype.Component;
 
-import com.southchurch.my.services.GetGroupsService;
+import com.southchurch.my.services.group.GetGroupsService;
 
 import java.util.Collection;
 import java.io.IOException;

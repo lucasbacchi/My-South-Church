@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.api.services.directory.model.Group;
-import com.southchurch.my.services.GetGroupsService;
+import com.southchurch.my.services.group.GetGroupsService;
 
 import java.util.List;
 

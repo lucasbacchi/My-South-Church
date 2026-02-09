@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.southchurch.my.repositories.UserRepository;
-import com.southchurch.my.services.GetGroupsService;
+import com.southchurch.my.repositories.PeopleRepository;
+import com.southchurch.my.services.group.GetGroupsService;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -17,9 +17,9 @@ import java.util.Map;
 @RequestMapping("/system")
 public class SystemController {
 
-    private final UserRepository userRepository;
+    private final PeopleRepository userRepository;
 
-    public SystemController(UserRepository userRepository) {
+    public SystemController(PeopleRepository userRepository) {
         this.userRepository = userRepository;
     }
 
