@@ -20,7 +20,8 @@ import lombok.ToString;
 @Table(name = "peoplev2")
 public class Person {
 
-    protected Person() {}
+    protected Person() {
+    }
 
     public Person(CreatePersonRequest input) {
         this.firstName = input.getFirstName().trim();
@@ -61,11 +62,7 @@ public class Person {
     private String firebaseUID;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-        name = "peoplev2_roles",
-        joinColumns = @JoinColumn(name = "person_id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
+    @JoinTable(name = "peoplev2_roles", joinColumns = @JoinColumn(name = "person_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
     public void addRole(Role role) {
@@ -78,6 +75,7 @@ public class Person {
 
     @PrePersist
     private void prePersist() {
-        if (id == null) id = UUID.randomUUID();
+        if (id == null)
+            id = UUID.randomUUID();
     }
 }

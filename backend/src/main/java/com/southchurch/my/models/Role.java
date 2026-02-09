@@ -8,7 +8,8 @@ import lombok.Data;
 @Table(name = "roles")
 public class Role {
 
-    protected Role() {}
+    protected Role() {
+    }
 
     public Role(String name) {
         this.name = name;
@@ -18,6 +19,6 @@ public class Role {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false, unique = true, length = 50)    
-    private String name; // MEMBER, ADMIN, VOLUNTEER
+    @Column(name = "name", nullable = false, unique = true, length = 50)
+    private String name; // "SUPER_ADMIN", "ADMIN", "USER"
 }

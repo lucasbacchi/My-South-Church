@@ -29,14 +29,15 @@ public class CreatePersonService implements Command<CreatePersonRequest, PersonR
     @Override
     @Transactional
     public ResponseEntity<PersonResponse> execute(CreatePersonRequest input) {
-       
+
         PersonValidator.execute(input, repository);
 
         Person person = new Person(input);
 
         if (input.getRoles() != null && !input.getRoles().isEmpty()) {
             input.getRoles().forEach(roleRaw -> {
-                if (roleRaw == null) return;
+                if (roleRaw == null)
+                    return;
 
                 String roleName = roleRaw.trim().toUpperCase();
 
@@ -46,7 +47,7 @@ public class CreatePersonService implements Command<CreatePersonRequest, PersonR
                 person.addRole(role);
             });
         }
-        
+
         Person savedPerson = repository.save(person);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new PersonResponse(savedPerson));

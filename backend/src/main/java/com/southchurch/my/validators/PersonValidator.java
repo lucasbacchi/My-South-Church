@@ -6,11 +6,12 @@ import com.southchurch.my.repositories.PeopleRepository;
 
 public class PersonValidator {
 
-    public PersonValidator() {}
+    public PersonValidator() {
+    }
 
     public static void execute(CreatePersonRequest input, PeopleRepository repository) {
 
-        if(input == null){
+        if (input == null) {
             throw new RuntimeException(ErrorMessages.REQUEST_BODY_REQUIRED.getMessage());
         }
 

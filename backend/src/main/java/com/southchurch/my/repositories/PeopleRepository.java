@@ -12,5 +12,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PeopleRepository extends JpaRepository<Person, UUID> {
     boolean existsByPrimaryEmail(String primaryEmail);
+
     Optional<Person> findByFirebaseUID(String firebaseUID);
 }

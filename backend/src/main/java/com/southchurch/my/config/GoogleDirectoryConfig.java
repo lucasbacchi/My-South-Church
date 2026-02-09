@@ -18,51 +18,53 @@ import com.google.api.services.cloudidentity.v1.CloudIdentityScopes;
 
 @Configuration
 public class GoogleDirectoryConfig {
-    private static final String APPLICATION_NAME = "My South Church Backend";
-    private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
+        private static final String APPLICATION_NAME = "My South Church Backend";
+        private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
-    private GoogleCredentials credentials;
+        private GoogleCredentials credentials;
 
-    @Bean
-    public Directory directoryClient() throws IOException, GeneralSecurityException {
-        this.credentials = GoogleCredentials.getApplicationDefault();
+        @Bean
+        public Directory directoryClient() throws IOException, GeneralSecurityException {
+                this.credentials = GoogleCredentials.getApplicationDefault();
 
-        // ERROR CHECK: Fail fast if the key is missing
-        if (credentials == null) {
-            throw new IllegalStateException(
-                    "GOOGLE_APPLICATION_CREDENTIALS is missing! Check your environment variables.");
+                // ERROR CHECK: Fail fast if the key is missing
+                if (credentials == null) {
+                        throw new IllegalStateException(
+                                        "GOOGLE_APPLICATION_CREDENTIALS is missing! Check your environment variables.");
+                }
+
+                GoogleCredentials scopedCredentials = credentials
+                                .createScoped(Collections
+                                                .singletonList(DirectoryScopes.ADMIN_DIRECTORY_GROUP_READONLY));
+
+                return new Directory.Builder(
+                                GoogleNetHttpTransport.newTrustedTransport(),
+                                JSON_FACTORY,
+                                new HttpCredentialsAdapter(scopedCredentials))
+                                .setApplicationName(APPLICATION_NAME)
+                                .build();
         }
 
-        GoogleCredentials scopedCredentials = credentials
-                .createScoped(Collections.singletonList(DirectoryScopes.ADMIN_DIRECTORY_GROUP_READONLY));
+        @Bean
+        public CloudIdentity cloudIdentityClient() throws IOException, GeneralSecurityException {
+                this.credentials = GoogleCredentials.getApplicationDefault();
 
-        return new Directory.Builder(
-                GoogleNetHttpTransport.newTrustedTransport(),
-                JSON_FACTORY,
-                new HttpCredentialsAdapter(scopedCredentials))
-                .setApplicationName(APPLICATION_NAME)
-                .build();
-    }
+                // ERROR CHECK: Fail fast if the key is missing
+                if (credentials == null) {
+                        throw new IllegalStateException(
+                                        "GOOGLE_APPLICATION_CREDENTIALS is missing! Check your environment variables.");
+                }
 
-    @Bean
-    public CloudIdentity cloudIdentityClient() throws IOException, GeneralSecurityException {
-        this.credentials = GoogleCredentials.getApplicationDefault();
+                GoogleCredentials scopedCredentials = credentials
+                                .createScoped(Collections
+                                                .singletonList(CloudIdentityScopes.CLOUD_IDENTITY_GROUPS_READONLY));
 
-        // ERROR CHECK: Fail fast if the key is missing
-        if (credentials == null) {
-            throw new IllegalStateException(
-                    "GOOGLE_APPLICATION_CREDENTIALS is missing! Check your environment variables.");
+                CloudIdentity ciService = new CloudIdentity.Builder(
+                                GoogleNetHttpTransport.newTrustedTransport(),
+                                JSON_FACTORY,
+                                new HttpCredentialsAdapter(scopedCredentials))
+                                .setApplicationName(APPLICATION_NAME)
+                                .build();
+                return ciService;
         }
-        
-        GoogleCredentials scopedCredentials = credentials
-                .createScoped(Collections.singletonList(CloudIdentityScopes.CLOUD_IDENTITY_GROUPS_READONLY));
-
-        CloudIdentity ciService = new CloudIdentity.Builder(
-                GoogleNetHttpTransport.newTrustedTransport(),
-                JSON_FACTORY,
-                new HttpCredentialsAdapter(scopedCredentials))
-                .setApplicationName(APPLICATION_NAME)
-                .build();
-        return ciService;
-    }
 }

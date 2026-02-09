@@ -15,6 +15,5 @@ public class CreatePersonRequest {
     private String phoneNumber;
     private LocalDate dateOfBirth;
     private String firebaseUID;
-    private Set<String> roles; // e.g. ["MEMBER","ADMIN"]
+    private Set<String> roles; // e.g. ["SUPER_ADMIN", "ADMIN", "USER"]
 }
-
