@@ -19,6 +19,9 @@ export default function AdminDashboardPage() {
                         <Link to="/admin/groups" className="no-underline">
                             <Button className="w-full">View Groups</Button>
                         </Link>
+                        <Link to="/admin/people" className="no-underline">
+                            <Button className="w-full">View People</Button>
+                        </Link>
                         <Link to="/admin/users" className="no-underline">
                             <Button className="w-full">View Users</Button>
                         </Link>

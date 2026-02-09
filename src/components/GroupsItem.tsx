@@ -1,8 +1,8 @@
-import { type admin_directory_v1 } from "googleapis";
+import { type DirectoryGroup } from "@/types/google/directory";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ArrowRight } from "lucide-react";
 
-export default function GroupsItem(group: admin_directory_v1.Schema$Group) {
+export default function GroupsItem(group: DirectoryGroup) {
     const { name, email, description } = group;
     if (!name || !email) {
         return null;

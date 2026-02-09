@@ -1,8 +1,6 @@
-import { type admin_directory_v1 } from "googleapis";
+import { type DirectoryMember } from "@/types/google/directory";
 
-type Member = admin_directory_v1.Schema$Member;
-
-export default function GroupMemberItem(props: { member: Member }) {
+export default function GroupMemberItem(props: { member: DirectoryMember }) {
     const { member } = props;
     const { email, role, delivery_settings, status } = member;
     if (!email) {
