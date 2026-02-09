@@ -1,4 +1,4 @@
-package com.southchurch.my.services;
+package com.southchurch.my.services.group;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
