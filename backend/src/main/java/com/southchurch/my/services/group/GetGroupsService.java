@@ -99,24 +99,18 @@ public class GetGroupsService implements Query<Void, List<Group>> {
         return response.getHasMembership() != null && response.getHasMembership();
     }
 
-    public String runConnectivityTest() {
-        try {
-            // Try to fetch just ONE group from your domain
-            var groups = directory.groups().list()
-                    .setDomain("southchurch.com")
-                    .setMaxResults(1)
-                    .execute();
+    public String runConnectivityTest() throws IOException {
+        // Try to fetch just ONE group from your domain
+        var groups = directory.groups().list()
+                .setDomain("southchurch.com")
+                .setMaxResults(1)
+                .execute();
 
-            if (groups.getGroups() == null || groups.getGroups().isEmpty()) {
-                return "✅ Success! Connected to Google, but found 0 groups.";
-            }
-
-            return "✅ Success! Connected and found a group.";
-
-        } catch (Exception e) {
-            // If this fails, the Service Account does NOT have permission
-            return "❌ FAILED: " + e.getMessage();
+        if (groups.getGroups() == null || groups.getGroups().isEmpty()) {
+            return "✅ Success! Connected to Google, but found 0 groups.";
         }
+
+        return "✅ Success! Connected and found a group.";
     }
 
 }

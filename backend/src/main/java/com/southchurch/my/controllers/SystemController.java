@@ -17,10 +17,10 @@ import java.util.Map;
 @RequestMapping("/system")
 public class SystemController {
 
-    private final PeopleRepository userRepository;
+    private final PeopleRepository peopleRepository;
 
-    public SystemController(PeopleRepository userRepository) {
-        this.userRepository = userRepository;
+    public SystemController(PeopleRepository peopleRepository) {
+        this.peopleRepository = peopleRepository;
     }
 
     // Public Health Check (Used by Cloud Run / Load Balancers)
@@ -42,12 +42,12 @@ public class SystemController {
 
     // Google Connectivity Test
     @Autowired
-    private GetGroupsService googleService;
+    private GetGroupsService googleGroupsService;
 
     @GetMapping("/google-test")
     public String testGoogle() {
         try {
-            return googleService.runConnectivityTest();
+            return googleGroupsService.runConnectivityTest();
         } catch (Exception e) {
             // Log the full error on the server for debugging
             e.printStackTrace();
@@ -63,11 +63,11 @@ public class SystemController {
         status.put("timestamp", LocalDateTime.now());
 
         try {
-            long count = userRepository.count();
+            long count = peopleRepository.count();
 
             status.put("status", "UP");
             status.put("message", "Database connection established successfully");
-            status.put("user_count", count);
+            status.put("person_count", count);
 
         } catch (Exception e) {
             status.put("status", "DOWN");
