@@ -11,7 +11,11 @@ import org.springframework.stereotype.Repository;
 // This magic interface gives you .save(), .findAll(), .delete(), etc. for free!
 @Repository
 public interface PeopleRepository extends JpaRepository<Person, UUID> {
+    
     boolean existsByPrimaryEmail(String primaryEmail);
 
+    // these methods are using spring data jpa to parse the method name to a sql query
     Optional<Person> findByFirebaseUID(String firebaseUID);
+
+    Optional<Person> findByPrimaryEmailIgnoreCaseOrSecondaryEmailIgnoreCase(String primaryEmail, String secondaryEmail);
 }
