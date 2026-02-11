@@ -25,11 +25,11 @@ public class GetPersonByFirebaseUIDService implements Query<String, PersonRespon
 
         Optional<Person> person = repository.findByFirebaseUID(uid);
 
-        if(person.isPresent()){
+        if (person.isPresent()) {
             return ResponseEntity.status(HttpStatus.OK).body(new PersonResponse(person.get()));
         }
 
-        throw new RuntimeException("Person not found");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
 }

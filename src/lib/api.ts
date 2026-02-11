@@ -15,12 +15,12 @@ export interface CurrentUser {
 }
 
 /**
- * Fetches the current user's information including their access level
+ * Fetches the current user's information from the /people/me endpoint.
  */
 export async function getCurrentUser(): Promise<CurrentUser | null> {
     try {
         const headers = await getAuthHeaders(true);
-        return await apiRequest<CurrentUser>("/currentUser", { method: "GET", headers });
+        return await apiRequest<CurrentUser>("/people/me", { method: "GET", headers });
     } catch (error) {
         console.error("Error fetching current user:", error);
         return null;
