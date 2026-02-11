@@ -8,10 +8,10 @@ import lombok.Getter;
 public class UpdatePersonCommand {
 
     private UUID id;
-    private UpdatePersonRequest input;
+    private PersonRequest request;
 
-    public UpdatePersonCommand(UUID id, UpdatePersonRequest input) {
+    public UpdatePersonCommand(UUID id, PersonRequest request) {
         this.id = id;
-        this.input = input;
+        this.request = request;
     }
 }

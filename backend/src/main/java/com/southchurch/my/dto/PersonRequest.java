@@ -7,7 +7,7 @@ import lombok.Data;
 
 // Request DTO (mutable)
 @Data
-public class CreatePersonRequest {
+public class PersonRequest {
     private String firstName;
     private String lastName;
     private String primaryEmail;

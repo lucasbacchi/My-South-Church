@@ -9,17 +9,20 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.southchurch.my.dto.CreatePersonRequest;
+import com.southchurch.my.dto.PersonRequest;
 import com.southchurch.my.dto.PersonResponse;
+import com.southchurch.my.dto.UpdatePersonCommand;
 import com.southchurch.my.services.person.CreatePersonService;
 import com.southchurch.my.services.person.GetPeopleService;
 import com.southchurch.my.services.person.GetPersonByEmailService;
 import com.southchurch.my.services.person.GetPersonByFirebaseUIDService;
 import com.southchurch.my.services.person.GetPersonService;
+import com.southchurch.my.services.person.UpdatePersonService;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PutMapping;
+
 
 
 @RestController
@@ -31,13 +34,15 @@ public class PeopleController {
     private final GetPersonByFirebaseUIDService getPersonByFirebaseUID;
     private final GetPersonByEmailService getPersonByEmailService;
     private final GetPersonService getPersonService;
+    private final UpdatePersonService updatePersonService;
 
     public PeopleController(
         CreatePersonService createPersonService, 
         GetPeopleService getPeopleService,
         GetPersonByFirebaseUIDService getPersonByFirebaseUID,
         GetPersonByEmailService getPersonByEmailService,
-        GetPersonService getPersonService
+        GetPersonService getPersonService,
+        UpdatePersonService updatePersonService
     ) 
     {
         this.createPersonService = createPersonService;
@@ -45,10 +50,11 @@ public class PeopleController {
         this.getPersonByFirebaseUID = getPersonByFirebaseUID;
         this.getPersonByEmailService = getPersonByEmailService;
         this.getPersonService = getPersonService;
+        this.updatePersonService = updatePersonService;
     }
 
     @PostMapping("/create")
-    public ResponseEntity<PersonResponse> createPerson(@RequestBody CreatePersonRequest input) {
+    public ResponseEntity<PersonResponse> createPerson(@RequestBody PersonRequest input) {
         return createPersonService.execute(input);
     }
 
@@ -70,6 +76,11 @@ public class PeopleController {
     @GetMapping("/id/{id}")
     public ResponseEntity<PersonResponse> getPerson(@PathVariable UUID id) {
         return getPersonService.execute(id);
+    }
+
+    @PutMapping("update/{id}")
+    public ResponseEntity<PersonResponse> putMethodName(@PathVariable UUID id, @RequestBody PersonRequest request) {        
+        return updatePersonService.execute(new UpdatePersonCommand(id, request));
     }
     
     

@@ -1,33 +1,85 @@
 package com.southchurch.my.services.person;
 
 import java.util.Optional;
+import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.southchurch.my.Command;
 import com.southchurch.my.dto.UpdatePersonCommand;
-import com.southchurch.my.dto.UpdatePersonRequest;
+import com.southchurch.my.exceptions.ErrorMessages;
+import com.southchurch.my.dto.PersonRequest;
+import com.southchurch.my.dto.PersonResponse;
 import com.southchurch.my.models.Person;
+import com.southchurch.my.models.Role;
 import com.southchurch.my.repositories.PeopleRepository;
+import com.southchurch.my.repositories.RoleRepository;
+import com.southchurch.my.validators.PersonValidator;
 
 @Service
-public class UpdatePersonService implements Command<UpdatePersonCommand, UpdatePersonRequest>{
+public class UpdatePersonService implements Command<UpdatePersonCommand, PersonResponse>{
 
-    private final PeopleRepository repository;
+    private final PeopleRepository peopleRepo;
+    private final RoleRepository roleRepo;
 
-    public UpdatePersonService(PeopleRepository repository) {
-        this.repository = repository;
+    public UpdatePersonService(PeopleRepository peopleRepo, RoleRepository roleRepo) {
+        this.peopleRepo = peopleRepo;
+        this.roleRepo = roleRepo;
     }
 
     @Override
-    public ResponseEntity<UpdatePersonRequest> execute(UpdatePersonCommand input) {
+    @Transactional
+    public ResponseEntity<PersonResponse> execute(UpdatePersonCommand input) {
+
+        PersonRequest req = input.getRequest();
+        UUID id = input.getId();
+
+        PersonValidator.validateUpdate(id, req, peopleRepo, roleRepo);
+
+        Person person = peopleRepo.findById(id)
+            .orElseThrow(() -> new RuntimeException(ErrorMessages.PERSON_NOT_FOUND.getMessage()));
     
-        Optional<Person> person = repository.findById(input.getId());
+        if (req.getFirstName() != null)
+            person.setFirstName(req.getFirstName().trim());
 
-        // TODO: implement business logic and validation
+        if (req.getLastName() != null)
+            person.setLastName(req.getLastName().trim());
 
-        return null;
+        if (req.getPrimaryEmail() != null)
+            person.setPrimaryEmail(req.getPrimaryEmail().trim().toLowerCase());
+
+        if (req.getSecondaryEmail() != null) {
+            String se = req.getSecondaryEmail().trim();
+            person.setSecondaryEmail(se.isEmpty() ? null : se);
+        }
+
+        if (req.getPhoneNumber() != null) {
+            String pn = req.getPhoneNumber().trim();
+            person.setPhoneNumber(pn.isEmpty() ? null : pn);
+        }
+
+        if (req.getDateOfBirth() != null) person.setDateOfBirth(req.getDateOfBirth());
+
+        if (req.getFirebaseUID() != null) {
+            String uid = req.getFirebaseUID().trim();
+            person.setFirebaseUID(uid.isEmpty() ? null : uid);
+        }
+
+        if (req.getRoles() != null) {
+            person.getRoles().clear();
+
+            req.getRoles().forEach(roleName -> {
+                Role role = roleRepo.findByName(roleName.trim().toUpperCase())
+                        .orElseThrow(() -> new RuntimeException(ErrorMessages.INVALID_ROLE.getMessage()));
+                person.addRole(role);
+            });
+        }
+
+        Person updated = peopleRepo.save(person);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new PersonResponse(updated));
     }
-
 }

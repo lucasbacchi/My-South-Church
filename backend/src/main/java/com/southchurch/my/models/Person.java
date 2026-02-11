@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import com.southchurch.my.dto.CreatePersonRequest;
+import com.southchurch.my.dto.PersonRequest;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -23,7 +23,7 @@ public class Person {
     protected Person() {
     }
 
-    public Person(CreatePersonRequest input) {
+    public Person(PersonRequest input) {
         this.firstName = input.getFirstName().trim();
         this.lastName = input.getLastName().trim();
         this.primaryEmail = input.getPrimaryEmail().trim().toLowerCase();
