@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import com.southchurch.my.dto.CreatePersonRequest;
+import com.southchurch.my.dto.PersonRequest;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -17,13 +17,13 @@ import lombok.ToString;
 @Data
 @ToString(exclude = "roles")
 @EqualsAndHashCode(exclude = "roles")
-@Table(name = "peoplev2")
+@Table(name = "people")
 public class Person {
 
     protected Person() {
     }
 
-    public Person(CreatePersonRequest input) {
+    public Person(PersonRequest input) {
         this.firstName = input.getFirstName().trim();
         this.lastName = input.getLastName().trim();
         this.primaryEmail = input.getPrimaryEmail().trim().toLowerCase();
@@ -62,7 +62,7 @@ public class Person {
     private String firebaseUID;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "peoplev2_roles", joinColumns = @JoinColumn(name = "person_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JoinTable(name = "people_roles", joinColumns = @JoinColumn(name = "person_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
     public void addRole(Role role) {

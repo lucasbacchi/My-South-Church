@@ -1,6 +1,10 @@
 package com.southchurch.my.exceptions;
 
 public enum ErrorMessages {
+
+    INVALID_ID("Invalid ID"),
+    PERSON_NOT_FOUND("Person not found"),
+
     REQUEST_BODY_REQUIRED("Request body is required"),
 
     FIRST_NAME_REQUIRED("First Name is required"),

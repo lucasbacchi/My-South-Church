@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.southchurch.my.Command;
-import com.southchurch.my.dto.CreatePersonRequest;
+import com.southchurch.my.dto.PersonRequest;
 import com.southchurch.my.dto.PersonResponse;
 import com.southchurch.my.exceptions.ErrorMessages;
 import com.southchurch.my.models.Person;
@@ -16,7 +16,7 @@ import com.southchurch.my.repositories.RoleRepository;
 import com.southchurch.my.validators.PersonValidator;
 
 @Service
-public class CreatePersonService implements Command<CreatePersonRequest, PersonResponse> {
+public class CreatePersonService implements Command<PersonRequest, PersonResponse> {
 
     private final PeopleRepository repository;
     private final RoleRepository roleRepository;
@@ -28,9 +28,9 @@ public class CreatePersonService implements Command<CreatePersonRequest, PersonR
 
     @Override
     @Transactional
-    public ResponseEntity<PersonResponse> execute(CreatePersonRequest input) {
+    public ResponseEntity<PersonResponse> execute(PersonRequest input) {
 
-        PersonValidator.execute(input, repository);
+        PersonValidator.validateCreate(input, repository, roleRepository);
 
         Person person = new Person(input);
 
