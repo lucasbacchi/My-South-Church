@@ -17,7 +17,7 @@ import lombok.ToString;
 @Data
 @ToString(exclude = "roles")
 @EqualsAndHashCode(exclude = "roles")
-@Table(name = "peoplev2")
+@Table(name = "people")
 public class Person {
 
     protected Person() {
@@ -62,7 +62,7 @@ public class Person {
     private String firebaseUID;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "peoplev2_roles", joinColumns = @JoinColumn(name = "person_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JoinTable(name = "people_roles", joinColumns = @JoinColumn(name = "person_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
     public void addRole(Role role) {
