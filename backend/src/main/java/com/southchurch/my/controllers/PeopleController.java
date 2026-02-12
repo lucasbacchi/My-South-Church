@@ -40,14 +40,14 @@ public class PeopleController {
     private final GetCurrentPersonService getCurrentPersonService;
 
     public PeopleController(
-            CreatePersonService createPersonService,
-            GetPeopleService getPeopleService,
-            GetPersonByFirebaseUIDService getPersonByFirebaseUID,
-            GetPersonByEmailService getPersonByEmailService,
-            GetPersonService getPersonService,
-            UpdatePersonService updatePersonService,
-            GetCurrentPersonService getCurrentPersonService
-        ) {
+        CreatePersonService createPersonService,
+        GetPeopleService getPeopleService,
+        GetPersonByFirebaseUIDService getPersonByFirebaseUID,
+        GetPersonByEmailService getPersonByEmailService,
+        GetPersonService getPersonService,
+        UpdatePersonService updatePersonService,
+        GetCurrentPersonService getCurrentPersonService
+    ) {
         this.createPersonService = createPersonService;
         this.getPeopleService = getPeopleService;
         this.getPersonByFirebaseUID = getPersonByFirebaseUID;
@@ -72,24 +72,23 @@ public class PeopleController {
         return getPersonByFirebaseUID.execute(uid);
     }
 
-    @GetMapping("/me")
-    public ResponseEntity<PersonResponse> getCurrentPerson(JwtAuthenticationToken authentication) {
-        return getCurrentPersonService.execute(authentication);
-    }
-
     @GetMapping("/email/{email}")
     public ResponseEntity<PersonResponse> getPersonByPrimaryEmail(@PathVariable("email") String primaryEmail) {
         return getPersonByEmailService.execute(primaryEmail);
     }
-
+    
     @GetMapping("/id/{id}")
     public ResponseEntity<PersonResponse> getPerson(@PathVariable UUID id) {
         return getPersonService.execute(id);
+    }
+    
+    @GetMapping("/me")
+    public ResponseEntity<PersonResponse> getCurrentPerson(JwtAuthenticationToken authentication) {
+        return getCurrentPersonService.execute(authentication);
     }
 
     @PutMapping("update/{id}")
     public ResponseEntity<PersonResponse> updatePerson(@PathVariable UUID id, @RequestBody PersonRequest request) {        
         return updatePersonService.execute(new UpdatePersonCommand(id, request));
     }
-
 }

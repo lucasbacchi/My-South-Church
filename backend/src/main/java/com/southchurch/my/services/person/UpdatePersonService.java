@@ -1,6 +1,5 @@
 package com.southchurch.my.services.person;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
