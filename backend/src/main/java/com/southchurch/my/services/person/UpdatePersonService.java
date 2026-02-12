@@ -19,7 +19,7 @@ import com.southchurch.my.repositories.RoleRepository;
 import com.southchurch.my.validators.PersonValidator;
 
 @Service
-public class UpdatePersonService implements Command<UpdatePersonCommand, PersonResponse>{
+public class UpdatePersonService implements Command<UpdatePersonCommand, PersonResponse> {
 
     private final PeopleRepository peopleRepo;
     private final RoleRepository roleRepo;
@@ -39,8 +39,8 @@ public class UpdatePersonService implements Command<UpdatePersonCommand, PersonR
         PersonValidator.validateUpdate(id, req, peopleRepo, roleRepo);
 
         Person person = peopleRepo.findById(id)
-            .orElseThrow(() -> new RuntimeException(ErrorMessages.PERSON_NOT_FOUND.getMessage()));
-    
+                .orElseThrow(() -> new RuntimeException(ErrorMessages.PERSON_NOT_FOUND.getMessage()));
+
         if (req.getFirstName() != null)
             person.setFirstName(req.getFirstName().trim());
 
@@ -60,7 +60,8 @@ public class UpdatePersonService implements Command<UpdatePersonCommand, PersonR
             person.setPhoneNumber(pn.isEmpty() ? null : pn);
         }
 
-        if (req.getDateOfBirth() != null) person.setDateOfBirth(req.getDateOfBirth());
+        if (req.getDateOfBirth() != null)
+            person.setDateOfBirth(req.getDateOfBirth());
 
         if (req.getFirebaseUID() != null) {
             String uid = req.getFirebaseUID().trim();

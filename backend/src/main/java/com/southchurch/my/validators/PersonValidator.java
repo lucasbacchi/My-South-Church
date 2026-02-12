@@ -16,10 +16,9 @@ public class PersonValidator {
     }
 
     public static void validateCreate(
-        PersonRequest req, 
-        PeopleRepository peopleRepo,
-        RoleRepository roleRepo
-    ){
+            PersonRequest req,
+            PeopleRepository peopleRepo,
+            RoleRepository roleRepo) {
 
         if (req == null) {
             throw new RuntimeException(ErrorMessages.REQUEST_BODY_REQUIRED.getMessage());
@@ -39,18 +38,19 @@ public class PersonValidator {
     }
 
     public static void validateUpdate(
-        UUID id,
-        PersonRequest req,
-        PeopleRepository peopleRepo,
-        RoleRepository roleRepo
-    ){
-        if(id == null) throw new RuntimeException(ErrorMessages.INVALID_ID.getMessage());
-        if(req == null) throw new RuntimeException(ErrorMessages.REQUEST_BODY_REQUIRED.getMessage());
+            UUID id,
+            PersonRequest req,
+            PeopleRepository peopleRepo,
+            RoleRepository roleRepo) {
+        if (id == null)
+            throw new RuntimeException(ErrorMessages.INVALID_ID.getMessage());
+        if (req == null)
+            throw new RuntimeException(ErrorMessages.REQUEST_BODY_REQUIRED.getMessage());
 
-        //only validate fields that are provided (partial update)
-        if (req.getFirstName() != null) 
+        // only validate fields that are provided (partial update)
+        if (req.getFirstName() != null)
             requireNotBlank(req.getFirstName(), ErrorMessages.FIRST_NAME_REQUIRED.getMessage());
-        if (req.getLastName() != null) 
+        if (req.getLastName() != null)
             requireNotBlank(req.getLastName(), ErrorMessages.LAST_NAME_REQUIRED.getMessage());
 
         if (req.getPrimaryEmail() != null) {
@@ -90,11 +90,13 @@ public class PersonValidator {
 
     private static void validateRolesExist(Set<String> roles, RoleRepository roleRepo) {
 
-        if(roles == null) return;
+        if (roles == null)
+            return;
 
         for (String role : roles) {
 
-            if (isBlank(role)) throw new RuntimeException(ErrorMessages.INVALID_ROLE.getMessage());
+            if (isBlank(role))
+                throw new RuntimeException(ErrorMessages.INVALID_ROLE.getMessage());
 
             String roleName = role.trim().toUpperCase();
 
