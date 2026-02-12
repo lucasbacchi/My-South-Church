@@ -31,6 +31,11 @@ public class UserAccessValidator implements Converter<Jwt, AbstractAuthenticatio
     @Override
     public AbstractAuthenticationToken convert(Jwt jwt) {
         String userEmail = jwt.getClaimAsString("email");
+        Boolean emailVerified = jwt.getClaimAsBoolean("email_verified");
+
+        if (emailVerified == null || !emailVerified) {
+            throw new InvalidUserException("Access Denied: email is not verified for " + userEmail);
+        }
 
         boolean isTrusted;
         try {
