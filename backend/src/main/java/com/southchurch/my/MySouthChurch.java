@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 
 // 1. DEFINE THE SECURITY TYPE (Bearer Token)
 @SecurityScheme(name = "bearerAuth", // Arbitrary name, used to reference below
@@ -16,6 +17,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @OpenAPIDefinition(info = @Info(title = "My South Church API", version = "v1"), security = @SecurityRequirement(name = "bearerAuth"))
 
 @SpringBootApplication
+@EnableCaching
 public class MySouthChurch {
 
 	public static void main(String[] args) {

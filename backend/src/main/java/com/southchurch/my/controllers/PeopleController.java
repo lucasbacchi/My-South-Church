@@ -14,6 +14,7 @@ import com.southchurch.my.dto.PersonRequest;
 import com.southchurch.my.dto.PersonResponse;
 import com.southchurch.my.dto.UpdatePersonCommand;
 import com.southchurch.my.services.person.CreatePersonService;
+import com.southchurch.my.services.person.DeletePersonService;
 import com.southchurch.my.services.person.GetCurrentPersonService;
 import com.southchurch.my.services.person.GetPeopleService;
 import com.southchurch.my.services.person.GetPersonByEmailService;
@@ -21,6 +22,7 @@ import com.southchurch.my.services.person.GetPersonByFirebaseUIDService;
 import com.southchurch.my.services.person.GetPersonService;
 import com.southchurch.my.services.person.UpdatePersonService;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -36,6 +38,7 @@ public class PeopleController {
     private final GetPersonService getPersonService;
     private final UpdatePersonService updatePersonService;
     private final GetCurrentPersonService getCurrentPersonService;
+    private final DeletePersonService deletePersonService;
 
     public PeopleController(
             CreatePersonService createPersonService,
@@ -44,7 +47,8 @@ public class PeopleController {
             GetPersonByEmailService getPersonByEmailService,
             GetPersonService getPersonService,
             UpdatePersonService updatePersonService,
-            GetCurrentPersonService getCurrentPersonService) {
+            GetCurrentPersonService getCurrentPersonService,
+            DeletePersonService deletePersonService) {
         this.createPersonService = createPersonService;
         this.getPeopleService = getPeopleService;
         this.getPersonByFirebaseUID = getPersonByFirebaseUID;
@@ -52,6 +56,7 @@ public class PeopleController {
         this.getPersonService = getPersonService;
         this.updatePersonService = updatePersonService;
         this.getCurrentPersonService = getCurrentPersonService;
+        this.deletePersonService = deletePersonService;
     }
 
     @PostMapping("/create")
@@ -87,5 +92,10 @@ public class PeopleController {
     @PutMapping("update/{id}")
     public ResponseEntity<PersonResponse> updatePerson(@PathVariable UUID id, @RequestBody PersonRequest request) {
         return updatePersonService.execute(new UpdatePersonCommand(id, request));
+    }
+
+    @DeleteMapping("delete/{id}")
+    public ResponseEntity<Void> deletePerson(@PathVariable UUID id) {
+        return deletePersonService.execute(id);
     }
 }
