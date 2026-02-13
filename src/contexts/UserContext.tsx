@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { type User, onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
 import { UserContext } from "./UserContextDefinition";
+import { clearCurrentUserCache } from "../lib/api";
 
 // Extended user type with cached photo
 interface CachedUserData {
@@ -100,6 +101,14 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            // Clear cache when user signs out
+            if (currentUser === null) {
+                clearCurrentUserCache();
+                setUser(null);
+                setCachedPhotoURL(null);
+                return;
+            }
+
             void (async () => {
                 // For debugging: Log the ID token
                 // currentUser

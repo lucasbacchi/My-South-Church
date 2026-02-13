@@ -1,4 +1,5 @@
 import { type User, getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+import { clearCurrentUserCache } from "./lib/api";
 import { initializeApp } from "firebase/app";
 import { ReCaptchaV3Provider, initializeAppCheck } from "firebase/app-check";
 import { getAnalytics, isSupported as isAnalyticsSupported } from "firebase/analytics";
@@ -83,6 +84,7 @@ export function signOutUser() {
     signOut(auth)
         .then(() => {
             console.log("Signed out");
+            clearCurrentUserCache();
             // Reload the page for security
             window.location.href = "/";
         })
