@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import com.southchurch.my.dto.PersonRequest;
 import com.southchurch.my.exceptions.ErrorMessages;
+import com.southchurch.my.exceptions.PersonNotValidException;
 import com.southchurch.my.models.Role;
 import com.southchurch.my.repositories.PeopleRepository;
 import com.southchurch.my.repositories.RoleRepository;
@@ -21,7 +22,7 @@ public class PersonValidator {
             RoleRepository roleRepo) {
 
         if (req == null) {
-            throw new RuntimeException(ErrorMessages.REQUEST_BODY_REQUIRED.getMessage());
+            throw new PersonNotValidException(ErrorMessages.REQUEST_BODY_REQUIRED.getMessage());
         }
 
         // These are required for creating a person
@@ -43,9 +44,9 @@ public class PersonValidator {
             PeopleRepository peopleRepo,
             RoleRepository roleRepo) {
         if (id == null)
-            throw new RuntimeException(ErrorMessages.INVALID_ID.getMessage());
+            throw new PersonNotValidException(ErrorMessages.INVALID_ID.getMessage());
         if (req == null)
-            throw new RuntimeException(ErrorMessages.REQUEST_BODY_REQUIRED.getMessage());
+            throw new PersonNotValidException(ErrorMessages.REQUEST_BODY_REQUIRED.getMessage());
 
         // only validate fields that are provided (partial update)
         if (req.getFirstName() != null)
@@ -57,7 +58,7 @@ public class PersonValidator {
             requireNotBlank(req.getPrimaryEmail(), ErrorMessages.PRIMARY_EMAIL_REQUIRED.getMessage());
             String email = normalizeEmail(req.getPrimaryEmail());
             if (peopleRepo.existsByPrimaryEmailIgnoreCaseAndIdNot(email, id)) {
-                throw new RuntimeException(ErrorMessages.PRIMARY_EMAIL_ALREADY_EXISTS.getMessage());
+                throw new PersonNotValidException(ErrorMessages.PRIMARY_EMAIL_ALREADY_EXISTS.getMessage());
             }
         }
 
@@ -65,7 +66,7 @@ public class PersonValidator {
             String uid = req.getFirebaseUID().trim();
             // allow clearing by ""
             if (!uid.isEmpty() && peopleRepo.existsByFirebaseUIDAndIdNot(uid, id)) {
-                throw new RuntimeException(ErrorMessages.FIREBASE_UID_ALREADY_EXISTS.getMessage());
+                throw new PersonNotValidException(ErrorMessages.FIREBASE_UID_ALREADY_EXISTS.getMessage());
             }
         }
 
@@ -83,7 +84,7 @@ public class PersonValidator {
         if (!isBlank(req.getFirebaseUID())) {
             String uid = req.getFirebaseUID().trim();
             if (peopleRepo.findByFirebaseUID(uid).isPresent()) {
-                throw new RuntimeException(ErrorMessages.FIREBASE_UID_ALREADY_EXISTS.getMessage());
+                throw new PersonNotValidException(ErrorMessages.FIREBASE_UID_ALREADY_EXISTS.getMessage());
             }
         }
     }
@@ -96,14 +97,14 @@ public class PersonValidator {
         for (String role : roles) {
 
             if (isBlank(role))
-                throw new RuntimeException(ErrorMessages.INVALID_ROLE.getMessage());
+                throw new PersonNotValidException(ErrorMessages.INVALID_ROLE.getMessage());
 
             String roleName = role.trim().toUpperCase();
 
             Optional<Role> roleOpt = roleRepo.findByName(roleName);
 
             if (!roleOpt.isPresent()) {
-                throw new RuntimeException(ErrorMessages.INVALID_ROLE.getMessage());
+                throw new PersonNotValidException(ErrorMessages.INVALID_ROLE.getMessage());
             }
         }
     }
@@ -111,13 +112,13 @@ public class PersonValidator {
     private static void validateEmailUniquenessForCreate(PersonRequest req, PeopleRepository peopleRepo) {
         String email = normalizeEmail(req.getPrimaryEmail());
         if (peopleRepo.existsByPrimaryEmail(email)) {
-            throw new RuntimeException(ErrorMessages.PRIMARY_EMAIL_ALREADY_EXISTS.getMessage());
+            throw new PersonNotValidException(ErrorMessages.PRIMARY_EMAIL_ALREADY_EXISTS.getMessage());
         }
     }
 
     private static void requireNotBlank(String field, String message) {
         if (isBlank(field)) {
-            throw new RuntimeException(message);
+            throw new PersonNotValidException(message);
         }
     }
 

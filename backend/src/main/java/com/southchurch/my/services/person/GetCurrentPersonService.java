@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.southchurch.my.Query;
 import com.southchurch.my.dto.PersonResponse;
+import com.southchurch.my.exceptions.PersonNotFoundException;
 
 @Service
 public class GetCurrentPersonService implements Query<JwtAuthenticationToken, PersonResponse> {
@@ -40,7 +41,7 @@ public class GetCurrentPersonService implements Query<JwtAuthenticationToken, Pe
         }
 
         // If we can't find the user by either UID or email, return 404
-        return ResponseEntity.notFound().build();
+        throw new PersonNotFoundException();
     }
 
 }

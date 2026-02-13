@@ -1,14 +1,15 @@
 package com.southchurch.my.services.person;
 
-import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.southchurch.my.Query;
 import com.southchurch.my.dto.PersonResponse;
+import com.southchurch.my.exceptions.PersonNotFoundException;
 import com.southchurch.my.models.Person;
 import com.southchurch.my.repositories.PeopleRepository;
 
@@ -22,14 +23,13 @@ public class GetPersonService implements Query<UUID, PersonResponse> {
     }
 
     @Override
+    @Cacheable(value = "personByIdCache", key = "#id")
     public ResponseEntity<PersonResponse> execute(UUID id) {
         
-        Optional<Person> person = repository.findById(id);
-        
-        if(person.isPresent())
-            return ResponseEntity.status(HttpStatus.OK).body(new PersonResponse(person.get()));
+        Person person = repository.findById(id)
+            .orElseThrow(PersonNotFoundException::new);
 
-        throw new RuntimeException("Person not found");
+        return ResponseEntity.status(HttpStatus.OK).body(new PersonResponse(person)); 
     }
 
 }

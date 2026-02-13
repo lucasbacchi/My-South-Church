@@ -1,5 +1,7 @@
 package com.southchurch.my.services.person;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,12 @@ public class CreatePersonService implements Command<PersonRequest, PersonRespons
 
     @Override
     @Transactional
+    @Caching(
+        evict = {
+            @CacheEvict(value="peopleAllCache", allEntries = true),
+            @CacheEvict(value = "personByEmailCache", allEntries = true),
+            @CacheEvict(value = "personByFirebaseCache", allEntries = true)
+        })
     public ResponseEntity<PersonResponse> execute(PersonRequest input) {
 
         PersonValidator.validateCreate(input, repository, roleRepository);
