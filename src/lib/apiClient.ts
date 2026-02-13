@@ -1,10 +1,16 @@
 import { auth } from "../firebase";
 
 // Use localhost for local development, production URL otherwise
-const API_BASE_URL =
-    window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+const API_BASE_URL = (() => {
+    if (typeof window === "undefined") {
+        return "https://api.my.southchurch.com";
+    }
+
+    const { hostname } = window.location;
+    return hostname === "localhost" || hostname === "127.0.0.1"
         ? "http://localhost:8080"
         : "https://api.my.southchurch.com";
+})();
 
 export async function getAuthHeaders(includeContentType = false): Promise<HeadersInit> {
     const user = auth.currentUser;
