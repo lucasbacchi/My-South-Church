@@ -30,12 +30,11 @@ public class CreatePersonService implements Command<PersonRequest, PersonRespons
 
     @Override
     @Transactional
-    @Caching(
-        evict = {
-            @CacheEvict(value="peopleAllCache", allEntries = true),
+    @Caching(evict = {
+            @CacheEvict(value = "peopleAllCache", allEntries = true),
             @CacheEvict(value = "personByEmailCache", allEntries = true),
             @CacheEvict(value = "personByFirebaseCache", allEntries = true)
-        })
+    })
     public ResponseEntity<PersonResponse> execute(PersonRequest input) {
 
         PersonValidator.validateCreate(input, repository, roleRepository);

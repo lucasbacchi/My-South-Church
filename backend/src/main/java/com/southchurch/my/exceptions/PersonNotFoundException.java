@@ -9,5 +9,5 @@ public class PersonNotFoundException extends RuntimeException {
     public PersonNotFoundException() {
         super(ErrorMessages.PERSON_NOT_FOUND.getMessage());
     }
-    
+
 }

@@ -28,7 +28,7 @@ public class GetPersonByFirebaseUIDService implements Query<String, PersonRespon
                 .orElseThrow(PersonNotFoundException::new);
 
         return ResponseEntity.status(HttpStatus.OK).body(new PersonResponse(person));
-        
+
     }
 
 }

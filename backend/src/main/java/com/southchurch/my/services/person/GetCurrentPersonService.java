@@ -40,7 +40,7 @@ public class GetCurrentPersonService implements Query<JwtAuthenticationToken, Pe
             return getPersonByEmailService.execute(email);
         }
 
-        // If we can't find the user by either UID or email, return 404
+        // If we can't find the user by either UID or email, throw an exception
         throw new PersonNotFoundException();
     }
 

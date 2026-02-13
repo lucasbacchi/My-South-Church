@@ -36,14 +36,11 @@ public class UpdatePersonService implements Command<UpdatePersonCommand, PersonR
 
     @Override
     @Transactional
-    @Caching(
-        put = @CachePut(value = "personByIdCache", key = "#input.id"),
-        evict = {
+    @Caching(put = @CachePut(value = "personByIdCache", key = "#input.id"), evict = {
             @CacheEvict(value = "peopleAllCache", allEntries = true),
             @CacheEvict(value = "personByEmailCache", allEntries = true),
             @CacheEvict(value = "personByFirebaseCache", allEntries = true)
-        }
-    )
+    })
     public ResponseEntity<PersonResponse> execute(UpdatePersonCommand input) {
 
         PersonRequest req = input.getRequest();

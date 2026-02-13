@@ -25,11 +25,11 @@ public class GetPersonService implements Query<UUID, PersonResponse> {
     @Override
     @Cacheable(value = "personByIdCache", key = "#id")
     public ResponseEntity<PersonResponse> execute(UUID id) {
-        
-        Person person = repository.findById(id)
-            .orElseThrow(PersonNotFoundException::new);
 
-        return ResponseEntity.status(HttpStatus.OK).body(new PersonResponse(person)); 
+        Person person = repository.findById(id)
+                .orElseThrow(PersonNotFoundException::new);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new PersonResponse(person));
     }
 
 }

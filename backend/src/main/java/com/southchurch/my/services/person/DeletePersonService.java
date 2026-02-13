@@ -16,7 +16,7 @@ import com.southchurch.my.models.Person;
 import com.southchurch.my.repositories.PeopleRepository;
 
 @Service
-public class DeletePersonService implements Command<UUID, Void>{
+public class DeletePersonService implements Command<UUID, Void> {
 
     private final PeopleRepository repository;
 
@@ -27,16 +27,16 @@ public class DeletePersonService implements Command<UUID, Void>{
     @Override
     @Transactional
     @Caching(evict = {
-        @CacheEvict(value = "peopleAllCache", allEntries = true),
-        @CacheEvict(value = "personByEmailCache", allEntries = true),
-        @CacheEvict(value = "personByFirebaseCache", allEntries = true),
-        @CacheEvict(value = "personByIdCache", key = "#id")
+            @CacheEvict(value = "peopleAllCache", allEntries = true),
+            @CacheEvict(value = "personByEmailCache", allEntries = true),
+            @CacheEvict(value = "personByFirebaseCache", allEntries = true),
+            @CacheEvict(value = "personByIdCache", key = "#id")
     })
     public ResponseEntity<Void> execute(UUID id) {
 
         Optional<Person> person = repository.findById(id);
 
-        if(person.isPresent()) {
+        if (person.isPresent()) {
             repository.deleteById(id);
 
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

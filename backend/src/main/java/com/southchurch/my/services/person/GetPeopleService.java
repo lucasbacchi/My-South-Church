@@ -25,11 +25,10 @@ public class GetPeopleService implements Query<Void, List<PersonResponse>> {
     @Cacheable(value = "peopleAllCache")
     public ResponseEntity<List<PersonResponse>> execute(Void input) {
 
-        List<Person> people= repository.findAll();
+        List<Person> people = repository.findAll();
 
         List<PersonResponse> peopleList = people.stream().map(PersonResponse::new).toList();
 
-       
         return ResponseEntity.status(HttpStatus.OK).body(peopleList);
 
     }
