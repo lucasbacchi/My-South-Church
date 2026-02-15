@@ -3,6 +3,8 @@ package com.southchurch.my.config;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -34,8 +36,10 @@ public class GoogleDirectoryConfig {
                 }
 
                 GoogleCredentials scopedCredentials = credentials
-                                .createScoped(Collections
-                                                .singletonList(DirectoryScopes.ADMIN_DIRECTORY_GROUP_READONLY));
+                                .createScoped(List.of(
+                                        DirectoryScopes.ADMIN_DIRECTORY_GROUP_READONLY,
+                                        DirectoryScopes.ADMIN_DIRECTORY_GROUP_MEMBER_READONLY
+                                ));
 
                 return new Directory.Builder(
                                 GoogleNetHttpTransport.newTrustedTransport(),

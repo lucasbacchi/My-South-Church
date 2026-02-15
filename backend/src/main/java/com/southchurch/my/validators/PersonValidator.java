@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import com.southchurch.my.dto.PersonRequest;
 import com.southchurch.my.exceptions.ErrorMessages;
-import com.southchurch.my.exceptions.PersonNotValidException;
+import com.southchurch.my.exceptions.people.PersonNotValidException;
 import com.southchurch.my.models.Role;
 import com.southchurch.my.repositories.PeopleRepository;
 import com.southchurch.my.repositories.RoleRepository;
