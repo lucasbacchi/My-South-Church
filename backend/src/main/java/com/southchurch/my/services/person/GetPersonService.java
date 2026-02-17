@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.southchurch.my.Query;
 import com.southchurch.my.dto.PersonResponse;
-import com.southchurch.my.exceptions.PersonNotFoundException;
+import com.southchurch.my.exceptions.people.PersonNotFoundException;
 import com.southchurch.my.models.Person;
 import com.southchurch.my.repositories.PeopleRepository;
 

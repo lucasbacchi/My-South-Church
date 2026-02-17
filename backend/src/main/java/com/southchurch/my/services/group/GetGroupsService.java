@@ -102,7 +102,7 @@ public class GetGroupsService implements Query<Void, List<Group>> {
     public String runConnectivityTest() throws IOException {
         // Try to fetch just ONE group from your domain
         var groups = directory.groups().list()
-                .setDomain("southchurch.com")
+                .setDomain(domain)
                 .setMaxResults(1)
                 .execute();
 

@@ -1,4 +1,4 @@
-package com.southchurch.my.exceptions;
+package com.southchurch.my.exceptions.people;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
