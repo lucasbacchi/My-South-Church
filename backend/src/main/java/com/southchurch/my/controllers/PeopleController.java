@@ -59,7 +59,7 @@ public class PeopleController {
         this.deletePersonService = deletePersonService;
     }
 
-    @PostMapping("/create")
+    @PostMapping("")
     public ResponseEntity<PersonResponse> createPerson(@RequestBody PersonRequest input) {
         return createPersonService.execute(input);
     }
@@ -89,12 +89,12 @@ public class PeopleController {
         return getCurrentPersonService.execute(authentication);
     }
 
-    @PutMapping("update/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<PersonResponse> updatePerson(@PathVariable UUID id, @RequestBody PersonRequest request) {
         return updatePersonService.execute(new UpdatePersonCommand(id, request));
     }
 
-    @DeleteMapping("delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePerson(@PathVariable UUID id) {
         return deletePersonService.execute(id);
     }

@@ -46,29 +46,29 @@ public class GroupController {
         return getGroupsService.execute(null);
     }
 
-    @GetMapping("/group/{groupId}/members")
+    @GetMapping("/groups/{groupId}")
+    public ResponseEntity<Group> getGroupById(@PathVariable String groupId,
+            @AuthenticationPrincipal Jwt principal) {
+        return getGroupByIdService.execute(groupId);
+    }
+
+    @GetMapping("/groups/{groupId}/members")
     public ResponseEntity<List<Member>> getMembersByGroupId(@PathVariable String groupId,
             @AuthenticationPrincipal Jwt principal) {
         System.out.println(groupId);
         return getMembersByGroupIdService.execute(groupId);
     }
 
-    @GetMapping("/groups/{memberEmail}")
-    public ResponseEntity<List<Group>> getGroupsForMemberId(@PathVariable String memberEmail,
-            @AuthenticationPrincipal Jwt principal) {
-        return getGroupsForMemberEmailService.execute(memberEmail);
-    }
-
-    @GetMapping("/group/{groupId}")
-    public ResponseEntity<Group> getGroupById(@PathVariable String groupId,
-            @AuthenticationPrincipal Jwt principal) {
-        return getGroupByIdService.execute(groupId);
-    }
-
-    @GetMapping("/group/{groupId}/settings")
+    @GetMapping("/groups/{groupId}/settings")
     public ResponseEntity<Groups> getGroupSettings(@PathVariable String groupId,
             @AuthenticationPrincipal Jwt principal) {
         return getGroupSettingsService.execute(groupId);
+    }
+
+    @GetMapping("/members/{memberEmail}/groups")
+    public ResponseEntity<List<Group>> getGroupsForMember(@PathVariable String memberEmail,
+            @AuthenticationPrincipal Jwt principal) {
+        return getGroupsForMemberEmailService.execute(memberEmail);
     }
 
 }
