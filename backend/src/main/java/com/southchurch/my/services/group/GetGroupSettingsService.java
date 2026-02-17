@@ -33,8 +33,10 @@ public class GetGroupSettingsService implements Query<String, Groups> {
             return ResponseEntity.status(HttpStatus.OK).body(settings);
 
         } catch (GoogleJsonResponseException e) {
-            if (e.getStatusCode() == 404) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            if (e.getStatusCode() == 403) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            if (e.getStatusCode() == 404)
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            if (e.getStatusCode() == 403)
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 
         } catch (IOException e) {

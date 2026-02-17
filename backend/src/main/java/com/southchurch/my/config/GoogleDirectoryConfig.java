@@ -24,7 +24,6 @@ public class GoogleDirectoryConfig {
         private static final String APPLICATION_NAME = "My South Church Backend";
         private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
-
         @Bean
         public Directory directoryClient() throws IOException, GeneralSecurityException {
                 GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
@@ -37,9 +36,8 @@ public class GoogleDirectoryConfig {
 
                 GoogleCredentials scopedCredentials = credentials
                                 .createScoped(List.of(
-                                        DirectoryScopes.ADMIN_DIRECTORY_GROUP_READONLY,
-                                        DirectoryScopes.ADMIN_DIRECTORY_GROUP_MEMBER_READONLY
-                                ));
+                                                DirectoryScopes.ADMIN_DIRECTORY_GROUP_READONLY,
+                                                DirectoryScopes.ADMIN_DIRECTORY_GROUP_MEMBER_READONLY));
 
                 return new Directory.Builder(
                                 GoogleNetHttpTransport.newTrustedTransport(),
@@ -83,8 +81,7 @@ public class GoogleDirectoryConfig {
                 }
 
                 GoogleCredentials scopedCredentials = credentials.createScoped(
-                        List.of("https://www.googleapis.com/auth/apps.groups.settings")
-                );
+                                List.of("https://www.googleapis.com/auth/apps.groups.settings"));
 
                 return new Groupssettings.Builder(
                                 GoogleNetHttpTransport.newTrustedTransport(),

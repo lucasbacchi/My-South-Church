@@ -15,7 +15,7 @@ import com.google.api.services.directory.model.Members;
 import com.southchurch.my.Query;
 
 @Service
-public class GetMembersByGroupIdService implements Query<String, List<Member>>{
+public class GetMembersByGroupIdService implements Query<String, List<Member>> {
 
     private final Directory directory;
 
@@ -23,10 +23,9 @@ public class GetMembersByGroupIdService implements Query<String, List<Member>>{
         this.directory = directory;
     }
 
-
     @Override
     public ResponseEntity<List<Member>> execute(String groupId) {
-        
+
         if (groupId == null || groupId.trim().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Collections.emptyList());
         }
@@ -40,23 +39,23 @@ public class GetMembersByGroupIdService implements Query<String, List<Member>>{
 
     }
 
-
     private List<Member> listMembers(String groupId) throws IOException {
-       List<Member> all = new ArrayList<>();
-       String pageToken = null;
+        List<Member> all = new ArrayList<>();
+        String pageToken = null;
 
-       do{
+        do {
             Members result = directory.members()
-                                .list(groupId)
-                                .setPageToken(pageToken)
-                                .execute();
+                    .list(groupId)
+                    .setPageToken(pageToken)
+                    .execute();
 
             List<Member> page = result.getMembers();
-            if(page != null) all.addAll(page);
+            if (page != null)
+                all.addAll(page);
 
-            pageToken = result.getNextPageToken(); 
-       } while(pageToken != null && !pageToken.isBlank());
-       
-       return all;
+            pageToken = result.getNextPageToken();
+        } while (pageToken != null && !pageToken.isBlank());
+
+        return all;
     }
 }

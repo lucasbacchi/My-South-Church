@@ -33,8 +33,10 @@ public class GetGroupByIdService implements Query<String, Group> {
         } catch (GoogleJsonResponseException e) {
             // 404 if group not found, 403 if permissions, etc.
             int status = e.getStatusCode();
-            if (status == 404) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            if (status == 403) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            if (status == 404)
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            if (status == 403)
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 
         } catch (IOException e) {
