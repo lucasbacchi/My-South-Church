@@ -13,6 +13,7 @@ import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.services.directory.Directory;
 import com.google.api.services.directory.DirectoryScopes;
+import com.google.api.services.groupssettings.Groupssettings;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.api.services.cloudidentity.v1.CloudIdentity;
@@ -23,11 +24,10 @@ public class GoogleDirectoryConfig {
         private static final String APPLICATION_NAME = "My South Church Backend";
         private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
-        private GoogleCredentials credentials;
 
         @Bean
         public Directory directoryClient() throws IOException, GeneralSecurityException {
-                this.credentials = GoogleCredentials.getApplicationDefault();
+                GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
 
                 // ERROR CHECK: Fail fast if the key is missing
                 if (credentials == null) {
@@ -51,7 +51,7 @@ public class GoogleDirectoryConfig {
 
         @Bean
         public CloudIdentity cloudIdentityClient() throws IOException, GeneralSecurityException {
-                this.credentials = GoogleCredentials.getApplicationDefault();
+                GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
 
                 // ERROR CHECK: Fail fast if the key is missing
                 if (credentials == null) {
@@ -70,5 +70,27 @@ public class GoogleDirectoryConfig {
                                 .setApplicationName(APPLICATION_NAME)
                                 .build();
                 return ciService;
+        }
+
+        @Bean
+        public Groupssettings groupsSettingsClient() throws IOException, GeneralSecurityException {
+                GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
+
+                // ERROR CHECK: Fail fast if the key is missing
+                if (credentials == null) {
+                        throw new IllegalStateException(
+                                        "GOOGLE_APPLICATION_CREDENTIALS is missing! Check your environment variables.");
+                }
+
+                GoogleCredentials scopedCredentials = credentials.createScoped(
+                        List.of("https://www.googleapis.com/auth/apps.groups.settings")
+                );
+
+                return new Groupssettings.Builder(
+                                GoogleNetHttpTransport.newTrustedTransport(),
+                                JSON_FACTORY,
+                                new HttpCredentialsAdapter(scopedCredentials))
+                                .setApplicationName(APPLICATION_NAME)
+                                .build();
         }
 }
