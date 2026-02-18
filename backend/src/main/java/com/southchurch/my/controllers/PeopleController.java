@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.southchurch.my.dto.PersonRequest;
 import com.southchurch.my.dto.PersonResponse;
 import com.southchurch.my.dto.UpdatePersonCommand;
+import com.southchurch.my.dto.imports.ImportPeopleResult;
+import com.southchurch.my.dto.imports.ImportProfileRecord;
 import com.southchurch.my.services.person.CreatePersonService;
 import com.southchurch.my.services.person.DeletePersonService;
 import com.southchurch.my.services.person.GetCurrentPersonService;
@@ -21,6 +23,7 @@ import com.southchurch.my.services.person.GetPeopleService;
 import com.southchurch.my.services.person.GetPersonByEmailService;
 import com.southchurch.my.services.person.GetPersonByFirebaseUIDService;
 import com.southchurch.my.services.person.GetPersonService;
+import com.southchurch.my.services.person.ImportPeopleService;
 import com.southchurch.my.services.person.UpdatePersonService;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -40,6 +43,7 @@ public class PeopleController {
     private final UpdatePersonService updatePersonService;
     private final GetCurrentPersonService getCurrentPersonService;
     private final DeletePersonService deletePersonService;
+    private final ImportPeopleService importPeopleService;
 
     public PeopleController(
             CreatePersonService createPersonService,
@@ -49,7 +53,8 @@ public class PeopleController {
             GetPersonService getPersonService,
             UpdatePersonService updatePersonService,
             GetCurrentPersonService getCurrentPersonService,
-            DeletePersonService deletePersonService) {
+            DeletePersonService deletePersonService,
+            ImportPeopleService importPeopleService) {
         this.createPersonService = createPersonService;
         this.getPeopleService = getPeopleService;
         this.getPersonByFirebaseUID = getPersonByFirebaseUID;
@@ -58,12 +63,19 @@ public class PeopleController {
         this.updatePersonService = updatePersonService;
         this.getCurrentPersonService = getCurrentPersonService;
         this.deletePersonService = deletePersonService;
+        this.importPeopleService = importPeopleService;
     }
 
     @PostMapping("")
     @PreAuthorize("@authorizationService.canCreatePerson(authentication)")
     public ResponseEntity<PersonResponse> createPerson(@RequestBody PersonRequest input) {
         return createPersonService.execute(input);
+    }
+
+    @PostMapping("/import")
+    @PreAuthorize("@authorizationService.canCreatePerson(authentication)")
+    public ResponseEntity<ImportPeopleResult> importPeople(@RequestBody List<ImportProfileRecord> records) {
+        return importPeopleService.execute(records);
     }
 
     @GetMapping("")

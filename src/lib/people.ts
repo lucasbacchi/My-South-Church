@@ -1,5 +1,5 @@
 import { apiRequest, getAuthHeaders } from "./apiClient";
-import { type Person, type PersonUpsertInput } from "../types/people";
+import { type ImportPeopleResult, type Person, type PersonUpsertInput } from "../types/people";
 
 const PEOPLE_CACHE_TTL_MS = 60_000;
 
@@ -88,4 +88,13 @@ export async function deletePerson(personId: string): Promise<void> {
         peopleCache = peopleCache.filter((person) => person.id !== personId);
         peopleCacheTime = Date.now();
     }
+}
+
+export async function importPeople(records: unknown[]): Promise<ImportPeopleResult> {
+    const headers = await getAuthHeaders(true);
+    return apiRequest<ImportPeopleResult>("/people/import", {
+        method: "POST",
+        headers,
+        body: JSON.stringify(records),
+    });
 }

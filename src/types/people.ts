@@ -11,5 +11,20 @@ export interface Person {
     roles: string[];
 }
 
+export interface ImportPeopleResult {
+    total: number;
+    created: number;
+    skipped: number;
+    skippedExistingEmail?: number;
+    skippedDuplicateEmail?: number;
+    invalid: number;
+    invalidMissingAttributes?: number;
+    invalidMissingRequired?: number;
+    invalidMissingEmail?: number;
+    invalidMissingFirstName?: number;
+    invalidMissingLastName?: number;
+    issues: string[];
+}
+
 export type PersonInput = Omit<Person, "id">;
 export type PersonUpsertInput = Omit<PersonInput, "lastLogin">;

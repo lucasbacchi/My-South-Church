@@ -1,10 +1,19 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { Link } from "react-router";
 import { ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -16,8 +25,8 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { requireAdminClientLoader } from "@/lib/clientLoaders";
-import { type Person } from "@/types/people";
-import { deletePerson, getPeople, peekPeopleCache } from "@/lib/people";
+import { type ImportPeopleResult, type Person } from "@/types/people";
+import { clearPeopleCache, deletePerson, getPeople, importPeople, peekPeopleCache } from "@/lib/people";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const clientLoader = requireAdminClientLoader;
@@ -110,6 +119,12 @@ export default function PeopleListPage() {
     const [sortState, setSortState] = useState<SortState>({ key: "name", direction: "asc" });
     const [personToDelete, setPersonToDelete] = useState<Person | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isImporting, setIsImporting] = useState(false);
+    const [importError, setImportError] = useState<string | null>(null);
+    const [importResult, setImportResult] = useState<ImportPeopleResult | null>(null);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const [pageIndex, setPageIndex] = useState(1);
+    const [pageSize, setPageSize] = useState(25);
 
     useEffect(() => {
         let isMounted = true;
@@ -147,6 +162,13 @@ export default function PeopleListPage() {
     }, []);
 
     const normalizedQuery = normalizeText(filterQuery.trim());
+    const skippedExistingEmail = importResult?.skippedExistingEmail ?? 0;
+    const skippedDuplicateEmail = importResult?.skippedDuplicateEmail ?? 0;
+    const invalidMissingAttributes = importResult?.invalidMissingAttributes ?? 0;
+    const invalidMissingRequired = importResult?.invalidMissingRequired ?? 0;
+    const invalidMissingEmail = importResult?.invalidMissingEmail ?? 0;
+    const invalidMissingFirstName = importResult?.invalidMissingFirstName ?? 0;
+    const invalidMissingLastName = importResult?.invalidMissingLastName ?? 0;
 
     const filteredPeople = useMemo(() => {
         if (!normalizedQuery) return people;
@@ -180,6 +202,25 @@ export default function PeopleListPage() {
         return sorted;
     }, [filteredPeople, sortState]);
 
+    const totalPages = Math.max(1, Math.ceil(sortedPeople.length / pageSize));
+    const pageStart = sortedPeople.length === 0 ? 0 : (pageIndex - 1) * pageSize + 1;
+    const pageEnd = Math.min(pageIndex * pageSize, sortedPeople.length);
+
+    const pagedPeople = useMemo(() => {
+        const start = (pageIndex - 1) * pageSize;
+        return sortedPeople.slice(start, start + pageSize);
+    }, [sortedPeople, pageIndex, pageSize]);
+
+    useEffect(() => {
+        setPageIndex(1);
+    }, [normalizedQuery, sortState.key, sortState.direction]);
+
+    useEffect(() => {
+        if (pageIndex > totalPages) {
+            setPageIndex(totalPages);
+        }
+    }, [pageIndex, totalPages]);
+
     const toggleSort = (key: SortKey) => {
         setSortState((prev) => {
             if (prev.key === key) {
@@ -212,6 +253,39 @@ export default function PeopleListPage() {
         setPersonToDelete(null);
     };
 
+    const handleImportClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleImportFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        setIsImporting(true);
+        setImportError(null);
+        setImportResult(null);
+
+        try {
+            const text = await file.text();
+            const parsed = JSON.parse(text).data; // Expecting { data: [...] } format
+
+            if (!Array.isArray(parsed)) {
+                throw new Error("Expected a JSON array of records.");
+            }
+
+            const result = await importPeople(parsed);
+            setImportResult(result);
+            clearPeopleCache();
+            const refreshed = await getPeople({ force: true });
+            setPeople(refreshed);
+        } catch (importError) {
+            setImportError(importError instanceof Error ? importError.message : "Failed to import people.");
+        } finally {
+            setIsImporting(false);
+            event.target.value = "";
+        }
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
@@ -229,9 +303,21 @@ export default function PeopleListPage() {
                         Manage people records, sort columns, and filter by name, email, or role.
                     </p>
                 </div>
-                <Button asChild>
-                    <Link to="/admin/people/new">New Person</Link>
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                    <Button type="button" variant="outline" onClick={handleImportClick} disabled={isImporting}>
+                        {isImporting ? "Importing..." : "Import JSON"}
+                    </Button>
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="application/json"
+                        className="hidden"
+                        onChange={handleImportFileChange}
+                    />
+                    <Button asChild>
+                        <Link to="/admin/people/new">New Person</Link>
+                    </Button>
+                </div>
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
@@ -242,12 +328,52 @@ export default function PeopleListPage() {
                         onChange={(event) => setFilterQuery(event.target.value)}
                     />
                 </div>
-                <div className="text-sm text-muted-foreground">{filteredPeople.length} result(s)</div>
+                <div className="text-sm text-muted-foreground">
+                    Showing {pageStart} - {pageEnd} of {sortedPeople.length} result(s)
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <span>Rows per page</span>
+                    <select
+                        className="h-9 rounded-md border border-border bg-transparent px-2"
+                        value={pageSize}
+                        onChange={(event) => setPageSize(Number(event.target.value))}
+                    >
+                        <option value={25}>25</option>
+                        <option value={50}>50</option>
+                        <option value={100}>100</option>
+                    </select>
+                </div>
             </div>
 
             {error ? (
                 <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-destructive">
                     {error}
+                </div>
+            ) : null}
+
+            {importError ? (
+                <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-destructive">
+                    {importError}
+                </div>
+            ) : null}
+
+            {importResult ? (
+                <div className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
+                    Imported {importResult.total} record(s): {importResult.created} created, {importResult.skipped}{" "}
+                    skipped, {importResult.invalid} invalid.
+                    {skippedExistingEmail || skippedDuplicateEmail ? (
+                        <div className="mt-2 text-xs text-muted-foreground">
+                            Skipped details: {skippedExistingEmail} existing email(s), {skippedDuplicateEmail} duplicate
+                            email(s) in file.
+                        </div>
+                    ) : null}
+                    {invalidMissingAttributes || invalidMissingRequired ? (
+                        <div className="mt-1 text-xs text-muted-foreground">
+                            Invalid details: {invalidMissingEmail} missing email, {invalidMissingFirstName} missing
+                            first name, {invalidMissingLastName} missing last name, {invalidMissingAttributes} missing
+                            attributes.
+                        </div>
+                    ) : null}
                 </div>
             ) : null}
 
@@ -363,7 +489,7 @@ export default function PeopleListPage() {
                                 </TableCell>
                             </TableRow>
                         ) : null}
-                        {sortedPeople.map((person) => (
+                        {pagedPeople.map((person) => (
                             <TableRow key={person.id}>
                                 <TableCell>
                                     <div className="font-medium">
@@ -407,6 +533,65 @@ export default function PeopleListPage() {
                     </TableBody>
                 </Table>
             </div>
+
+            {sortedPeople.length > pageSize ? (
+                <Pagination>
+                    <PaginationContent>
+                        <PaginationItem>
+                            <PaginationPrevious
+                                href="#"
+                                onClick={(event) => {
+                                    event.preventDefault();
+                                    setPageIndex((prev) => Math.max(1, prev - 1));
+                                }}
+                            />
+                        </PaginationItem>
+                        {Array.from({ length: totalPages }, (_, index) => index + 1)
+                            .filter((page) =>
+                                totalPages <= 7
+                                    ? true
+                                    : page === 1 || page === totalPages || Math.abs(page - pageIndex) <= 1
+                            )
+                            .reduce<(number | "ellipsis")[]>((acc, page) => {
+                                const prev = acc[acc.length - 1];
+                                if (typeof prev === "number" && page - prev > 1) {
+                                    acc.push("ellipsis");
+                                }
+                                acc.push(page);
+                                return acc;
+                            }, [])
+                            .map((page, index) =>
+                                page === "ellipsis" ? (
+                                    <PaginationItem key={`ellipsis-${index}`}>
+                                        <PaginationEllipsis />
+                                    </PaginationItem>
+                                ) : (
+                                    <PaginationItem key={page}>
+                                        <PaginationLink
+                                            href="#"
+                                            isActive={pageIndex === page}
+                                            onClick={(event) => {
+                                                event.preventDefault();
+                                                setPageIndex(page);
+                                            }}
+                                        >
+                                            {page}
+                                        </PaginationLink>
+                                    </PaginationItem>
+                                )
+                            )}
+                        <PaginationItem>
+                            <PaginationNext
+                                href="#"
+                                onClick={(event) => {
+                                    event.preventDefault();
+                                    setPageIndex((prev) => Math.min(totalPages, prev + 1));
+                                }}
+                            />
+                        </PaginationItem>
+                    </PaginationContent>
+                </Pagination>
+            ) : null}
 
             <AlertDialog open={personToDelete !== null} onOpenChange={handleCancelDelete}>
                 <AlertDialogContent>
