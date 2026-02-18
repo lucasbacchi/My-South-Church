@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -60,26 +61,31 @@ public class PeopleController {
     }
 
     @PostMapping("")
+    @PreAuthorize("@authorizationService.canCreatePerson(authentication)")
     public ResponseEntity<PersonResponse> createPerson(@RequestBody PersonRequest input) {
         return createPersonService.execute(input);
     }
 
     @GetMapping("")
+    @PreAuthorize("@authorizationService.isAdmin(authentication)")
     public ResponseEntity<List<PersonResponse>> getPeople() {
         return getPeopleService.execute(null);
     }
 
     @GetMapping("/firebase/{uid}")
+    @PreAuthorize("@authorizationService.isAdmin(authentication)")
     public ResponseEntity<PersonResponse> getPersonByFirebaseUID(@PathVariable String uid) {
         return getPersonByFirebaseUID.execute(uid);
     }
 
     @GetMapping("/email/{email}")
+    @PreAuthorize("@authorizationService.isAdmin(authentication)")
     public ResponseEntity<PersonResponse> getPersonByPrimaryEmail(@PathVariable("email") String primaryEmail) {
         return getPersonByEmailService.execute(primaryEmail);
     }
 
     @GetMapping("/id/{id}")
+    @PreAuthorize("@authorizationService.isAdmin(authentication)")
     public ResponseEntity<PersonResponse> getPerson(@PathVariable UUID id) {
         return getPersonService.execute(id);
     }
@@ -90,11 +96,13 @@ public class PeopleController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@authorizationService.canUpdatePerson(authentication)")
     public ResponseEntity<PersonResponse> updatePerson(@PathVariable UUID id, @RequestBody PersonRequest request) {
         return updatePersonService.execute(new UpdatePersonCommand(id, request));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@authorizationService.canDeletePerson(authentication)")
     public ResponseEntity<Void> deletePerson(@PathVariable UUID id) {
         return deletePersonService.execute(id);
     }

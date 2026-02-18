@@ -25,7 +25,7 @@ public class GetPeopleService implements Query<Void, List<PersonResponse>> {
     @Cacheable(value = "peopleAllCache")
     public ResponseEntity<List<PersonResponse>> execute(Void input) {
 
-        List<Person> people = repository.findAll();
+        List<Person> people = repository.findAllWithRoles();
 
         List<PersonResponse> peopleList = people.stream().map(PersonResponse::new).toList();
 

@@ -31,16 +31,11 @@ public class GetCurrentPersonService implements Query<JwtAuthenticationToken, Pe
     }
 
     @Override
-                @Caching(
-                    evict = @CacheEvict(value = "peopleAllCache", allEntries = true),
-                    put = {
-                        @CachePut(value = "personByIdCache", key = "#result.body.id",
-                            condition = "#result?.body?.id != null"),
-                        @CachePut(value = "personByEmailCache", key = "#result.body.primaryEmail.trim().toLowerCase()",
-                            condition = "#result?.body?.primaryEmail != null"),
-                        @CachePut(value = "personByFirebaseCache", key = "#result.body.firebaseUID.trim()",
-                            condition = "#result?.body?.firebaseUID != null")
-                    })
+    @Caching(evict = @CacheEvict(value = "peopleAllCache", allEntries = true), put = {
+            @CachePut(value = "personByIdCache", key = "#result.body.id", condition = "#result?.body?.id != null"),
+            @CachePut(value = "personByEmailCache", key = "#result.body.primaryEmail.trim().toLowerCase()", condition = "#result?.body?.primaryEmail != null"),
+            @CachePut(value = "personByFirebaseCache", key = "#result.body.firebaseUID.trim()", condition = "#result?.body?.firebaseUID != null")
+    })
     public ResponseEntity<PersonResponse> execute(JwtAuthenticationToken authentication) {
 
         // Get UID from token claims

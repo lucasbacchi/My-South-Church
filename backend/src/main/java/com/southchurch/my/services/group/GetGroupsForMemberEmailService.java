@@ -31,7 +31,6 @@ public class GetGroupsForMemberEmailService implements Query<String, List<Group>
 
     @Override
     public ResponseEntity<List<Group>> execute(String memberEmail) {
-        System.out.println("memberEmail: " + memberEmail);
         if (memberEmail == null || memberEmail.trim().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Collections.emptyList());
         }
@@ -40,11 +39,8 @@ public class GetGroupsForMemberEmailService implements Query<String, List<Group>
             List<Group> groups = listGroupsForMember(memberEmail);
             return ResponseEntity.status(HttpStatus.OK).body(groups);
         } catch (GoogleJsonResponseException e) {
-            System.out.println("Google API status: " + e.getStatusCode());
-            System.out.println("Google API details: " + e.getDetails());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
         } catch (IOException e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
         }
     }

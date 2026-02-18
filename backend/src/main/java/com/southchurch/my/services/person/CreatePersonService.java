@@ -15,17 +15,24 @@ import com.southchurch.my.models.Person;
 import com.southchurch.my.models.Role;
 import com.southchurch.my.repositories.PeopleRepository;
 import com.southchurch.my.repositories.RoleRepository;
+import com.southchurch.my.security.FirebaseCustomClaimsService;
 import com.southchurch.my.validators.PersonValidator;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CreatePersonService implements Command<PersonRequest, PersonResponse> {
 
     private final PeopleRepository repository;
     private final RoleRepository roleRepository;
+    private final FirebaseCustomClaimsService firebaseClaimsService;
 
-    public CreatePersonService(PeopleRepository repository, RoleRepository roleRepository) {
+    public CreatePersonService(PeopleRepository repository, RoleRepository roleRepository,
+            FirebaseCustomClaimsService firebaseClaimsService) {
         this.repository = repository;
         this.roleRepository = roleRepository;
+        this.firebaseClaimsService = firebaseClaimsService;
     }
 
     @Override
@@ -56,6 +63,14 @@ public class CreatePersonService implements Command<PersonRequest, PersonRespons
         }
 
         Person savedPerson = repository.save(person);
+
+        // Sync roles to Firebase custom claims if user has a Firebase UID
+        if (savedPerson.getFirebaseUID() != null && !savedPerson.getFirebaseUID().isBlank()) {
+            List<String> roleNames = savedPerson.getRoles().stream()
+                    .map(Role::getName)
+                    .collect(Collectors.toList());
+            firebaseClaimsService.syncRolesToFirebase(savedPerson.getFirebaseUID(), roleNames);
+        }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new PersonResponse(savedPerson));
     }

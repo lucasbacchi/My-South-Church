@@ -75,7 +75,6 @@ public class GetGroupsService implements Query<Void, List<Group>> {
                     .execute()
                     .getIsMember();
         } catch (IOException e) {
-            System.err.println("Error checking group membership: " + e.getMessage());
             return false; // Fail safe: access denied if we can't check
         }
     }
