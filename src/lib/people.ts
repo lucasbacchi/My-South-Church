@@ -1,4 +1,4 @@
-import { apiRequest, getAuthHeaders } from "./apiClient";
+import { apiRequest, apiRequestBlob, getAuthHeaders } from "./apiClient";
 import { type ImportPeopleResult, type Person, type PersonUpsertInput } from "../types/people";
 
 const PEOPLE_CACHE_TTL_MS = 60_000;
@@ -96,5 +96,13 @@ export async function importPeople(records: unknown[]): Promise<ImportPeopleResu
         method: "POST",
         headers,
         body: JSON.stringify(records),
+    });
+}
+
+export async function exportPeople(): Promise<Blob> {
+    const headers = await getAuthHeaders();
+    return apiRequestBlob("/people/export", {
+        method: "GET",
+        headers,
     });
 }

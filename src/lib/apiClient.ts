@@ -44,3 +44,14 @@ export async function apiRequest<T>(path: string, options: RequestInit = {}): Pr
 
     return (await response.json()) as T;
 }
+
+export async function apiRequestBlob(path: string, options: RequestInit = {}): Promise<Blob> {
+    const response = await fetch(`${API_BASE_URL}${path}`, options);
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || `Request failed with status ${response.status}`);
+    }
+
+    return response.blob();
+}

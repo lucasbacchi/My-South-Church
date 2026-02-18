@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { requireAdminClientLoader } from "@/lib/clientLoaders";
 import { type ImportPeopleResult, type Person } from "@/types/people";
-import { clearPeopleCache, deletePerson, getPeople, importPeople, peekPeopleCache } from "@/lib/people";
+import { clearPeopleCache, deletePerson, exportPeople, getPeople, importPeople, peekPeopleCache } from "@/lib/people";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const clientLoader = requireAdminClientLoader;
@@ -120,7 +120,9 @@ export default function PeopleListPage() {
     const [personToDelete, setPersonToDelete] = useState<Person | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isImporting, setIsImporting] = useState(false);
+    const [isExporting, setIsExporting] = useState(false);
     const [importError, setImportError] = useState<string | null>(null);
+    const [exportError, setExportError] = useState<string | null>(null);
     const [importResult, setImportResult] = useState<ImportPeopleResult | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [pageIndex, setPageIndex] = useState(1);
@@ -257,6 +259,27 @@ export default function PeopleListPage() {
         fileInputRef.current?.click();
     };
 
+    const handleExportClick = async () => {
+        setIsExporting(true);
+        setExportError(null);
+
+        try {
+            const blob = await exportPeople();
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `people-export-${new Date().toISOString().slice(0, 10)}.json`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            URL.revokeObjectURL(url);
+        } catch (exportError) {
+            setExportError(exportError instanceof Error ? exportError.message : "Failed to export people.");
+        } finally {
+            setIsExporting(false);
+        }
+    };
+
     const handleImportFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
@@ -267,13 +290,14 @@ export default function PeopleListPage() {
 
         try {
             const text = await file.text();
-            const parsed = JSON.parse(text).data; // Expecting { data: [...] } format
+            const parsed = JSON.parse(text);
+            const records = Array.isArray(parsed) ? parsed : parsed?.data;
 
-            if (!Array.isArray(parsed)) {
+            if (!Array.isArray(records)) {
                 throw new Error("Expected a JSON array of records.");
             }
 
-            const result = await importPeople(parsed);
+            const result = await importPeople(records);
             setImportResult(result);
             clearPeopleCache();
             const refreshed = await getPeople({ force: true });
@@ -304,6 +328,9 @@ export default function PeopleListPage() {
                     </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
+                    <Button type="button" variant="outline" onClick={handleExportClick} disabled={isExporting}>
+                        {isExporting ? "Exporting..." : "Export JSON"}
+                    </Button>
                     <Button type="button" variant="outline" onClick={handleImportClick} disabled={isImporting}>
                         {isImporting ? "Importing..." : "Import JSON"}
                     </Button>
@@ -357,10 +384,16 @@ export default function PeopleListPage() {
                 </div>
             ) : null}
 
+            {exportError ? (
+                <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-destructive">
+                    {exportError}
+                </div>
+            ) : null}
+
             {importResult ? (
                 <div className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
-                    Imported {importResult.total} record(s): {importResult.created} created, {importResult.skipped}{" "}
-                    skipped, {importResult.invalid} invalid.
+                    Imported {importResult.total} record(s): {importResult.created} created, {importResult.updated ?? 0}{" "}
+                    updated, {importResult.skipped} skipped, {importResult.invalid} invalid.
                     {skippedExistingEmail || skippedDuplicateEmail ? (
                         <div className="mt-2 text-xs text-muted-foreground">
                             Skipped details: {skippedExistingEmail} existing email(s), {skippedDuplicateEmail} duplicate

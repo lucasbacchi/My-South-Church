@@ -1,8 +1,12 @@
 package com.southchurch.my.controllers;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
@@ -15,7 +19,6 @@ import com.southchurch.my.dto.PersonRequest;
 import com.southchurch.my.dto.PersonResponse;
 import com.southchurch.my.dto.UpdatePersonCommand;
 import com.southchurch.my.dto.imports.ImportPeopleResult;
-import com.southchurch.my.dto.imports.ImportProfileRecord;
 import com.southchurch.my.services.person.CreatePersonService;
 import com.southchurch.my.services.person.DeletePersonService;
 import com.southchurch.my.services.person.GetCurrentPersonService;
@@ -30,6 +33,8 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 @RestController
 @RequestMapping("/people")
@@ -74,7 +79,7 @@ public class PeopleController {
 
     @PostMapping("/import")
     @PreAuthorize("@authorizationService.canCreatePerson(authentication)")
-    public ResponseEntity<ImportPeopleResult> importPeople(@RequestBody List<ImportProfileRecord> records) {
+    public ResponseEntity<ImportPeopleResult> importPeople(@RequestBody List<JsonNode> records) {
         return importPeopleService.execute(records);
     }
 
@@ -82,6 +87,23 @@ public class PeopleController {
     @PreAuthorize("@authorizationService.isAdmin(authentication)")
     public ResponseEntity<List<PersonResponse>> getPeople() {
         return getPeopleService.execute(null);
+    }
+
+    @GetMapping("/export")
+    @PreAuthorize("@authorizationService.isAdmin(authentication)")
+    public ResponseEntity<List<PersonResponse>> exportPeople() {
+        List<PersonResponse> people = getPeopleService.execute(null).getBody();
+        if (people == null) {
+            people = List.of();
+        }
+
+        String date = LocalDate.now().format(DateTimeFormatter.ISO_DATE);
+        String filename = "people-export-" + date + ".json";
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(people);
     }
 
     @GetMapping("/firebase/{uid}")

@@ -9,6 +9,7 @@ import lombok.Data;
 public class ImportPeopleResult {
     private int total;
     private int created;
+    private int updated;
     private int skipped;
     private int skippedExistingEmail;
     private int skippedDuplicateEmail;

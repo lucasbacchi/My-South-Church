@@ -14,6 +14,7 @@ export interface Person {
 export interface ImportPeopleResult {
     total: number;
     created: number;
+    updated?: number;
     skipped: number;
     skippedExistingEmail?: number;
     skippedDuplicateEmail?: number;
