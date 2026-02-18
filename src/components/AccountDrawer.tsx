@@ -2,7 +2,15 @@ import { useContext } from "react";
 import { UserContext } from "../contexts/UserContextDefinition";
 import { Link } from "react-router";
 import { signOutUser } from "../firebase";
-import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+    Sheet,
+    SheetClose,
+    SheetContent,
+    SheetDescription,
+    SheetFooter,
+    SheetHeader,
+    SheetTitle,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -59,6 +67,7 @@ export default function AccountDrawer(props: { onClose: () => void; isOpen: bool
                         </SheetClose>
                     </div>
                 </SheetFooter>
+                <SheetDescription className="sr-only">View and manage your account settings</SheetDescription>
             </SheetContent>
         </Sheet>
     );

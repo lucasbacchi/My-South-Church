@@ -107,23 +107,27 @@ export default function PeopleListPage() {
         if (hasCache) {
             setPeople(cachedPeople);
             setIsLoading(false);
-            setError(null);
         }
 
-        getPeople({ force: Boolean(hasCache) })
-            .then((data) => {
+        const loadPeople = async () => {
+            try {
+                const data = await getPeople({ force: Boolean(hasCache) });
                 if (!isMounted) return;
                 setPeople(data);
                 setError(null);
-                setIsLoading(false);
-            })
-            .catch((fetchError) => {
+            } catch (fetchError) {
                 if (!isMounted) return;
                 if (!hasCache) {
                     setError(fetchError instanceof Error ? fetchError.message : "Failed to load people.");
+                }
+            } finally {
+                if (isMounted) {
                     setIsLoading(false);
                 }
-            });
+            }
+        };
+
+        void loadPeople();
 
         return () => {
             isMounted = false;
