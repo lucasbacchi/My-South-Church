@@ -12,3 +12,4 @@ export interface Person {
 }
 
 export type PersonInput = Omit<Person, "id">;
+export type PersonUpsertInput = Omit<PersonInput, "lastLogin">;

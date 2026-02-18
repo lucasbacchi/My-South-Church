@@ -55,6 +55,7 @@ export default function PersonCreatePage() {
                     onSubmit={handleSubmit}
                     onCancel={() => void navigate("/admin/people")}
                     disableLastLogin
+                    showLastLogin={false}
                 />
             </div>
         </div>

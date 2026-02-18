@@ -1,5 +1,5 @@
 import { apiRequest, getAuthHeaders } from "./apiClient";
-import { type Person, type PersonInput } from "../types/people";
+import { type Person, type PersonUpsertInput } from "../types/people";
 
 const PEOPLE_CACHE_TTL_MS = 60_000;
 
@@ -48,7 +48,7 @@ export async function getPerson(personId: string): Promise<Person> {
     return apiRequest<Person>(`/people/id/${personId}`, { method: "GET", headers });
 }
 
-export async function createPerson(payload: PersonInput): Promise<Person> {
+export async function createPerson(payload: PersonUpsertInput): Promise<Person> {
     const headers = await getAuthHeaders(true);
     const created = await apiRequest<Person>("/people", {
         method: "POST",
@@ -64,7 +64,7 @@ export async function createPerson(payload: PersonInput): Promise<Person> {
     return created;
 }
 
-export async function updatePerson(personId: string, payload: PersonInput): Promise<Person> {
+export async function updatePerson(personId: string, payload: PersonUpsertInput): Promise<Person> {
     const headers = await getAuthHeaders(true);
     const updated = await apiRequest<Person>(`/people/${personId}`, {
         method: "PUT",

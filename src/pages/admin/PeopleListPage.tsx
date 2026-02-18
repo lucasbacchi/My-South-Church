@@ -5,6 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { requireAdminClientLoader } from "@/lib/clientLoaders";
 import { type Person } from "@/types/people";
 import { deletePerson, getPeople, peekPeopleCache } from "@/lib/people";
@@ -98,6 +108,8 @@ export default function PeopleListPage() {
     const [error, setError] = useState<string | null>(null);
     const [filterQuery, setFilterQuery] = useState("");
     const [sortState, setSortState] = useState<SortState>({ key: "name", direction: "asc" });
+    const [personToDelete, setPersonToDelete] = useState<Person | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         let isMounted = true;
@@ -177,17 +189,27 @@ export default function PeopleListPage() {
         });
     };
 
-    const handleDelete = async (person: Person) => {
-        const name = `${person.firstName} ${person.lastName}`.trim();
-        const confirmed = window.confirm(`Delete ${name || "this person"}? This cannot be undone.`);
-        if (!confirmed) return;
+    const handleDeleteClick = (person: Person) => {
+        setPersonToDelete(person);
+    };
 
+    const handleConfirmDelete = async () => {
+        if (!personToDelete) return;
+
+        setIsDeleting(true);
         try {
-            await deletePerson(person.id);
-            setPeople((prev) => prev.filter((item) => item.id !== person.id));
+            await deletePerson(personToDelete.id);
+            setPeople((prev) => prev.filter((item) => item.id !== personToDelete.id));
+            setPersonToDelete(null);
         } catch (deleteError) {
             setError(deleteError instanceof Error ? deleteError.message : "Failed to delete person.");
+        } finally {
+            setIsDeleting(false);
         }
+    };
+
+    const handleCancelDelete = () => {
+        setPersonToDelete(null);
     };
 
     return (
@@ -374,7 +396,7 @@ export default function PeopleListPage() {
                                         <Button
                                             size="sm"
                                             variant="destructive"
-                                            onClick={() => void handleDelete(person)}
+                                            onClick={() => handleDeleteClick(person)}
                                         >
                                             Delete
                                         </Button>
@@ -385,6 +407,31 @@ export default function PeopleListPage() {
                     </TableBody>
                 </Table>
             </div>
+
+            <AlertDialog open={personToDelete !== null} onOpenChange={handleCancelDelete}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Person</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Are you sure you want to delete{" "}
+                            <span className="font-semibold">
+                                {personToDelete && `${personToDelete.firstName} ${personToDelete.lastName}`.trim()}
+                            </span>
+                            ? This action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            variant="destructive"
+                            disabled={isDeleting}
+                            onClick={() => void handleConfirmDelete()}
+                        >
+                            {isDeleting ? "Deleting..." : "Delete"}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </div>
     );
 }
