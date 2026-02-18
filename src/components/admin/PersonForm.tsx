@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type SubmitEvent, type ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +13,7 @@ interface PersonFormProps {
     initialValues: PersonFormValues;
     submitLabel: string;
     isSubmitting?: boolean;
-    onSubmit: (payload: PersonInput) => void | Promise<void>;
+    onSubmit: (payload: Omit<PersonInput, "lastLogin">) => void | Promise<void>;
     onCancel?: () => void;
     showId?: boolean;
     disableLastLogin?: boolean;
@@ -52,7 +52,7 @@ export default function PersonForm({
 
     const parsedRoles = useMemo(() => parseRolesInput(values.rolesInput), [values.rolesInput]);
 
-    const onChange = (field: keyof PersonFormValues) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    const onChange = (field: keyof PersonFormValues) => (event: ChangeEvent<HTMLInputElement>) => {
         setValues((prev) => ({ ...prev, [field]: event.target.value }));
     };
 
@@ -62,9 +62,9 @@ export default function PersonForm({
         setValues((prev) => ({ ...prev, rolesInput: newRoles.join(", ") }));
     };
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = (event: SubmitEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const payload: PersonInput = {
+        const payload: Omit<PersonInput, "lastLogin"> = {
             firstName: values.firstName.trim(),
             lastName: values.lastName.trim(),
             primaryEmail: values.primaryEmail.trim(),
@@ -72,7 +72,6 @@ export default function PersonForm({
             phoneNumber: normalizeOptional(values.phoneNumber),
             dateOfBirth: normalizeOptional(values.dateOfBirth),
             firebaseUID: normalizeOptional(values.firebaseUID),
-            lastLogin: normalizeOptional(values.lastLogin),
             roles: parsedRoles,
         };
 

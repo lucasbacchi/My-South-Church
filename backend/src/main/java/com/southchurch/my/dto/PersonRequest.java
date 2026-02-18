@@ -3,10 +3,12 @@ package com.southchurch.my.dto;
 import java.time.LocalDate;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
 // Request DTO (mutable)
 @Data
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class PersonRequest {
     private String firstName;
     private String lastName;
