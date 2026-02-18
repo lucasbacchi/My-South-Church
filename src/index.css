@@ -495,12 +495,6 @@ label {
     color-scheme: dark;
 }
 
-/* Focus Visible Styles */
-*:focus-visible {
-    outline: 2px solid var(--ring);
-    outline-offset: 2px;
-    border-radius: 4px;
-}
 /*
 @media (prefers-color-scheme: light) {
     :root {

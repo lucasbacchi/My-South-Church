@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
+import { ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { requireAdminClientLoader } from "@/lib/clientLoaders";
 import { type Person } from "@/types/people";
-import { deletePerson, getPeople } from "@/lib/people";
+import { deletePerson, getPeople, peekPeopleCache } from "@/lib/people";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const clientLoader = requireAdminClientLoader;
@@ -26,7 +27,12 @@ function normalizeText(value: string | null | undefined) {
 
 function formatDate(value: string | null | undefined) {
     if (!value) return "—";
-    const date = new Date(value);
+    // Parse date string as local date to avoid timezone conversion
+    // Input format: "YYYY-MM-DD"
+    const parts = value.split("-");
+    if (parts.length !== 3) return value;
+    const [year, month, day] = parts.map(Number);
+    const date = new Date(year, month - 1, day); // month is 0-indexed
     if (Number.isNaN(date.getTime())) return value;
     return date.toLocaleDateString();
 }
@@ -61,8 +67,27 @@ function compareValues(a: string, b: string, direction: SortDirection) {
 }
 
 function compareDates(a: string | null, b: string | null, direction: SortDirection) {
-    const dateA = a ? new Date(a).getTime() : 0;
-    const dateB = b ? new Date(b).getTime() : 0;
+    // Parse dates as local dates to avoid timezone issues
+    // For ISO date strings like "2000-01-15", parse as local date
+    const parseDate = (dateStr: string | null) => {
+        if (!dateStr) return 0;
+        const parts = dateStr.split(/[-T:]/);
+        if (parts.length >= 3) {
+            // Create date in local timezone: [year, month-1, day, hour, minute, second]
+            return new Date(
+                parseInt(parts[0]),
+                parseInt(parts[1]) - 1,
+                parseInt(parts[2]),
+                parseInt(parts[3] || "0"),
+                parseInt(parts[4] || "0"),
+                parseInt(parts[5] || "0")
+            ).getTime();
+        }
+        return new Date(dateStr).getTime();
+    };
+
+    const dateA = parseDate(a);
+    const dateB = parseDate(b);
     const comparison = dateA - dateB;
     return direction === "asc" ? comparison : -comparison;
 }
@@ -76,8 +101,16 @@ export default function PeopleListPage() {
 
     useEffect(() => {
         let isMounted = true;
+        const cachedPeople = peekPeopleCache();
+        const hasCache = cachedPeople && cachedPeople.length > 0;
 
-        getPeople()
+        if (hasCache) {
+            setPeople(cachedPeople);
+            setIsLoading(false);
+            setError(null);
+        }
+
+        getPeople({ force: Boolean(hasCache) })
             .then((data) => {
                 if (!isMounted) return;
                 setPeople(data);
@@ -86,8 +119,10 @@ export default function PeopleListPage() {
             })
             .catch((fetchError) => {
                 if (!isMounted) return;
-                setError(fetchError instanceof Error ? fetchError.message : "Failed to load people.");
-                setIsLoading(false);
+                if (!hasCache) {
+                    setError(fetchError instanceof Error ? fetchError.message : "Failed to load people.");
+                    setIsLoading(false);
+                }
             });
 
         return () => {
@@ -155,6 +190,14 @@ export default function PeopleListPage() {
         <div className="space-y-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
+                    <div className="flex items-center gap-2 mb-2">
+                        <Button variant="ghost" size="sm" asChild className="hover:bg-primary mb-4">
+                            <Link to="/admin/dashboard" className="flex items-center gap-1">
+                                <ArrowLeft className="size-4" />
+                                Back to Dashboard
+                            </Link>
+                        </Button>
+                    </div>
                     <h1 className="text-2xl font-bold">People</h1>
                     <p className="text-sm text-muted-foreground">
                         Manage people records, sort columns, and filter by name, email, or role.
@@ -187,37 +230,93 @@ export default function PeopleListPage() {
                     <TableHeader>
                         <TableRow>
                             <TableHead>
-                                <button type="button" className="font-medium" onClick={() => toggleSort("name")}>
+                                <button
+                                    type="button"
+                                    className="font-medium shadow-none hover:text-foreground cursor-pointer bg-transparent border-none p-0 text-inherit focus:outline-none flex items-center gap-1"
+                                    onClick={() => toggleSort("name")}
+                                >
                                     Name
+                                    {sortState.key === "name" &&
+                                        (sortState.direction === "asc" ? (
+                                            <ChevronUp className="size-4" />
+                                        ) : (
+                                            <ChevronDown className="size-4" />
+                                        ))}
                                 </button>
                             </TableHead>
                             <TableHead>
                                 <button
                                     type="button"
-                                    className="font-medium"
+                                    className="font-medium shadow-none hover:text-foreground cursor-pointer bg-transparent border-none p-0 text-inherit focus:outline-none flex items-center gap-1"
                                     onClick={() => toggleSort("primaryEmail")}
                                 >
                                     Primary Email
+                                    {sortState.key === "primaryEmail" &&
+                                        (sortState.direction === "asc" ? (
+                                            <ChevronUp className="size-4" />
+                                        ) : (
+                                            <ChevronDown className="size-4" />
+                                        ))}
                                 </button>
                             </TableHead>
                             <TableHead>
-                                <button type="button" className="font-medium" onClick={() => toggleSort("phoneNumber")}>
+                                <button
+                                    type="button"
+                                    className="font-medium shadow-none hover:text-foreground cursor-pointer bg-transparent border-none p-0 text-inherit focus:outline-none flex items-center gap-1"
+                                    onClick={() => toggleSort("phoneNumber")}
+                                >
                                     Phone
+                                    {sortState.key === "phoneNumber" &&
+                                        (sortState.direction === "asc" ? (
+                                            <ChevronUp className="size-4" />
+                                        ) : (
+                                            <ChevronDown className="size-4" />
+                                        ))}
                                 </button>
                             </TableHead>
                             <TableHead>
-                                <button type="button" className="font-medium" onClick={() => toggleSort("dateOfBirth")}>
+                                <button
+                                    type="button"
+                                    className="font-medium shadow-none hover:text-foreground cursor-pointer bg-transparent border-none p-0 text-inherit focus:outline-none flex items-center gap-1"
+                                    onClick={() => toggleSort("dateOfBirth")}
+                                >
                                     Date of Birth
+                                    {sortState.key === "dateOfBirth" &&
+                                        (sortState.direction === "asc" ? (
+                                            <ChevronUp className="size-4" />
+                                        ) : (
+                                            <ChevronDown className="size-4" />
+                                        ))}
                                 </button>
                             </TableHead>
                             <TableHead>
-                                <button type="button" className="font-medium" onClick={() => toggleSort("lastLogin")}>
+                                <button
+                                    type="button"
+                                    className="font-medium shadow-none hover:text-foreground cursor-pointer bg-transparent border-none p-0 text-inherit focus:outline-none flex items-center gap-1"
+                                    onClick={() => toggleSort("lastLogin")}
+                                >
                                     Last Login
+                                    {sortState.key === "lastLogin" &&
+                                        (sortState.direction === "asc" ? (
+                                            <ChevronUp className="size-4" />
+                                        ) : (
+                                            <ChevronDown className="size-4" />
+                                        ))}
                                 </button>
                             </TableHead>
                             <TableHead>
-                                <button type="button" className="font-medium" onClick={() => toggleSort("roles")}>
+                                <button
+                                    type="button"
+                                    className="font-medium shadow-none hover:text-foreground cursor-pointer bg-transparent border-none p-0 text-inherit focus:outline-none flex items-center gap-1"
+                                    onClick={() => toggleSort("roles")}
+                                >
                                     Roles
+                                    {sortState.key === "roles" &&
+                                        (sortState.direction === "asc" ? (
+                                            <ChevronUp className="size-4" />
+                                        ) : (
+                                            <ChevronDown className="size-4" />
+                                        ))}
                                 </button>
                             </TableHead>
                             <TableHead>Actions</TableHead>

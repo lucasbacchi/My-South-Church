@@ -2,11 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import { type PersonInput } from "@/types/people";
 import { type PersonFormValues } from "@/components/admin/personFormUtils";
+import { roles } from "@/lib/api";
 
 interface PersonFormProps {
     initialValues: PersonFormValues;
@@ -55,8 +56,10 @@ export default function PersonForm({
         setValues((prev) => ({ ...prev, [field]: event.target.value }));
     };
 
-    const onChangeTextarea = (field: keyof PersonFormValues) => (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setValues((prev) => ({ ...prev, [field]: event.target.value }));
+    const toggleRole = (role: string) => {
+        const currentRoles = parsedRoles;
+        const newRoles = currentRoles.includes(role) ? currentRoles.filter((r) => r !== role) : [...currentRoles, role];
+        setValues((prev) => ({ ...prev, rolesInput: newRoles.join(", ") }));
     };
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -78,11 +81,11 @@ export default function PersonForm({
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2">
                 {showId ? (
                     <div className="space-y-2 md:col-span-2">
                         <Label htmlFor="person-id">Person ID</Label>
-                        <Input id="person-id" value={values.id ?? emptyString} readOnly />
+                        <Input id="person-id" value={values.id ?? emptyString} readOnly disabled={true} />
                     </div>
                 ) : null}
                 <div className="space-y-2">
@@ -135,15 +138,25 @@ export default function PersonForm({
                     />
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="roles">Roles</Label>
-                    <Textarea
-                        id="roles"
-                        value={values.rolesInput}
-                        onChange={onChangeTextarea("rolesInput")}
-                        placeholder="Comma-separated roles"
-                        rows={3}
-                    />
-                    <div className="flex flex-wrap gap-2">
+                    <Label>Roles</Label>
+                    <div className="space-y-3">
+                        {Object.values(roles).map((role) => (
+                            <div key={role} className="flex items-center space-x-2">
+                                <Checkbox
+                                    id={`role-${role}`}
+                                    checked={parsedRoles.includes(role)}
+                                    onCheckedChange={() => toggleRole(role)}
+                                />
+                                <label
+                                    htmlFor={`role-${role}`}
+                                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                                >
+                                    {role.replace("_", " ")}
+                                </label>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-3">
                         {parsedRoles.length > 0 ? (
                             parsedRoles.map((role) => (
                                 <Badge key={role} variant="secondary">
@@ -151,7 +164,7 @@ export default function PersonForm({
                                 </Badge>
                             ))
                         ) : (
-                            <span className={cn("text-xs text-muted-foreground")}>No roles set</span>
+                            <span className={cn("text-xs text-muted-foreground")}>No roles selected</span>
                         )}
                     </div>
                 </div>

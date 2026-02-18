@@ -9,6 +9,7 @@ export default [
     route("account", "./pages/AccountPage.tsx"),
     route("unauthorized", "./pages/UnauthorizedPage.tsx"),
     route("admin", "./pages/admin/AdminLayout.tsx", [
+        index("./pages/admin/AdminRedirect.tsx"),
         route("dashboard", "./pages/admin/AdminDashboardPage.tsx"),
         route("people", "./pages/admin/PeopleListPage.tsx"),
         route("people/new", "./pages/admin/PersonCreatePage.tsx"),
