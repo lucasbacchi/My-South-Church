@@ -32,12 +32,15 @@ public class UpdatePersonService implements Command<UpdatePersonCommand, PersonR
     private final PeopleRepository peopleRepo;
     private final RoleRepository roleRepo;
     private final FirebaseCustomClaimsService firebaseClaimsService;
+    private final VerifyGoogleAccountService verifyGoogleAccountService;
 
     public UpdatePersonService(PeopleRepository peopleRepo, RoleRepository roleRepo,
-            FirebaseCustomClaimsService firebaseClaimsService) {
+            FirebaseCustomClaimsService firebaseClaimsService,
+            VerifyGoogleAccountService verifyGoogleAccountService) {
         this.peopleRepo = peopleRepo;
         this.roleRepo = roleRepo;
         this.firebaseClaimsService = firebaseClaimsService;
+        this.verifyGoogleAccountService = verifyGoogleAccountService;
     }
 
     @Override
@@ -57,14 +60,22 @@ public class UpdatePersonService implements Command<UpdatePersonCommand, PersonR
         Person person = peopleRepo.findById(id)
                 .orElseThrow(() -> new PersonNotFoundException());
 
+        boolean emailChanged = false;
+
         if (req.getFirstName() != null)
             person.setFirstName(req.getFirstName().trim());
 
         if (req.getLastName() != null)
             person.setLastName(req.getLastName().trim());
 
-        if (req.getPrimaryEmail() != null)
-            person.setPrimaryEmail(req.getPrimaryEmail().trim().toLowerCase());
+        if (req.getPrimaryEmail() != null) {
+            String oldEmail = person.getPrimaryEmail();
+            String newEmail = req.getPrimaryEmail().trim().toLowerCase();
+            if (!oldEmail.equalsIgnoreCase(newEmail)) {
+                emailChanged = true;
+            }
+            person.setPrimaryEmail(newEmail);
+        }
 
         if (req.getSecondaryEmail() != null) {
             String se = req.getSecondaryEmail().trim();
@@ -102,6 +113,13 @@ public class UpdatePersonService implements Command<UpdatePersonCommand, PersonR
                     .map(Role::getName)
                     .collect(Collectors.toList());
             firebaseClaimsService.syncRolesToFirebase(updated.getFirebaseUID(), roles);
+        }
+
+        // Re-verify Google Account if email changed
+        if (emailChanged) {
+            Boolean verified = verifyGoogleAccountService.verify(updated.getPrimaryEmail());
+            updated.setGoogleAccountVerified(verified);
+            peopleRepo.save(updated);
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(new PersonResponse(updated));

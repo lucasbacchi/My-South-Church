@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { Link } from "react-router";
-import { ArrowLeft, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronUp, Check, X, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -26,7 +26,15 @@ import {
 } from "@/components/ui/alert-dialog";
 import { requireAdminClientLoader } from "@/lib/clientLoaders";
 import { type ImportPeopleResult, type Person } from "@/types/people";
-import { clearPeopleCache, deletePerson, exportPeople, getPeople, importPeople, peekPeopleCache } from "@/lib/people";
+import {
+    clearPeopleCache,
+    deletePerson,
+    exportPeople,
+    getPeople,
+    importPeople,
+    peekPeopleCache,
+    verifyAllGoogleAccounts,
+} from "@/lib/people";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const clientLoader = requireAdminClientLoader;
@@ -121,8 +129,11 @@ export default function PeopleListPage() {
     const [isDeleting, setIsDeleting] = useState(false);
     const [isImporting, setIsImporting] = useState(false);
     const [isExporting, setIsExporting] = useState(false);
+    const [isVerifyingAll, setIsVerifyingAll] = useState(false);
     const [importError, setImportError] = useState<string | null>(null);
     const [exportError, setExportError] = useState<string | null>(null);
+    const [verifyAllError, setVerifyAllError] = useState<string | null>(null);
+    const [verifyAllMessage, setVerifyAllMessage] = useState<string | null>(null);
     const [importResult, setImportResult] = useState<ImportPeopleResult | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [pageIndex, setPageIndex] = useState(1);
@@ -310,6 +321,24 @@ export default function PeopleListPage() {
         }
     };
 
+    const handleVerifyAllClick = async () => {
+        setIsVerifyingAll(true);
+        setVerifyAllError(null);
+        setVerifyAllMessage(null);
+
+        try {
+            const message = await verifyAllGoogleAccounts();
+            setVerifyAllMessage(message);
+            clearPeopleCache();
+            const refreshed = await getPeople({ force: true });
+            setPeople(refreshed);
+        } catch (verifyError) {
+            setVerifyAllError(verifyError instanceof Error ? verifyError.message : "Failed to verify Google Accounts.");
+        } finally {
+            setIsVerifyingAll(false);
+        }
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
@@ -333,6 +362,9 @@ export default function PeopleListPage() {
                     </Button>
                     <Button type="button" variant="outline" onClick={handleImportClick} disabled={isImporting}>
                         {isImporting ? "Importing..." : "Import JSON"}
+                    </Button>
+                    <Button type="button" variant="outline" onClick={handleVerifyAllClick} disabled={isVerifyingAll}>
+                        {isVerifyingAll ? "Verifying..." : "Verify All Accounts"}
                     </Button>
                     <input
                         ref={fileInputRef}
@@ -387,6 +419,18 @@ export default function PeopleListPage() {
             {exportError ? (
                 <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-destructive">
                     {exportError}
+                </div>
+            ) : null}
+
+            {verifyAllError ? (
+                <div className="rounded-lg border border-destructive/30 bg-destructive/10 p-4 text-destructive">
+                    {verifyAllError}
+                </div>
+            ) : null}
+
+            {verifyAllMessage ? (
+                <div className="rounded-lg border border-green-600/30 bg-green-600/10 p-4 text-green-700 dark:text-green-400">
+                    {verifyAllMessage}
                 </div>
             ) : null}
 
@@ -504,20 +548,21 @@ export default function PeopleListPage() {
                                         ))}
                                 </button>
                             </TableHead>
+                            <TableHead className="text-center">Google Account</TableHead>
                             <TableHead>Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {isLoading ? (
                             <TableRow>
-                                <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
+                                <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
                                     Loading people...
                                 </TableCell>
                             </TableRow>
                         ) : null}
                         {!isLoading && sortedPeople.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
+                                <TableCell colSpan={8} className="py-8 text-center text-muted-foreground">
                                     No people found.
                                 </TableCell>
                             </TableRow>
@@ -544,6 +589,26 @@ export default function PeopleListPage() {
                                             ))
                                         ) : (
                                             <span className="text-xs text-muted-foreground">None</span>
+                                        )}
+                                    </div>
+                                </TableCell>
+                                <TableCell className="text-center">
+                                    <div>
+                                        {person.googleAccountVerified === true ? (
+                                            <Check
+                                                className="inline size-5 text-green-600 dark:text-green-400"
+                                                aria-label="Google Account verified"
+                                            />
+                                        ) : person.googleAccountVerified === false ? (
+                                            <X
+                                                className="inline size-5 text-red-600 dark:text-red-400"
+                                                aria-label="Not a Google Account"
+                                            />
+                                        ) : (
+                                            <HelpCircle
+                                                className="inline size-5 text-muted-foreground"
+                                                aria-label="Unknown"
+                                            />
                                         )}
                                     </div>
                                 </TableCell>

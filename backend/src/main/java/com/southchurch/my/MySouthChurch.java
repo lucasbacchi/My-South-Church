@@ -9,6 +9,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 // Define the security scheme for Swagger (Bearer Token)
 @SecurityScheme(name = "bearerAuth", // Arbitrary name, used to reference below
@@ -20,6 +21,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @SpringBootApplication
 @EnableCaching
 @EnableAsync(proxyTargetClass = true)
+@EnableScheduling
 public class MySouthChurch {
 
 	public static void main(String[] args) {

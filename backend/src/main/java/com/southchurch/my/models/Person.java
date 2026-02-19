@@ -61,6 +61,9 @@ public class Person {
     @Column(name = "firebaseUID", length = 128, unique = true)
     private String firebaseUID;
 
+    @Column(name = "googleAccountVerified")
+    private Boolean googleAccountVerified;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "people_roles", joinColumns = @JoinColumn(name = "person_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();

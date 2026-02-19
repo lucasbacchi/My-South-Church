@@ -69,6 +69,22 @@ public class GetCurrentPersonService implements Query<JwtAuthenticationToken, Pe
         Person person = repository.findById(personResponse.getId())
                 .orElseThrow(PersonNotFoundException::new);
         person.setLastLogin(LocalDateTime.now());
+
+        // Mark as verified if user logged in with Google
+        try {
+            Object firebaseClaim = authentication.getToken().getClaim("firebase");
+            if (firebaseClaim instanceof java.util.Map) {
+                @SuppressWarnings("unchecked")
+                java.util.Map<String, Object> firebaseMap = (java.util.Map<String, Object>) firebaseClaim;
+                Object signInProvider = firebaseMap.get("sign_in_provider");
+                if ("google.com".equals(signInProvider)) {
+                    person.setGoogleAccountVerified(true);
+                }
+            }
+        } catch (Exception e) {
+            // Ignore errors in checking Firebase claims
+        }
+
         Person updatedPerson = repository.save(person);
         PersonResponse updatedResponse = new PersonResponse(updatedPerson);
 

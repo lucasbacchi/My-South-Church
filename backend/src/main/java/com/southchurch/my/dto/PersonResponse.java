@@ -24,6 +24,7 @@ public class PersonResponse {
         this.dateOfBirth = person.getDateOfBirth();
         this.firebaseUID = person.getFirebaseUID();
         this.lastLogin = person.getLastLogin();
+        this.googleAccountVerified = person.getGoogleAccountVerified();
 
         this.roles = person.getRoles().stream()
                 .map(Role::getName)
@@ -39,6 +40,7 @@ public class PersonResponse {
     private LocalDate dateOfBirth;
     private String firebaseUID;
     private LocalDateTime lastLogin;
+    private Boolean googleAccountVerified;
 
     private Set<String> roles;
 }

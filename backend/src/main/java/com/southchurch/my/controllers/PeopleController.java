@@ -28,6 +28,7 @@ import com.southchurch.my.services.person.GetPersonByFirebaseUIDService;
 import com.southchurch.my.services.person.GetPersonService;
 import com.southchurch.my.services.person.ImportPeopleService;
 import com.southchurch.my.services.person.UpdatePersonService;
+import com.southchurch.my.services.person.VerifyGoogleAccountService;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +36,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.southchurch.my.models.Person;
+import com.southchurch.my.repositories.PeopleRepository;
 
 @RestController
 @RequestMapping("/people")
@@ -49,6 +52,8 @@ public class PeopleController {
     private final GetCurrentPersonService getCurrentPersonService;
     private final DeletePersonService deletePersonService;
     private final ImportPeopleService importPeopleService;
+    private final VerifyGoogleAccountService verifyGoogleAccountService;
+    private final PeopleRepository peopleRepository;
 
     public PeopleController(
             CreatePersonService createPersonService,
@@ -59,7 +64,9 @@ public class PeopleController {
             UpdatePersonService updatePersonService,
             GetCurrentPersonService getCurrentPersonService,
             DeletePersonService deletePersonService,
-            ImportPeopleService importPeopleService) {
+            ImportPeopleService importPeopleService,
+            VerifyGoogleAccountService verifyGoogleAccountService,
+            PeopleRepository peopleRepository) {
         this.createPersonService = createPersonService;
         this.getPeopleService = getPeopleService;
         this.getPersonByFirebaseUID = getPersonByFirebaseUID;
@@ -69,6 +76,8 @@ public class PeopleController {
         this.getCurrentPersonService = getCurrentPersonService;
         this.deletePersonService = deletePersonService;
         this.importPeopleService = importPeopleService;
+        this.verifyGoogleAccountService = verifyGoogleAccountService;
+        this.peopleRepository = peopleRepository;
     }
 
     @PostMapping("")
@@ -139,5 +148,50 @@ public class PeopleController {
     @PreAuthorize("@authorizationService.canDeletePerson(authentication)")
     public ResponseEntity<Void> deletePerson(@PathVariable UUID id) {
         return deletePersonService.execute(id);
+    }
+
+    @PostMapping("/{id}/verify-google-account")
+    @PreAuthorize("@authorizationService.isAdmin(authentication)")
+    public ResponseEntity<PersonResponse> verifyGoogleAccount(@PathVariable UUID id) {
+        Person person = peopleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Person not found"));
+
+        Boolean verified = verifyGoogleAccountService.verify(person.getPrimaryEmail());
+        person.setGoogleAccountVerified(verified);
+        peopleRepository.save(person);
+
+        return ResponseEntity.ok(new PersonResponse(person));
+    }
+
+    @PostMapping("/verify-all-google-accounts")
+    @PreAuthorize("@authorizationService.isAdmin(authentication)")
+    public ResponseEntity<String> verifyAllGoogleAccounts() {
+        List<Person> people = peopleRepository.findAll();
+        int verified = 0;
+        int notVerified = 0;
+        int indeterminate = 0;
+
+        for (Person person : people) {
+            // Skip if already verified (to save API calls)
+            if (Boolean.TRUE.equals(person.getGoogleAccountVerified())) {
+                continue;
+            }
+
+            Boolean result = verifyGoogleAccountService.verify(person.getPrimaryEmail());
+            person.setGoogleAccountVerified(result);
+            peopleRepository.save(person);
+
+            if (Boolean.TRUE.equals(result)) {
+                verified++;
+            } else if (Boolean.FALSE.equals(result)) {
+                notVerified++;
+            } else {
+                indeterminate++;
+            }
+        }
+
+        String message = String.format("Verification complete: %d verified, %d not verified, %d indeterminate",
+                verified, notVerified, indeterminate);
+        return ResponseEntity.ok(message);
     }
 }

@@ -106,3 +106,26 @@ export async function exportPeople(): Promise<Blob> {
         headers,
     });
 }
+
+export async function verifyGoogleAccount(personId: string): Promise<Person> {
+    const headers = await getAuthHeaders(true);
+    const updated = await apiRequest<Person>(`/people/${personId}/verify-google-account`, {
+        method: "POST",
+        headers,
+    });
+
+    if (peopleCache) {
+        peopleCache = peopleCache.map((person) => (person.id === updated.id ? updated : person));
+        peopleCacheTime = Date.now();
+    }
+
+    return updated;
+}
+
+export async function verifyAllGoogleAccounts(): Promise<string> {
+    const headers = await getAuthHeaders(true);
+    return apiRequest<string>("/people/verify-all-google-accounts", {
+        method: "POST",
+        headers,
+    });
+}

@@ -27,12 +27,15 @@ public class CreatePersonService implements Command<PersonRequest, PersonRespons
     private final PeopleRepository repository;
     private final RoleRepository roleRepository;
     private final FirebaseCustomClaimsService firebaseClaimsService;
+    private final VerifyGoogleAccountService verifyGoogleAccountService;
 
     public CreatePersonService(PeopleRepository repository, RoleRepository roleRepository,
-            FirebaseCustomClaimsService firebaseClaimsService) {
+            FirebaseCustomClaimsService firebaseClaimsService,
+            VerifyGoogleAccountService verifyGoogleAccountService) {
         this.repository = repository;
         this.roleRepository = roleRepository;
         this.firebaseClaimsService = firebaseClaimsService;
+        this.verifyGoogleAccountService = verifyGoogleAccountService;
     }
 
     @Override
@@ -71,6 +74,11 @@ public class CreatePersonService implements Command<PersonRequest, PersonRespons
                     .collect(Collectors.toList());
             firebaseClaimsService.syncRolesToFirebase(savedPerson.getFirebaseUID(), roleNames);
         }
+
+        // Auto-verify Google Account on creation
+        Boolean verified = verifyGoogleAccountService.verify(savedPerson.getPrimaryEmail());
+        savedPerson.setGoogleAccountVerified(verified);
+        repository.save(savedPerson);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new PersonResponse(savedPerson));
     }

@@ -8,6 +8,7 @@ export interface Person {
     dateOfBirth: string | null;
     firebaseUID: string | null;
     lastLogin: string | null;
+    googleAccountVerified: boolean | null;
     roles: string[];
 }
 
@@ -28,4 +29,4 @@ export interface ImportPeopleResult {
 }
 
 export type PersonInput = Omit<Person, "id">;
-export type PersonUpsertInput = Omit<PersonInput, "lastLogin">;
+export type PersonUpsertInput = Omit<PersonInput, "lastLogin" | "googleAccountVerified">;
