@@ -1,5 +1,7 @@
 package com.southchurch.my.services.person;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import com.southchurch.my.repositories.PeopleRepository;
 public class GetPersonByFirebaseUIDService implements Query<String, PersonResponse> {
 
     private final PeopleRepository repository;
+    private static final Logger logger = LoggerFactory.getLogger(GetPersonByFirebaseUIDService.class);
 
     public GetPersonByFirebaseUIDService(PeopleRepository repository) {
         this.repository = repository;
@@ -23,6 +26,8 @@ public class GetPersonByFirebaseUIDService implements Query<String, PersonRespon
     @Override
     @Cacheable(value = "personByFirebaseCache", key = "#uid.trim()")
     public ResponseEntity<PersonResponse> execute(String uid) {
+
+        logger.info("Executing " + getClass() + " input : " + uid);
 
         Person person = repository.findByFirebaseUID(uid)
                 .orElseThrow(PersonNotFoundException::new);

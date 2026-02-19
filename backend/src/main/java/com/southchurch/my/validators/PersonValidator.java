@@ -4,6 +4,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.southchurch.my.dto.PersonRequest;
 import com.southchurch.my.exceptions.ErrorMessages;
 import com.southchurch.my.exceptions.people.PersonNotValidException;
@@ -13,6 +16,8 @@ import com.southchurch.my.repositories.RoleRepository;
 
 public class PersonValidator {
 
+    private static final Logger logger = LoggerFactory.getLogger(PersonValidator.class);
+
     public PersonValidator() {
     }
 
@@ -20,6 +25,8 @@ public class PersonValidator {
             PersonRequest req,
             PeopleRepository peopleRepo,
             RoleRepository roleRepo) {
+
+        logger.info("Executing validateCreate() "  + " input : " + req);
 
         if (req == null) {
             throw new PersonNotValidException(ErrorMessages.REQUEST_BODY_REQUIRED.getMessage());
@@ -43,6 +50,10 @@ public class PersonValidator {
             PersonRequest req,
             PeopleRepository peopleRepo,
             RoleRepository roleRepo) {
+
+        logger.info("Executing validateUpdate() "  + " input : " + req);
+
+        
         if (id == null)
             throw new PersonNotValidException(ErrorMessages.INVALID_ID.getMessage());
         if (req == null)

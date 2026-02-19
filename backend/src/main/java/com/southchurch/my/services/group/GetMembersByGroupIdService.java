@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,7 @@ import com.southchurch.my.Query;
 public class GetMembersByGroupIdService implements Query<String, List<Member>> {
 
     private final Directory directory;
+    private final static Logger logger = LoggerFactory.getLogger(GetMembersByGroupIdService.class);
 
     public GetMembersByGroupIdService(Directory directory) {
         this.directory = directory;
@@ -25,6 +28,8 @@ public class GetMembersByGroupIdService implements Query<String, List<Member>> {
 
     @Override
     public ResponseEntity<List<Member>> execute(String groupId) {
+
+        logger.info("Executing " + getClass() + " input : " + groupId);
 
         if (groupId == null || groupId.trim().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Collections.emptyList());

@@ -4,6 +4,8 @@ import java.util.UUID;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Caching;
@@ -33,6 +35,7 @@ public class UpdatePersonService implements Command<UpdatePersonCommand, PersonR
     private final RoleRepository roleRepo;
     private final FirebaseCustomClaimsService firebaseClaimsService;
     private final VerifyGoogleAccountService verifyGoogleAccountService;
+    private static final Logger logger = LoggerFactory.getLogger(UpdatePersonService.class);
 
     public UpdatePersonService(PeopleRepository peopleRepo, RoleRepository roleRepo,
             FirebaseCustomClaimsService firebaseClaimsService,
@@ -51,6 +54,8 @@ public class UpdatePersonService implements Command<UpdatePersonCommand, PersonR
             @CacheEvict(value = "personByFirebaseCache", allEntries = true)
     })
     public ResponseEntity<PersonResponse> execute(UpdatePersonCommand input) {
+
+        logger.info("Executing " + getClass() + " input : " + input);
 
         PersonRequest req = input.getRequest();
         UUID id = input.getId();

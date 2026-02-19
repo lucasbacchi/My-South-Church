@@ -1,5 +1,7 @@
 package com.southchurch.my.services.person;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import com.southchurch.my.repositories.PeopleRepository;
 public class GetPersonByEmailService implements Query<String, PersonResponse> {
 
     private final PeopleRepository repository;
+    private static final Logger logger = LoggerFactory.getLogger(GetPersonByEmailService.class);
 
     public GetPersonByEmailService(PeopleRepository repository) {
         this.repository = repository;
@@ -23,6 +26,8 @@ public class GetPersonByEmailService implements Query<String, PersonResponse> {
     @Override
     @Cacheable(value = "personByEmailCache", key = "#email.trim().toLowerCase()")
     public ResponseEntity<PersonResponse> execute(String email) {
+
+        logger.info("Executing " + getClass() + " input : " + email);
 
         String normalized = email.trim().toLowerCase();
 

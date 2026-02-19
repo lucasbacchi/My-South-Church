@@ -3,6 +3,8 @@ package com.southchurch.my.services.person;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,7 @@ public class DeletePersonService implements Command<UUID, Void> {
 
     private final PeopleRepository repository;
     private final FirebaseCustomClaimsService firebaseClaimsService;
+    private static final Logger logger = LoggerFactory.getLogger(DeletePersonService.class);
 
     public DeletePersonService(PeopleRepository repository, FirebaseCustomClaimsService firebaseClaimsService) {
         this.repository = repository;
@@ -36,6 +39,8 @@ public class DeletePersonService implements Command<UUID, Void> {
             @CacheEvict(value = "personByIdCache", key = "#id")
     })
     public ResponseEntity<Void> execute(UUID id) {
+
+        logger.info("Executing " + getClass() + " input : " + id);
 
         Optional<Person> person = repository.findById(id);
 

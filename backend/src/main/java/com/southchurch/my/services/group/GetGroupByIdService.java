@@ -2,6 +2,8 @@ package com.southchurch.my.services.group;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -15,6 +17,7 @@ import com.southchurch.my.Query;
 public class GetGroupByIdService implements Query<String, Group> {
 
     private final Directory directory;
+    private static final Logger logger = LoggerFactory.getLogger(GetGroupByIdService.class);
 
     public GetGroupByIdService(Directory directory) {
         this.directory = directory;
@@ -22,6 +25,9 @@ public class GetGroupByIdService implements Query<String, Group> {
 
     @Override
     public ResponseEntity<Group> execute(String groupId) {
+
+        logger.info("Executing " + getClass() + " input : " + groupId);
+
         if (groupId == null || groupId.trim().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }

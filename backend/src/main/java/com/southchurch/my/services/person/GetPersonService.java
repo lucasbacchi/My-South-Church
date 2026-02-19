@@ -2,6 +2,8 @@ package com.southchurch.my.services.person;
 
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,8 @@ public class GetPersonService implements Query<UUID, PersonResponse> {
 
     private final PeopleRepository repository;
 
+    private static final Logger logger = LoggerFactory.getLogger(GetPersonService.class);
+
     public GetPersonService(PeopleRepository repository) {
         this.repository = repository;
     }
@@ -25,6 +29,8 @@ public class GetPersonService implements Query<UUID, PersonResponse> {
     @Override
     @Cacheable(value = "personByIdCache", key = "#id")
     public ResponseEntity<PersonResponse> execute(UUID id) {
+
+        logger.info("Executing " + getClass() + " input : " + id);
 
         Person person = repository.findById(id)
                 .orElseThrow(PersonNotFoundException::new);

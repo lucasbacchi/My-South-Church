@@ -1,5 +1,7 @@
 package com.southchurch.my.services.person;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,7 @@ public class CreatePersonService implements Command<PersonRequest, PersonRespons
     private final RoleRepository roleRepository;
     private final FirebaseCustomClaimsService firebaseClaimsService;
     private final VerifyGoogleAccountService verifyGoogleAccountService;
+    private static final Logger logger = LoggerFactory.getLogger(CreatePersonService.class);
 
     public CreatePersonService(PeopleRepository repository, RoleRepository roleRepository,
             FirebaseCustomClaimsService firebaseClaimsService,
@@ -46,6 +49,8 @@ public class CreatePersonService implements Command<PersonRequest, PersonRespons
             @CacheEvict(value = "personByFirebaseCache", allEntries = true)
     })
     public ResponseEntity<PersonResponse> execute(PersonRequest input) {
+
+        logger.info("Executing " + getClass() + " input : " + input);
 
         PersonValidator.validateCreate(input, repository, roleRepository);
 

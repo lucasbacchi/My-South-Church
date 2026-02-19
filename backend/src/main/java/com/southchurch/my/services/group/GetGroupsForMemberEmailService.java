@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,7 @@ import com.southchurch.my.Query;
 public class GetGroupsForMemberEmailService implements Query<String, List<Group>> {
 
     private final Directory directory;
+    private static final Logger logger = LoggerFactory.getLogger(GetGroupsForMemberEmailService.class);
 
     // Inject the domain from application.properties
     @Value("${google.workspace.domain}")
@@ -31,6 +34,9 @@ public class GetGroupsForMemberEmailService implements Query<String, List<Group>
 
     @Override
     public ResponseEntity<List<Group>> execute(String memberEmail) {
+
+        logger.info("Executing " + getClass() + " input : " + memberEmail);
+
         if (memberEmail == null || memberEmail.trim().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Collections.emptyList());
         }

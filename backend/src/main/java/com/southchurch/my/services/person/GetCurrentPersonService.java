@@ -2,6 +2,8 @@ package com.southchurch.my.services.person;
 
 import java.time.LocalDateTime;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Caching;
@@ -21,6 +23,7 @@ public class GetCurrentPersonService implements Query<JwtAuthenticationToken, Pe
     private final GetPersonByFirebaseUIDService getPersonByFirebaseUIDService;
     private final GetPersonByEmailService getPersonByEmailService;
     private final PeopleRepository repository;
+    private static final Logger logger = LoggerFactory.getLogger(GetCurrentPersonService.class);
 
     public GetCurrentPersonService(GetPersonByFirebaseUIDService getPersonByFirebaseUIDService,
             GetPersonByEmailService getPersonByEmailService,
@@ -37,6 +40,8 @@ public class GetCurrentPersonService implements Query<JwtAuthenticationToken, Pe
             @CachePut(value = "personByFirebaseCache", key = "#result.body.firebaseUID.trim()", condition = "#result?.body?.firebaseUID != null")
     })
     public ResponseEntity<PersonResponse> execute(JwtAuthenticationToken authentication) {
+
+        logger.info("Executing " + getClass() + " input : " + authentication);
 
         // Get UID from token claims
         String uid = authentication.getToken().getClaimAsString("user_id");

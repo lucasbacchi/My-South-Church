@@ -5,6 +5,8 @@ import java.security.GeneralSecurityException;
 import java.util.Collections;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,7 @@ public class GetGroupsService implements Query<Void, List<Group>> {
 
     private final Directory directory;
     private final CloudIdentity ciService;
+    private static final Logger logger = LoggerFactory.getLogger(GetGroupsService.class);
 
     @Value("${google.workspace.domain}")
     private String domain;
@@ -41,6 +44,9 @@ public class GetGroupsService implements Query<Void, List<Group>> {
      */
     @Override
     public ResponseEntity<List<Group>> execute(Void input) {
+
+        logger.info("Executing " + getClass() + " input : " + input);
+
         try {
             return ResponseEntity.status(HttpStatus.OK).body(listGroups());
 
