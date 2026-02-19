@@ -571,7 +571,9 @@ export default function PeopleListPage() {
                             <TableRow key={person.id}>
                                 <TableCell>
                                     <div className="font-medium">
-                                        {person.firstName} {person.lastName}
+                                        <Link to={`/admin/people/${person.id}/view`} className="hover:underline">
+                                            {person.firstName} {person.lastName}
+                                        </Link>
                                     </div>
                                     <div className="text-xs text-muted-foreground">{person.id}</div>
                                 </TableCell>
@@ -615,7 +617,7 @@ export default function PeopleListPage() {
                                 <TableCell>
                                     <div className="flex flex-wrap gap-2">
                                         <Button asChild size="sm" variant="outline">
-                                            <Link to={`/admin/people/${person.id}`}>Edit</Link>
+                                            <Link to={`/admin/people/${person.id}/edit`}>Edit</Link>
                                         </Button>
                                         <Button
                                             size="sm"

@@ -13,7 +13,8 @@ export default [
         route("dashboard", "./pages/admin/AdminDashboardPage.tsx"),
         route("people", "./pages/admin/PeopleListPage.tsx"),
         route("people/new", "./pages/admin/PersonCreatePage.tsx"),
-        route("people/:personId", "./pages/admin/PersonEditPage.tsx"),
+        route("people/:personId/view", "./pages/admin/PersonViewPage.tsx"),
+        route("people/:personId/edit", "./pages/admin/PersonEditPage.tsx"),
     ]),
     route("*?", "catchall.tsx"),
 ] satisfies RouteConfig;

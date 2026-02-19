@@ -5,6 +5,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -152,6 +155,11 @@ public class PeopleController {
 
     @PostMapping("/{id}/verify-google-account")
     @PreAuthorize("@authorizationService.isAdmin(authentication)")
+    @Caching(put = @CachePut(value = "personByIdCache", key = "#id"), evict = {
+            @CacheEvict(value = "peopleAllCache", allEntries = true),
+            @CacheEvict(value = "personByEmailCache", allEntries = true),
+            @CacheEvict(value = "personByFirebaseCache", allEntries = true)
+    })
     public ResponseEntity<PersonResponse> verifyGoogleAccount(@PathVariable UUID id) {
         Person person = peopleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Person not found"));
@@ -165,6 +173,12 @@ public class PeopleController {
 
     @PostMapping("/verify-all-google-accounts")
     @PreAuthorize("@authorizationService.isAdmin(authentication)")
+    @Caching(evict = {
+            @CacheEvict(value = "peopleAllCache", allEntries = true),
+            @CacheEvict(value = "personByIdCache", allEntries = true),
+            @CacheEvict(value = "personByEmailCache", allEntries = true),
+            @CacheEvict(value = "personByFirebaseCache", allEntries = true)
+    })
     public ResponseEntity<String> verifyAllGoogleAccounts() {
         List<Person> people = peopleRepository.findAll();
         int verified = 0;
