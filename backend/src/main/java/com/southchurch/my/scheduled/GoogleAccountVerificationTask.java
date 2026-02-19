@@ -1,9 +1,11 @@
 package com.southchurch.my.scheduled;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +25,12 @@ public class GoogleAccountVerificationTask {
     private final VerifyGoogleAccountService verifyGoogleAccountService;
     private final PeopleRepository peopleRepository;
 
+    @Value("${google.account.verify.delay-ms:800}")
+    private long delayMs;
+
+    @Value("${google.account.verify.full-scan-interval-days:90}")
+    private long fullScanIntervalDays;
+
     public GoogleAccountVerificationTask(
             VerifyGoogleAccountService verifyGoogleAccountService,
             PeopleRepository peopleRepository) {
@@ -37,7 +45,11 @@ public class GoogleAccountVerificationTask {
      */
     @Scheduled(cron = "0 0 2 * * SUN")
     public void verifyAllGoogleAccounts() {
-        logger.info("[GoogleAccountVerification] Starting weekly verification task");
+        boolean shouldFullScan = fullScanIntervalDays > 0
+                && (LocalDate.now().toEpochDay() % fullScanIntervalDays == 0);
+        logger.info(
+                "[GoogleAccountVerification] Starting weekly verification task (fullScan={}, delayMs={}, intervalDays={})",
+                shouldFullScan, delayMs, fullScanIntervalDays);
 
         List<Person> people = peopleRepository.findAll();
         int verified = 0;
@@ -46,8 +58,8 @@ public class GoogleAccountVerificationTask {
         int skipped = 0;
 
         for (Person person : people) {
-            // Skip if already verified (to save API calls)
-            if (Boolean.TRUE.equals(person.getGoogleAccountVerified())) {
+            // Skip verified accounts unless we're doing the monthly full scan.
+            if (!shouldFullScan && Boolean.TRUE.equals(person.getGoogleAccountVerified())) {
                 skipped++;
                 continue;
             }
@@ -68,6 +80,17 @@ public class GoogleAccountVerificationTask {
                 logger.error("[GoogleAccountVerification] Error verifying {}: {}",
                         person.getPrimaryEmail(), e.getMessage());
                 indeterminate++;
+            }
+
+            // Throttle to avoid API rate limits
+            if (delayMs > 0) {
+                try {
+                    Thread.sleep(delayMs);
+                } catch (InterruptedException interrupted) {
+                    Thread.currentThread().interrupt();
+                    logger.warn("[GoogleAccountVerification] Verification task interrupted");
+                    break;
+                }
             }
         }
 
