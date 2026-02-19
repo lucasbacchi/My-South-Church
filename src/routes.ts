@@ -15,6 +15,10 @@ export default [
         route("people/new", "./pages/admin/PersonCreatePage.tsx"),
         route("people/:personId/view", "./pages/admin/PersonViewPage.tsx"),
         route("people/:personId/edit", "./pages/admin/PersonEditPage.tsx"),
+        route("groups", "./pages/admin/GroupListPage.tsx"),
+        route("groups/new", "./pages/admin/GroupCreatePage.tsx"),
+        route("groups/:groupId/view", "./pages/admin/GroupViewPage.tsx"),
+        route("groups/:groupId/edit", "./pages/admin/GroupEditPage.tsx"),
     ]),
     route("*?", "catchall.tsx"),
 ] satisfies RouteConfig;
