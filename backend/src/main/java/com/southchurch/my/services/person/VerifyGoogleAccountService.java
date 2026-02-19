@@ -22,12 +22,14 @@ public class VerifyGoogleAccountService {
     private static final Logger logger = LoggerFactory.getLogger(VerifyGoogleAccountService.class);
 
     private final Drive driveClient;
+    private final DrivePermissionCleanupService cleanupService;
 
     @Value("${google.drive.test-file-id}")
     private String testFileId;
 
-    public VerifyGoogleAccountService(Drive driveClient) {
+    public VerifyGoogleAccountService(Drive driveClient, DrivePermissionCleanupService cleanupService) {
         this.driveClient = driveClient;
+        this.cleanupService = cleanupService;
     }
 
     /**
@@ -49,29 +51,19 @@ public class VerifyGoogleAccountService {
                     .setEmailAddress(email.trim());
 
             // Attempt to share with notifications disabled
-            driveClient.permissions()
+            Permission created = driveClient.permissions()
                     .create(testFileId, permission)
                     .setSendNotificationEmail(false)
                     .setSupportsAllDrives(true)
+                    .setFields("id")
                     .execute();
 
             // If successful, the email is a Google Account
             logger.info("[GoogleAccountVerification] Email {} is a Google Account", email);
 
-            // Remove the permission immediately to keep the file clean
-            try {
-                String permissionId = getPermissionId(email);
-                if (permissionId != null) {
-                    driveClient.permissions()
-                            .delete(testFileId, permissionId)
-                            .setSupportsAllDrives(true)
-                            .execute();
-                    logger.info("[GoogleAccountVerification] Cleaned up test permission for {}", email);
-                }
-            } catch (Exception cleanupError) {
-                logger.warn("[GoogleAccountVerification] Failed to cleanup test permission for {}: {}",
-                        email, cleanupError.getMessage());
-                // Non-critical, continue
+            // Remove the permission asynchronously to return faster
+            if (created != null && created.getId() != null) {
+                cleanupService.deletePermissionAsync(testFileId, created.getId(), email);
             }
 
             return true;
@@ -127,29 +119,4 @@ public class VerifyGoogleAccountService {
                 || message.contains("visitor sharing disabled");
     }
 
-    /**
-     * Get the permission ID for a specific email address.
-     */
-    private String getPermissionId(String email) {
-        try {
-            var permissions = driveClient.permissions()
-                    .list(testFileId)
-                    .setSupportsAllDrives(true)
-                    .setFields("permissions(id,emailAddress)")
-                    .execute()
-                    .getPermissions();
-
-            if (permissions != null) {
-                for (Permission p : permissions) {
-                    if (email.equalsIgnoreCase(p.getEmailAddress())) {
-                        return p.getId();
-                    }
-                }
-            }
-        } catch (Exception e) {
-            logger.warn("[GoogleAccountVerification] Failed to get permission ID for {}: {}",
-                    email, e.getMessage());
-        }
-        return null;
-    }
 }
