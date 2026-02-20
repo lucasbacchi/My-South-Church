@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.southchurch.my.Query;
 import com.southchurch.my.dto.PersonResponse;
-import com.southchurch.my.exceptions.people.PersonNotFoundException;
+import com.southchurch.my.exceptions.PersonNotFoundException;
 import com.southchurch.my.models.Person;
 import com.southchurch.my.repositories.PeopleRepository;
 
@@ -26,6 +26,13 @@ public class GetPersonService implements Query<UUID, PersonResponse> {
         this.repository = repository;
     }
 
+    /**
+     * Executes a query to fetch a Person by their UUID.
+     * 
+     * @param id The UUID of the person to fetch.
+     * @return A ResponseEntity containing a PersonResponse or null if the user was not found.
+     * @throws PersonNotFoundException if the user was not found.
+     */
     @Override
     @Cacheable(value = "personByIdCache", key = "#id")
     public ResponseEntity<PersonResponse> execute(UUID id) {

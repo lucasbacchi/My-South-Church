@@ -24,6 +24,13 @@ public class GetPeopleService implements Query<Void, List<PersonResponse>> {
         this.repository = repository;
     }
 
+
+
+    /**
+     * Executes a database call to fetch all Person.
+     * 
+     * @return a ResponseEntity containing the fetched people, or an error if the call fails
+     */
     @Override
     @Cacheable(value = "peopleAllCache")
     public ResponseEntity<List<PersonResponse>> execute(Void input) {

@@ -41,6 +41,15 @@ public class CreatePersonService implements Command<PersonRequest, PersonRespons
         this.verifyGoogleAccountService = verifyGoogleAccountService;
     }
 
+    /**
+     * Creates a Person in the database from a given 
+     * PersonRequest and returns a ResponseEntity of PersonResponse.
+     * 
+     * @param input the PersonRequest to be created into a Person
+     * @return ResponseEntity of PersonResponse
+     * @throws PersonNotFoundException if the person does not exist in the database
+     * @throws PersonNotValidException if the person is not valid
+     */
     @Override
     @Transactional
     @Caching(evict = {

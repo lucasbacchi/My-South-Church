@@ -83,24 +83,52 @@ public class PeopleController {
         this.peopleRepository = peopleRepository;
     }
 
+    /**
+     * Creates a Person in the database from a given PersonRequest.
+     * 
+     * @param input the PersonRequest to be created into a Person
+     * @return a ResponseEntity containing a PersonResponse or an error if the call fails
+     * @throws PersonNotFoundException if the person does not exist in the database
+     * @throws PersonNotValidException if the person is not valid
+     */
     @PostMapping("")
     @PreAuthorize("@authorizationService.canCreatePerson(authentication)")
     public ResponseEntity<PersonResponse> createPerson(@RequestBody PersonRequest input) {
         return createPersonService.execute(input);
     }
 
+    /**
+     * Imports a list of people records into the database from a given list of JsonNode records.
+     * 
+     * @param records the list of JsonNode records to be imported into the database
+     * @return a ResponseEntity containing an ImportPeopleResult object, or an error if the call fails
+     */
     @PostMapping("/import")
     @PreAuthorize("@authorizationService.canCreatePerson(authentication)")
     public ResponseEntity<ImportPeopleResult> importPeople(@RequestBody List<JsonNode> records) {
         return importPeopleService.execute(records);
     }
 
+    /**
+     * Fetches a list of all Person records in the database.
+     * 
+     * This method is accessible by admins only.
+     * 
+     * @return a ResponseEntity containing a list of PersonResponse objects, or an error if the call fails
+     */
     @GetMapping("")
     @PreAuthorize("@authorizationService.isAdmin(authentication)")
     public ResponseEntity<List<PersonResponse>> getPeople() {
         return getPeopleService.execute(null);
     }
 
+    /**
+     * Exports a list of all Person records in the database as a JSON file.
+     * 
+     * This method is accessible by admins only.
+     * 
+     * @return a ResponseEntity containing a list of PersonResponse objects, or an error if the call fails
+     */
     @GetMapping("/export")
     @PreAuthorize("@authorizationService.isAdmin(authentication)")
     public ResponseEntity<List<PersonResponse>> exportPeople() {
@@ -118,41 +146,107 @@ public class PeopleController {
                 .body(people);
     }
 
+    /**
+     * Fetches a person record in the database by their Firebase UID.
+     * 
+     * This method is accessible by admins only.
+     * 
+     * @param uid the Firebase UID of the person to fetch
+     * @return a ResponseEntity containing a PersonResponse or null if the user was not found
+     * @throws PersonNotFoundException if the user was not found
+     */
     @GetMapping("/firebase/{uid}")
     @PreAuthorize("@authorizationService.isAdmin(authentication)")
     public ResponseEntity<PersonResponse> getPersonByFirebaseUID(@PathVariable String uid) {
         return getPersonByFirebaseUID.execute(uid);
     }
 
+    /**
+     * Fetches a person record in the database by their primary email address.
+     * 
+     * This method is accessible by admins only.
+     * 
+     * @param primaryEmail the primary email address of the person to fetch
+     * @return a ResponseEntity containing a PersonResponse or null if the user was not found
+     * @throws PersonNotFoundException if the user was not found
+     */
     @GetMapping("/email/{email}")
     @PreAuthorize("@authorizationService.isAdmin(authentication)")
     public ResponseEntity<PersonResponse> getPersonByPrimaryEmail(@PathVariable("email") String primaryEmail) {
         return getPersonByEmailService.execute(primaryEmail);
     }
 
+    /**
+     * Fetches a person record in the database by their UUID.
+     * 
+     * This method is accessible by admins only.
+     * 
+     * @param id the UUID of the person to fetch
+     * @return a ResponseEntity containing a PersonResponse or null if the user was not found
+     * @throws PersonNotFoundException if the user was not found
+     */
     @GetMapping("/id/{id}")
     @PreAuthorize("@authorizationService.isAdmin(authentication)")
     public ResponseEntity<PersonResponse> getPerson(@PathVariable UUID id) {
         return getPersonService.execute(id);
     }
 
+    /**
+     * Fetches a person record in the database by their authentication token.
+     * 
+     * This method is accessible by authenticated users only.
+     * 
+     * @param authentication the authentication token to fetch the person
+     * @return a ResponseEntity containing a PersonResponse or null if the user was not found
+     * @throws PersonNotFoundException if the user was not found
+     */
     @GetMapping("/me")
     public ResponseEntity<PersonResponse> getCurrentPerson(JwtAuthenticationToken authentication) {
         return getCurrentPersonService.execute(authentication);
     }
 
+    /**
+     * Updates a person record in the database by their UUID.
+     * 
+     * This method is accessible by authenticated users only if they have the necessary permissions.
+     * 
+     * @param id the UUID of the person to update
+     * @param request the PersonRequest containing the updated information
+     * @return a ResponseEntity containing a PersonResponse or an error if the call fails
+     * @throws PersonNotFoundException if the person does not exist in the database
+     * @throws PersonNotValidException if the person is not valid
+     */
     @PutMapping("/{id}")
     @PreAuthorize("@authorizationService.canUpdatePerson(authentication)")
     public ResponseEntity<PersonResponse> updatePerson(@PathVariable UUID id, @RequestBody PersonRequest request) {
         return updatePersonService.execute(new UpdatePersonCommand(id, request));
     }
 
+
+    /**
+     * Deletes a person record in the database by their UUID.
+     * 
+     * This method is accessible by authenticated users only if they have the necessary permissions.
+     * 
+     * @param id the UUID of the person to delete
+     * @return a ResponseEntity containing the status of the operation
+     * @throws PersonNotFoundException if the person does not exist in the database
+     */
     @DeleteMapping("/{id}")
     @PreAuthorize("@authorizationService.canDeletePerson(authentication)")
     public ResponseEntity<Void> deletePerson(@PathVariable UUID id) {
         return deletePersonService.execute(id);
     }
 
+    /**
+     * Verifies a person's Google account by their primary email address.
+     * 
+     * This method is accessible by admins only.
+     * 
+     * @param id the UUID of the person to verify
+     * @return a ResponseEntity containing a PersonResponse or an error if the call fails
+     * @throws PersonNotFoundException if the person does not exist in the database
+     */
     @PostMapping("/{id}/verify-google-account")
     @PreAuthorize("@authorizationService.isAdmin(authentication)")
     @Caching(put = @CachePut(value = "personByIdCache", key = "#id"), evict = {
@@ -171,6 +265,13 @@ public class PeopleController {
         return ResponseEntity.ok(new PersonResponse(person));
     }
 
+    /**
+     * Verifies all people in the database by their primary email address.
+     * 
+     * This method is accessible by admins only.
+     * 
+     * @return a ResponseEntity containing a string message indicating the result of the verification process
+     */
     @PostMapping("/verify-all-google-accounts")
     @PreAuthorize("@authorizationService.isAdmin(authentication)")
     @Caching(evict = {

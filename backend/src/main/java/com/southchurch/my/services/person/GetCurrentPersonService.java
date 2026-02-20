@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.southchurch.my.Query;
 import com.southchurch.my.dto.PersonResponse;
-import com.southchurch.my.exceptions.people.PersonNotFoundException;
+import com.southchurch.my.exceptions.PersonNotFoundException;
 import com.southchurch.my.models.Person;
 import com.southchurch.my.repositories.PeopleRepository;
 
@@ -33,6 +33,13 @@ public class GetCurrentPersonService implements Query<JwtAuthenticationToken, Pe
         this.repository = repository;
     }
 
+    /**
+     * Executes a query to get the current logged in Person by a JWT authentication token.
+     * 
+     * @param authentication the JWT authentication token.
+     * @return a ResponseEntity containing a PersonResponse or null if the user was not found.
+     * @throws PersonNotFoundException if the user was not found.
+     */
     @Override
     @Caching(evict = @CacheEvict(value = "peopleAllCache", allEntries = true), put = {
             @CachePut(value = "personByIdCache", key = "#result.body.id", condition = "#result?.body?.id != null"),

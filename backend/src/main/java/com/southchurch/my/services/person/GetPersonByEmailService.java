@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.southchurch.my.Query;
 import com.southchurch.my.dto.PersonResponse;
-import com.southchurch.my.exceptions.people.PersonNotFoundException;
+import com.southchurch.my.exceptions.PersonNotFoundException;
 import com.southchurch.my.models.Person;
 import com.southchurch.my.repositories.PeopleRepository;
 
@@ -23,6 +23,13 @@ public class GetPersonByEmailService implements Query<String, PersonResponse> {
         this.repository = repository;
     }
 
+    /**
+     * Executes a query to fetch a person by their email address.
+     * 
+     * @param email the email address of the person to fetch
+     * @return a ResponseEntity containing the fetched person, or an error if the call fails
+     * @throws PersonNotFoundException if the person does not exist in the database
+     */
     @Override
     @Cacheable(value = "personByEmailCache", key = "#email.trim().toLowerCase()")
     public ResponseEntity<PersonResponse> execute(String email) {

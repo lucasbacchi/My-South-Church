@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.southchurch.my.Command;
-import com.southchurch.my.exceptions.people.PersonNotFoundException;
+import com.southchurch.my.exceptions.PersonNotFoundException;
 import com.southchurch.my.models.Person;
 import com.southchurch.my.repositories.PeopleRepository;
 import com.southchurch.my.security.FirebaseCustomClaimsService;
@@ -30,6 +30,12 @@ public class DeletePersonService implements Command<UUID, Void> {
         this.firebaseClaimsService = firebaseClaimsService;
     }
 
+    /**
+     * Deletes a Person given UUID  from the database.
+     * 
+     * @param id The UUID of the person to remove.
+     * @return A ResponseEntity containing the status of the operation.
+     */
     @Override
     @Transactional
     @Caching(evict = {

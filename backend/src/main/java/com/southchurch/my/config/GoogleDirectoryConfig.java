@@ -37,6 +37,7 @@ public class GoogleDirectoryConfig {
                 GoogleCredentials scopedCredentials = credentials
                                 .createScoped(List.of(
                                                 DirectoryScopes.ADMIN_DIRECTORY_GROUP_READONLY,
+                                                DirectoryScopes.ADMIN_DIRECTORY_USER_READONLY,
                                                 DirectoryScopes.ADMIN_DIRECTORY_GROUP_MEMBER_READONLY));
 
                 return new Directory.Builder(

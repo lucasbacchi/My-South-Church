@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import com.southchurch.my.dto.PersonRequest;
 import com.southchurch.my.exceptions.ErrorMessages;
-import com.southchurch.my.exceptions.people.PersonNotValidException;
+import com.southchurch.my.exceptions.PersonNotValidException;
 import com.southchurch.my.models.Role;
 import com.southchurch.my.repositories.PeopleRepository;
 import com.southchurch.my.repositories.RoleRepository;
@@ -21,6 +21,15 @@ public class PersonValidator {
     public PersonValidator() {
     }
 
+    /**
+     * Validates a PersonRequest for creating a new Person in the database.
+     * 
+     * @param req the PersonRequest to validate
+     * @param peopleRepo the PeopleRepository to check for uniqueness
+     * @param roleRepo the RoleRepository to check for role existence
+     * @throws PersonNotValidException if the PersonRequest is null, or if any of the required fields are blank,
+     * or if the primary email address is not unique, or if the Firebase UID is not unique, or if any of the roles are invalid.
+     */
     public static void validateCreate(
             PersonRequest req,
             PeopleRepository peopleRepo,
@@ -45,6 +54,15 @@ public class PersonValidator {
         validateRolesExist(req.getRoles(), roleRepo);
     }
 
+    /**
+     * Validates a PersonRequest for an update operation.
+     *
+     * @param id the ID of the person to be updated
+     * @param req the PersonRequest to be validated
+     * @param peopleRepo the PeopleRepository to be used for validation
+     * @param roleRepo the RoleRepository to be used for validation
+     * @throws PersonNotValidException if the request is invalid
+     */
     public static void validateUpdate(
             UUID id,
             PersonRequest req,

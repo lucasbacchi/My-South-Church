@@ -2,7 +2,6 @@ package com.southchurch.my.services.group;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -12,12 +11,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.cloudidentity.v1.CloudIdentity;
 import com.google.api.services.cloudidentity.v1.model.LookupGroupNameResponse;
 import com.google.api.services.directory.Directory;
 import com.google.api.services.directory.model.Group;
 import com.google.api.services.directory.model.Groups;
 import com.southchurch.my.Query;
+import com.southchurch.my.exceptions.GoogleWorkspaceException;
 
 @Service
 public class GetGroupsService implements Query<Void, List<Group>> {
@@ -36,44 +37,47 @@ public class GetGroupsService implements Query<Void, List<Group>> {
     }
 
     /**
-     * Executes the query to retrieve a list of groups.
-     * 
-     * @return A ResponseEntity containing a list of Group objects. If an error
-     *         occurs during the execution of the query, a ResponseEntity with a
-     *         status of 500 and an empty list is returned.
+     * Executes a Google Workspace Directory API call to fetch all groups in the domain.
+     *
+     * @param input the input to the query (not used)
+     * @return a ResponseEntity containing the fetched groups, or an error if the call fails
      */
     @Override
     public ResponseEntity<List<Group>> execute(Void input) {
 
         logger.info("Executing " + getClass() + " input : " + input);
 
-        try {
-            return ResponseEntity.status(HttpStatus.OK).body(listGroups());
-
-        } catch (IOException | GeneralSecurityException e) {
-
-            return ResponseEntity.status(500).body(Collections.emptyList());
-        }
+        return ResponseEntity.status(HttpStatus.OK).body(listGroups());
     }
 
     /**
-     * Retrieves a list of groups from the configured Google Workspace domain.
+     * Lists all groups in the domain.
      *
-     * @return A list of Group objects.
-     * @throws IOException              If an I/O error occurs while executing the
-     *                                  query.
-     * @throws GeneralSecurityException If an authentication error occurs while
-     *                                  executing the query.
+     * @return a list of groups, or throws a GoogleWorkspaceException if the call fails
+     * @throws GoogleWorkspaceException if the call fails
      */
-    public List<Group> listGroups() throws IOException, GeneralSecurityException {
+    public List<Group> listGroups() {
 
-        Groups result = directory
+        try{
+            Groups result = directory
                 .groups()
                 .list()
                 .setDomain(domain)
                 .execute();
-        return result.getGroups();
+            return result.getGroups();
+        } catch(GoogleJsonResponseException e){
+
+            String msg = (e.getDetails() != null && e.getDetails().getMessage() != null)
+                ? e.getDetails().getMessage()
+                : "Google Workspace error while listing groups";
+
+            throw new GoogleWorkspaceException(msg, e.getStatusCode(), e);
+        } catch (IOException e){
+            throw new GoogleWorkspaceException("Google Workspace call failed while listing groups", 502, e);
+        }
     }
+
+    
 
     public boolean isMemberOfGroup(String userEmail, String groupEmail) throws IOException, GeneralSecurityException {
         try {

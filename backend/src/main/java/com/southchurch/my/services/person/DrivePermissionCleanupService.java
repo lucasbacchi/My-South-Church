@@ -18,6 +18,13 @@ public class DrivePermissionCleanupService {
         this.driveClient = driveClient;
     }
 
+    /**
+     * Asynchronously deletes a permission on a Google Drive file.
+     * 
+     * @param fileId the ID of the file to delete the permission from
+     * @param permissionId the ID of the permission to delete
+     * @param email the email address associated with the permission to delete
+     */
     @Async
     public void deletePermissionAsync(String fileId, String permissionId, String email) {
         if (fileId == null || permissionId == null) {
