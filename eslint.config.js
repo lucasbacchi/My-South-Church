@@ -42,8 +42,7 @@ export default [
 
     // Apply recommended configs
     pluginJs.configs.recommended,
-    ...tseslint.configs.recommendedTypeChecked,
-    ...tseslint.configs.stylisticTypeChecked, // consistent type definitions
+    ...tseslint.configs.recommended,
 
     // React configuration
     {
@@ -81,31 +80,24 @@ export default [
         },
     },
 
-    // TypeScript specific rules
+    // TypeScript source files with type-aware linting
     {
-        files: ["**/*.{ts,tsx}"],
+        files: ["src/**/*.{ts,tsx}"],
         languageOptions: {
             parserOptions: {
                 project: ["./tsconfig.app.json"],
                 tsconfigRootDir: import.meta.dirname,
             },
         },
-        rules: {
-            // TypeScript optimizations
-            "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
-            "@typescript-eslint/no-explicit-any": "warn",
-            "@typescript-eslint/consistent-type-imports": [
-                "warn",
-                { prefer: "type-imports", fixStyle: "inline-type-imports" },
-            ], // Optimization for bundlers
-            "@typescript-eslint/prefer-nullish-coalescing": "warn", // Better null handling
-
-            // Disable rules that conflict with Prettier or are too strict
-            "@typescript-eslint/no-empty-function": "off",
-        },
     },
+    ...tseslint.configs.recommendedTypeChecked
+        .filter((c) => !c.files)
+        .map((c) => ({ ...c, files: ["src/**/*.{ts,tsx}"] })),
+    ...tseslint.configs.stylisticTypeChecked
+        .filter((c) => !c.files)
+        .map((c) => ({ ...c, files: ["src/**/*.{ts,tsx}"] })),
 
-    // Build and config files
+    // TypeScript for config files (no type checking)
     {
         files: ["vite.config.ts", "react-router.config.ts", "eslint.config.js"],
         languageOptions: {
@@ -126,7 +118,7 @@ export default [
             "sort-imports": [
                 "error",
                 {
-                    ignoreDeclarationSort: true, // let IDE/prettier handle this mostly for groups
+                    ignoreDeclarationSort: true,
                     ignoreMemberSort: false,
                 },
             ],
