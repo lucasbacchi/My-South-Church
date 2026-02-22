@@ -91,7 +91,9 @@ public class UpdatePersonService implements Command<UpdatePersonCommand, PersonR
             person.setPrimaryEmail(newEmail);
         }
 
-        if (req.getSecondaryEmail() != null) {
+        if (req.getSecondaryEmail() == null) {
+            person.setSecondaryEmail(null);
+        } else {
             String se = req.getSecondaryEmail().trim();
             person.setSecondaryEmail(se.isEmpty() ? null : se);
         }
