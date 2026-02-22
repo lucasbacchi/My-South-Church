@@ -42,7 +42,7 @@ public class CreatePersonService implements Command<PersonRequest, PersonRespons
     }
 
     /**
-     * Creates a Person in the database from a given 
+     * Creates a Person in the database from a given
      * PersonRequest and returns a ResponseEntity of PersonResponse.
      * 
      * @param input the PersonRequest to be created into a Person

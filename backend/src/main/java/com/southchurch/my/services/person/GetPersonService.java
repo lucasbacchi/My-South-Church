@@ -30,7 +30,8 @@ public class GetPersonService implements Query<UUID, PersonResponse> {
      * Executes a query to fetch a Person by their UUID.
      * 
      * @param id The UUID of the person to fetch.
-     * @return A ResponseEntity containing a PersonResponse or null if the user was not found.
+     * @return A ResponseEntity containing a PersonResponse or null if the user was
+     *         not found.
      * @throws PersonNotFoundException if the user was not found.
      */
     @Override

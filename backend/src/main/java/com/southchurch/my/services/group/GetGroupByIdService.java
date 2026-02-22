@@ -28,7 +28,8 @@ public class GetGroupByIdService implements Query<String, Group> {
      * Executes a Google Workspace Directory API call to fetch a group by ID.
      *
      * @param groupId the ID of the group to fetch
-     * @return a ResponseEntity containing the fetched group, or an error if the call fails
+     * @return a ResponseEntity containing the fetched group, or an error if the
+     *         call fails
      * @throws IllegalArgumentException if the groupId is null or empty
      */
     @Override
@@ -47,11 +48,12 @@ public class GetGroupByIdService implements Query<String, Group> {
      * Fetches a group by ID from the Google Workspace Directory API.
      *
      * @param id the ID of the group to fetch
-     * @return the fetched group, or throws a GoogleWorkspaceException if the call fails
+     * @return the fetched group, or throws a GoogleWorkspaceException if the call
+     *         fails
      * @throws GoogleWorkspaceException if the call fails
      */
     private Group fetchGroup(String id) {
-       try {
+        try {
             return directory.groups().get(id).execute();
 
         } catch (GoogleJsonResponseException e) {
@@ -65,8 +67,7 @@ public class GetGroupByIdService implements Query<String, Group> {
             throw new GoogleWorkspaceException(
                     "Google Workspace call failed while fetching group: " + id,
                     502,
-                    e
-            );
+                    e);
         }
     }
 

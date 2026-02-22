@@ -96,12 +96,14 @@ public class VerifyGoogleAccountService {
     }
 
     /**
-     * Determines if the given Google error is due to the email not being a Google Account.
+     * Determines if the given Google error is due to the email not being a Google
+     * Account.
      * 
-     * @param statusCode the HTTP status code of the error
-     * @param reason the reason for the error, if available
+     * @param statusCode   the HTTP status code of the error
+     * @param reason       the reason for the error, if available
      * @param errorMessage the error message, if available
-     * @return true if the error is due to the email not being a Google Account, false otherwise
+     * @return true if the error is due to the email not being a Google Account,
+     *         false otherwise
      */
     private boolean isNotGoogleAccountError(int statusCode, String reason, String errorMessage) {
         String message = errorMessage == null ? "" : errorMessage.toLowerCase();

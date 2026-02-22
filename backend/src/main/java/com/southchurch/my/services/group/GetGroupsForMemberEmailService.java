@@ -33,10 +33,12 @@ public class GetGroupsForMemberEmailService implements Query<String, List<Group>
     }
 
     /**
-     * Executes a Google Workspace Directory API call to fetch all groups that a member belongs to.
+     * Executes a Google Workspace Directory API call to fetch all groups that a
+     * member belongs to.
      *
      * @param memberEmail the email address of the member to fetch groups for
-     * @return a ResponseEntity containing the fetched groups, or an error if the call fails
+     * @return a ResponseEntity containing the fetched groups, or an error if the
+     *         call fails
      * @throws IllegalArgumentException if the memberEmail is null or empty
      */
     @Override
@@ -45,7 +47,7 @@ public class GetGroupsForMemberEmailService implements Query<String, List<Group>
         logger.info("Executing " + getClass() + " input : " + memberEmail);
 
         if (memberEmail == null || memberEmail.trim().isEmpty()) {
-           throw new IllegalArgumentException("memberEmail must not be blank");
+            throw new IllegalArgumentException("memberEmail must not be blank");
         }
 
         String email = memberEmail.trim().toLowerCase();
@@ -58,37 +60,37 @@ public class GetGroupsForMemberEmailService implements Query<String, List<Group>
 
     /**
      * Ensures that the given email address is associated with a Google Account.
-     * If the email address is not associated with a Google Account, throws a GoogleWorkspaceException.
+     * If the email address is not associated with a Google Account, throws a
+     * GoogleWorkspaceException.
      * 
      * @param email the email address to check
-     * @throws GoogleWorkspaceException if the email address is not associated with a Google Account
+     * @throws GoogleWorkspaceException if the email address is not associated with
+     *                                  a Google Account
      */
     private void ensureGoogleAccountExists(String email) {
-        try{
+        try {
             directory.users().get(email).execute();
         } catch (GoogleJsonResponseException e) {
 
             if (e.getStatusCode() == 404) {
                 throw new GoogleWorkspaceException(
-                    "This member does not have a Google Account associated with their email address: " + email +
-                    ". They must create/activate a Google account before group memberships can be retrieved.",
-                    400,
-                    e
-                );
+                        "This member does not have a Google Account associated with their email address: " + email +
+                                ". They must create/activate a Google account before group memberships can be retrieved.",
+                        400,
+                        e);
             }
 
             String msg = (e.getDetails() != null && e.getDetails().getMessage() != null)
-                ? e.getDetails().getMessage()
-                : "Google Directory API error while checking if user exists";
+                    ? e.getDetails().getMessage()
+                    : "Google Directory API error while checking if user exists";
 
             throw new GoogleWorkspaceException(msg, e.getStatusCode(), e);
 
         } catch (IOException e) {
             throw new GoogleWorkspaceException(
-                "Google Workspace call failed while checking if user exists",
-                502,
-                e
-            );
+                    "Google Workspace call failed while checking if user exists",
+                    502,
+                    e);
         }
     }
 
@@ -99,13 +101,13 @@ public class GetGroupsForMemberEmailService implements Query<String, List<Group>
      * @return a list of groups that the member belongs to
      * @throws GoogleWorkspaceException if the call fails
      */
-    private List<Group> listGroupsForMember(String memberEmail){
+    private List<Group> listGroupsForMember(String memberEmail) {
 
-        try{
-            
+        try {
+
             List<Group> all = new ArrayList<>();
             String pageToken = null;
-    
+
             do {
                 Groups result = directory.groups()
                         .list()
@@ -115,10 +117,10 @@ public class GetGroupsForMemberEmailService implements Query<String, List<Group>
                         .execute();
                 if (result.getGroups() != null)
                     all.addAll(result.getGroups());
-    
+
                 pageToken = result.getNextPageToken();
             } while (pageToken != null && !pageToken.isBlank());
-    
+
             return all;
 
         } catch (GoogleJsonResponseException e) {
@@ -132,10 +134,9 @@ public class GetGroupsForMemberEmailService implements Query<String, List<Group>
             throw new GoogleWorkspaceException(
                     "Google Workspace call failed while listing groups for member",
                     502,
-                    e
-            );
+                    e);
         }
-        
+
     }
 
 }

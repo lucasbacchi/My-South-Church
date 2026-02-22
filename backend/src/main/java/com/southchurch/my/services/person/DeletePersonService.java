@@ -31,7 +31,7 @@ public class DeletePersonService implements Command<UUID, Void> {
     }
 
     /**
-     * Deletes a Person given UUID  from the database.
+     * Deletes a Person given UUID from the database.
      * 
      * @param id The UUID of the person to remove.
      * @return A ResponseEntity containing the status of the operation.

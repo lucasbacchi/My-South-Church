@@ -34,10 +34,12 @@ public class GetCurrentPersonService implements Query<JwtAuthenticationToken, Pe
     }
 
     /**
-     * Executes a query to get the current logged in Person by a JWT authentication token.
+     * Executes a query to get the current logged in Person by a JWT authentication
+     * token.
      * 
      * @param authentication the JWT authentication token.
-     * @return a ResponseEntity containing a PersonResponse or null if the user was not found.
+     * @return a ResponseEntity containing a PersonResponse or null if the user was
+     *         not found.
      * @throws PersonNotFoundException if the user was not found.
      */
     @Override

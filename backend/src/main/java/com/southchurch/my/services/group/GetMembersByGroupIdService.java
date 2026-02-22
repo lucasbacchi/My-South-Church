@@ -28,10 +28,12 @@ public class GetMembersByGroupIdService implements Query<String, List<Member>> {
     }
 
     /**
-     * Executes a Google Workspace Directory API call to fetch all members of a group with the given ID.
+     * Executes a Google Workspace Directory API call to fetch all members of a
+     * group with the given ID.
      * 
      * @param groupId the ID of the group to fetch members for
-     * @return a ResponseEntity containing the fetched members, or an error if the call fails
+     * @return a ResponseEntity containing the fetched members, or an error if the
+     *         call fails
      * @throws IllegalArgumentException if the groupId is null or empty
      */
     @Override
@@ -40,7 +42,7 @@ public class GetMembersByGroupIdService implements Query<String, List<Member>> {
         logger.info("Executing " + getClass() + " input : " + groupId);
 
         if (groupId == null || groupId.trim().isEmpty()) {
-           throw new IllegalArgumentException("groupId must not be blank");
+            throw new IllegalArgumentException("groupId must not be blank");
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(listMembers(groupId));
@@ -50,12 +52,13 @@ public class GetMembersByGroupIdService implements Query<String, List<Member>> {
      * Lists all members of a group with the given ID.
      *
      * @param groupId the ID of the group to fetch members for
-     * @return a list of members of the group, or throws a GoogleWorkspaceException if the call fails
+     * @return a list of members of the group, or throws a GoogleWorkspaceException
+     *         if the call fails
      * @throws GoogleWorkspaceException if the call fails
      */
-    private List<Member> listMembers(String groupId){
+    private List<Member> listMembers(String groupId) {
 
-        try{
+        try {
             List<Member> all = new ArrayList<>();
             String pageToken = null;
 
@@ -64,13 +67,13 @@ public class GetMembersByGroupIdService implements Query<String, List<Member>> {
                         .list(groupId)
                         .setPageToken(pageToken)
                         .execute();
-    
+
                 if (result.getMembers() != null)
                     all.addAll(result.getMembers());
-    
+
                 pageToken = result.getNextPageToken();
             } while (pageToken != null && !pageToken.isBlank());
-    
+
             return all;
 
         } catch (GoogleJsonResponseException e) {
@@ -82,10 +85,9 @@ public class GetMembersByGroupIdService implements Query<String, List<Member>> {
 
         } catch (IOException e) {
             throw new GoogleWorkspaceException(
-                "Google Workspace call failed while listing members for group: " + groupId,
-                502,
-                e
-            );
-        } 
+                    "Google Workspace call failed while listing members for group: " + groupId,
+                    502,
+                    e);
+        }
     }
 }

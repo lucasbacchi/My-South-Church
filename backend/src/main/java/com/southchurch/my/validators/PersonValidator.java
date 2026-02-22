@@ -24,18 +24,21 @@ public class PersonValidator {
     /**
      * Validates a PersonRequest for creating a new Person in the database.
      * 
-     * @param req the PersonRequest to validate
+     * @param req        the PersonRequest to validate
      * @param peopleRepo the PeopleRepository to check for uniqueness
-     * @param roleRepo the RoleRepository to check for role existence
-     * @throws PersonNotValidException if the PersonRequest is null, or if any of the required fields are blank,
-     * or if the primary email address is not unique, or if the Firebase UID is not unique, or if any of the roles are invalid.
+     * @param roleRepo   the RoleRepository to check for role existence
+     * @throws PersonNotValidException if the PersonRequest is null, or if any of
+     *                                 the required fields are blank,
+     *                                 or if the primary email address is not
+     *                                 unique, or if the Firebase UID is not unique,
+     *                                 or if any of the roles are invalid.
      */
     public static void validateCreate(
             PersonRequest req,
             PeopleRepository peopleRepo,
             RoleRepository roleRepo) {
 
-        logger.info("Executing validateCreate() "  + " input : " + req);
+        logger.info("Executing validateCreate() " + " input : " + req);
 
         if (req == null) {
             throw new PersonNotValidException(ErrorMessages.REQUEST_BODY_REQUIRED.getMessage());
@@ -57,10 +60,10 @@ public class PersonValidator {
     /**
      * Validates a PersonRequest for an update operation.
      *
-     * @param id the ID of the person to be updated
-     * @param req the PersonRequest to be validated
+     * @param id         the ID of the person to be updated
+     * @param req        the PersonRequest to be validated
      * @param peopleRepo the PeopleRepository to be used for validation
-     * @param roleRepo the RoleRepository to be used for validation
+     * @param roleRepo   the RoleRepository to be used for validation
      * @throws PersonNotValidException if the request is invalid
      */
     public static void validateUpdate(
@@ -69,9 +72,8 @@ public class PersonValidator {
             PeopleRepository peopleRepo,
             RoleRepository roleRepo) {
 
-        logger.info("Executing validateUpdate() "  + " input : " + req);
+        logger.info("Executing validateUpdate() " + " input : " + req);
 
-        
         if (id == null)
             throw new PersonNotValidException(ErrorMessages.INVALID_ID.getMessage());
         if (req == null)

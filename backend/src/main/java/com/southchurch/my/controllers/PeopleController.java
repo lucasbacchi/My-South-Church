@@ -87,7 +87,8 @@ public class PeopleController {
      * Creates a Person in the database from a given PersonRequest.
      * 
      * @param input the PersonRequest to be created into a Person
-     * @return a ResponseEntity containing a PersonResponse or an error if the call fails
+     * @return a ResponseEntity containing a PersonResponse or an error if the call
+     *         fails
      * @throws PersonNotFoundException if the person does not exist in the database
      * @throws PersonNotValidException if the person is not valid
      */
@@ -98,10 +99,12 @@ public class PeopleController {
     }
 
     /**
-     * Imports a list of people records into the database from a given list of JsonNode records.
+     * Imports a list of people records into the database from a given list of
+     * JsonNode records.
      * 
      * @param records the list of JsonNode records to be imported into the database
-     * @return a ResponseEntity containing an ImportPeopleResult object, or an error if the call fails
+     * @return a ResponseEntity containing an ImportPeopleResult object, or an error
+     *         if the call fails
      */
     @PostMapping("/import")
     @PreAuthorize("@authorizationService.canCreatePerson(authentication)")
@@ -114,7 +117,8 @@ public class PeopleController {
      * 
      * This method is accessible by admins only.
      * 
-     * @return a ResponseEntity containing a list of PersonResponse objects, or an error if the call fails
+     * @return a ResponseEntity containing a list of PersonResponse objects, or an
+     *         error if the call fails
      */
     @GetMapping("")
     @PreAuthorize("@authorizationService.isAdmin(authentication)")
@@ -127,7 +131,8 @@ public class PeopleController {
      * 
      * This method is accessible by admins only.
      * 
-     * @return a ResponseEntity containing a list of PersonResponse objects, or an error if the call fails
+     * @return a ResponseEntity containing a list of PersonResponse objects, or an
+     *         error if the call fails
      */
     @GetMapping("/export")
     @PreAuthorize("@authorizationService.isAdmin(authentication)")
@@ -152,7 +157,8 @@ public class PeopleController {
      * This method is accessible by admins only.
      * 
      * @param uid the Firebase UID of the person to fetch
-     * @return a ResponseEntity containing a PersonResponse or null if the user was not found
+     * @return a ResponseEntity containing a PersonResponse or null if the user was
+     *         not found
      * @throws PersonNotFoundException if the user was not found
      */
     @GetMapping("/firebase/{uid}")
@@ -167,7 +173,8 @@ public class PeopleController {
      * This method is accessible by admins only.
      * 
      * @param primaryEmail the primary email address of the person to fetch
-     * @return a ResponseEntity containing a PersonResponse or null if the user was not found
+     * @return a ResponseEntity containing a PersonResponse or null if the user was
+     *         not found
      * @throws PersonNotFoundException if the user was not found
      */
     @GetMapping("/email/{email}")
@@ -182,7 +189,8 @@ public class PeopleController {
      * This method is accessible by admins only.
      * 
      * @param id the UUID of the person to fetch
-     * @return a ResponseEntity containing a PersonResponse or null if the user was not found
+     * @return a ResponseEntity containing a PersonResponse or null if the user was
+     *         not found
      * @throws PersonNotFoundException if the user was not found
      */
     @GetMapping("/id/{id}")
@@ -197,7 +205,8 @@ public class PeopleController {
      * This method is accessible by authenticated users only.
      * 
      * @param authentication the authentication token to fetch the person
-     * @return a ResponseEntity containing a PersonResponse or null if the user was not found
+     * @return a ResponseEntity containing a PersonResponse or null if the user was
+     *         not found
      * @throws PersonNotFoundException if the user was not found
      */
     @GetMapping("/me")
@@ -208,11 +217,13 @@ public class PeopleController {
     /**
      * Updates a person record in the database by their UUID.
      * 
-     * This method is accessible by authenticated users only if they have the necessary permissions.
+     * This method is accessible by authenticated users only if they have the
+     * necessary permissions.
      * 
-     * @param id the UUID of the person to update
+     * @param id      the UUID of the person to update
      * @param request the PersonRequest containing the updated information
-     * @return a ResponseEntity containing a PersonResponse or an error if the call fails
+     * @return a ResponseEntity containing a PersonResponse or an error if the call
+     *         fails
      * @throws PersonNotFoundException if the person does not exist in the database
      * @throws PersonNotValidException if the person is not valid
      */
@@ -222,11 +233,11 @@ public class PeopleController {
         return updatePersonService.execute(new UpdatePersonCommand(id, request));
     }
 
-
     /**
      * Deletes a person record in the database by their UUID.
      * 
-     * This method is accessible by authenticated users only if they have the necessary permissions.
+     * This method is accessible by authenticated users only if they have the
+     * necessary permissions.
      * 
      * @param id the UUID of the person to delete
      * @return a ResponseEntity containing the status of the operation
@@ -244,7 +255,8 @@ public class PeopleController {
      * This method is accessible by admins only.
      * 
      * @param id the UUID of the person to verify
-     * @return a ResponseEntity containing a PersonResponse or an error if the call fails
+     * @return a ResponseEntity containing a PersonResponse or an error if the call
+     *         fails
      * @throws PersonNotFoundException if the person does not exist in the database
      */
     @PostMapping("/{id}/verify-google-account")
@@ -270,7 +282,8 @@ public class PeopleController {
      * 
      * This method is accessible by admins only.
      * 
-     * @return a ResponseEntity containing a string message indicating the result of the verification process
+     * @return a ResponseEntity containing a string message indicating the result of
+     *         the verification process
      */
     @PostMapping("/verify-all-google-accounts")
     @PreAuthorize("@authorizationService.isAdmin(authentication)")

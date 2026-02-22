@@ -44,7 +44,8 @@ public class GroupController {
     /**
      * Fetches all groups in the domain.
      * 
-     * @return a ResponseEntity containing a list of all groups, or an error if the call fails
+     * @return a ResponseEntity containing a list of all groups, or an error if the
+     *         call fails
      */
     @GetMapping("/groups")
     public ResponseEntity<List<Group>> getGroups(@AuthenticationPrincipal Jwt principal) {
@@ -55,7 +56,8 @@ public class GroupController {
      * Fetches a group by its ID.
      * 
      * @param groupId the ID of the group to fetch
-     * @return a ResponseEntity containing the fetched group, or an error if the call fails
+     * @return a ResponseEntity containing the fetched group, or an error if the
+     *         call fails
      */
     @GetMapping("/groups/{groupId}")
     public ResponseEntity<Group> getGroupById(@PathVariable String groupId,
@@ -67,7 +69,8 @@ public class GroupController {
      * Fetches all members of a group with the given ID.
      * 
      * @param groupId the ID of the group to fetch members for
-     * @return a ResponseEntity containing a list of all members of the group, or an error if the call fails
+     * @return a ResponseEntity containing a list of all members of the group, or an
+     *         error if the call fails
      */
     @GetMapping("/groups/{groupId}/members")
     public ResponseEntity<List<Member>> getMembersByGroupId(@PathVariable String groupId,
@@ -79,7 +82,8 @@ public class GroupController {
      * Fetches the group settings for a group with the given ID.
      * 
      * @param groupId the ID of the group to fetch settings for
-     * @return a ResponseEntity containing the fetched group settings, or an error if the call fails
+     * @return a ResponseEntity containing the fetched group settings, or an error
+     *         if the call fails
      * @throws IllegalArgumentException if the groupId is null or empty
      */
     @GetMapping("/groups/{groupId}/settings")
@@ -92,7 +96,8 @@ public class GroupController {
      * Fetches all groups that a member belongs to.
      * 
      * @param memberEmail the email address of the member to fetch groups for
-     * @return a ResponseEntity containing a list of all groups that the member belongs to, or an error if the call fails
+     * @return a ResponseEntity containing a list of all groups that the member
+     *         belongs to, or an error if the call fails
      * @throws IllegalArgumentException if the memberEmail is null or empty
      */
     @GetMapping("/members/{memberEmail}/groups")

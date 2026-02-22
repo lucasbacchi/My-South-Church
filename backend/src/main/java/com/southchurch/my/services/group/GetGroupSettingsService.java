@@ -28,10 +28,12 @@ public class GetGroupSettingsService implements Query<String, Groups> {
     }
 
     /**
-     * Executes a Google Workspace Directory API call to fetch the group settings for a group using the given ID or email.
+     * Executes a Google Workspace Directory API call to fetch the group settings
+     * for a group using the given ID or email.
      *
      * @param groupIdOrEmail the ID or email of the group to fetch settings for
-     * @return a ResponseEntity containing the fetched group settings, or an error if the call fails
+     * @return a ResponseEntity containing the fetched group settings, or an error
+     *         if the call fails
      * @throws IllegalArgumentException if the groupIdOrEmail is null or empty
      */
     @Override
@@ -40,28 +42,29 @@ public class GetGroupSettingsService implements Query<String, Groups> {
         logger.info("Executing " + getClass() + " input : " + groupIdOrEmail);
 
         if (groupIdOrEmail == null || groupIdOrEmail.trim().isEmpty()) {
-           throw new IllegalArgumentException("groupId must not be blank");
+            throw new IllegalArgumentException("groupId must not be blank");
         }
 
         String idOrEmail = groupIdOrEmail.trim();
         String groupEmail = resolveGroupEmail(idOrEmail);
 
-        return ResponseEntity.status(HttpStatus.OK).body(fetchSettings(groupEmail));  
+        return ResponseEntity.status(HttpStatus.OK).body(fetchSettings(groupEmail));
     }
 
-     /**
+    /**
      * Resolves the group email from the given ID or email.
      * 
      * @param idOrEmail the ID or email of the group to resolve the email for
      * @return the resolved group email
-     * @throws GoogleWorkspaceException if the group id cannot be resolved to an email
+     * @throws GoogleWorkspaceException if the group id cannot be resolved to an
+     *                                  email
      */
     private String resolveGroupEmail(String idOrEmail) {
         if (idOrEmail.contains("@")) {
             return idOrEmail;
         }
 
-         ResponseEntity<Group> resp = getGroupByIdService.execute(idOrEmail);
+        ResponseEntity<Group> resp = getGroupByIdService.execute(idOrEmail);
 
         if (!resp.getStatusCode().is2xxSuccessful() || resp.getBody() == null) {
             int code = resp.getStatusCode().value();
@@ -80,11 +83,12 @@ public class GetGroupSettingsService implements Query<String, Groups> {
      * Fetches the group settings for the given group email.
      * 
      * @param groupEmail the email of the group to fetch the settings for
-     * @return the fetched group settings, or throws a GoogleWorkspaceException if the call fails
+     * @return the fetched group settings, or throws a GoogleWorkspaceException if
+     *         the call fails
      * @throws GoogleWorkspaceException if the call fails
      */
     private Groups fetchSettings(String groupEmail) {
-         try {
+        try {
 
             // Fetch the settings using the group email
             return groupSettings.groups().get(groupEmail).execute();
@@ -100,8 +104,7 @@ public class GetGroupSettingsService implements Query<String, Groups> {
             throw new GoogleWorkspaceException(
                     "Google Groups Settings API call failed for group: " + groupEmail,
                     502,
-                    e
-            );
+                    e);
         }
     }
 

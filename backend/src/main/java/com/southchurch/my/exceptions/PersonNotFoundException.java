@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.NOT_FOUND)
 public class PersonNotFoundException extends RuntimeException {
 
-    private static final  Logger logger = LoggerFactory.getLogger(PersonNotFoundException.class);
+    private static final Logger logger = LoggerFactory.getLogger(PersonNotFoundException.class);
 
     public PersonNotFoundException() {
         super(ErrorMessages.PERSON_NOT_FOUND.getMessage());

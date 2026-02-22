@@ -23,11 +23,12 @@ public class GetPersonByFirebaseUIDService implements Query<String, PersonRespon
         this.repository = repository;
     }
 
-    /** 
+    /**
      * Executes a query to get a Person by their Firebase UID.
      * 
      * @param uid The Firebase UID of the person to retrieve.
-     * @return A ResponseEntity containing a PersonResponse or null if the user was not found.
+     * @return A ResponseEntity containing a PersonResponse or null if the user was
+     *         not found.
      * @throws PersonNotFoundException if the user was not found.
      */
     @Override

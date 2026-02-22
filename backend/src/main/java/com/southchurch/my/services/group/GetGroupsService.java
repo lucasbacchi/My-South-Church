@@ -37,10 +37,12 @@ public class GetGroupsService implements Query<Void, List<Group>> {
     }
 
     /**
-     * Executes a Google Workspace Directory API call to fetch all groups in the domain.
+     * Executes a Google Workspace Directory API call to fetch all groups in the
+     * domain.
      *
      * @param input the input to the query (not used)
-     * @return a ResponseEntity containing the fetched groups, or an error if the call fails
+     * @return a ResponseEntity containing the fetched groups, or an error if the
+     *         call fails
      */
     @Override
     public ResponseEntity<List<Group>> execute(Void input) {
@@ -53,31 +55,30 @@ public class GetGroupsService implements Query<Void, List<Group>> {
     /**
      * Lists all groups in the domain.
      *
-     * @return a list of groups, or throws a GoogleWorkspaceException if the call fails
+     * @return a list of groups, or throws a GoogleWorkspaceException if the call
+     *         fails
      * @throws GoogleWorkspaceException if the call fails
      */
     public List<Group> listGroups() {
 
-        try{
+        try {
             Groups result = directory
-                .groups()
-                .list()
-                .setDomain(domain)
-                .execute();
+                    .groups()
+                    .list()
+                    .setDomain(domain)
+                    .execute();
             return result.getGroups();
-        } catch(GoogleJsonResponseException e){
+        } catch (GoogleJsonResponseException e) {
 
             String msg = (e.getDetails() != null && e.getDetails().getMessage() != null)
-                ? e.getDetails().getMessage()
-                : "Google Workspace error while listing groups";
+                    ? e.getDetails().getMessage()
+                    : "Google Workspace error while listing groups";
 
             throw new GoogleWorkspaceException(msg, e.getStatusCode(), e);
-        } catch (IOException e){
+        } catch (IOException e) {
             throw new GoogleWorkspaceException("Google Workspace call failed while listing groups", 502, e);
         }
     }
-
-    
 
     public boolean isMemberOfGroup(String userEmail, String groupEmail) throws IOException, GeneralSecurityException {
         try {

@@ -27,7 +27,8 @@ public class GetPersonByEmailService implements Query<String, PersonResponse> {
      * Executes a query to fetch a person by their email address.
      * 
      * @param email the email address of the person to fetch
-     * @return a ResponseEntity containing the fetched person, or an error if the call fails
+     * @return a ResponseEntity containing the fetched person, or an error if the
+     *         call fails
      * @throws PersonNotFoundException if the person does not exist in the database
      */
     @Override

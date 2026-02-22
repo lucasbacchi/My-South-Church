@@ -50,7 +50,8 @@ public class UpdatePersonService implements Command<UpdatePersonCommand, PersonR
      * Executes a database call to update a Person from a given PersonRequest.
      * 
      * @param input the UpdatePersonCommand to be executed.
-     * @return a ResponseEntity containing a PersonResponse or an error if the call fails.
+     * @return a ResponseEntity containing a PersonResponse or an error if the call
+     *         fails.
      * @throws PersonNotFoundException if the person does not exist in the database.
      * @throws PersonNotValidException if the person is not valid.
      */
