@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { Link } from "react-router";
-import { ArrowLeft, ChevronDown, ChevronUp, Check, X, HelpCircle } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronUp, Check, X, HelpCircle, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -117,6 +117,20 @@ function compareDates(a: string | null, b: string | null, direction: SortDirecti
     const dateB = parseDate(b);
     const comparison = dateA - dateB;
     return direction === "asc" ? comparison : -comparison;
+}
+
+const ROLE_PRIORITY = ["SUPER_ADMIN", "ADMIN", "USER"];
+
+function getPrimaryRole(roles: string[]) {
+    if (roles.length === 0) return null;
+
+    for (const role of ROLE_PRIORITY) {
+        if (roles.includes(role)) {
+            return role;
+        }
+    }
+
+    return [...roles].sort((a, b) => a.localeCompare(b))[0] ?? null;
 }
 
 export default function PeopleListPage() {
@@ -582,13 +596,35 @@ export default function PeopleListPage() {
                                 <TableCell>{formatDate(person.dateOfBirth)}</TableCell>
                                 <TableCell>{formatDateTime(person.lastLogin)}</TableCell>
                                 <TableCell>
-                                    <div className="flex flex-wrap gap-1">
+                                    <div className="flex flex-nowrap gap-1">
                                         {person.roles.length > 0 ? (
-                                            person.roles.map((role) => (
-                                                <Badge key={`${person.id}-${role}`} variant="secondary">
-                                                    {role}
-                                                </Badge>
-                                            ))
+                                            (() => {
+                                                const primaryRole = getPrimaryRole(person.roles);
+                                                if (!primaryRole) {
+                                                    return <span className="text-xs text-muted-foreground">None</span>;
+                                                }
+
+                                                const remainingRoles = person.roles.filter(
+                                                    (role) => role !== primaryRole
+                                                );
+                                                const extraCount = remainingRoles.length;
+                                                const remainingLabel = remainingRoles.join(", ");
+
+                                                return (
+                                                    <>
+                                                        <Badge variant="secondary">{primaryRole}</Badge>
+                                                        {extraCount > 0 && (
+                                                            <Badge
+                                                                variant="outline"
+                                                                title={remainingLabel}
+                                                                aria-label={`Additional roles: ${remainingLabel}`}
+                                                            >
+                                                                +{extraCount}
+                                                            </Badge>
+                                                        )}
+                                                    </>
+                                                );
+                                            })()
                                         ) : (
                                             <span className="text-xs text-muted-foreground">None</span>
                                         )}
@@ -615,16 +651,28 @@ export default function PeopleListPage() {
                                     </div>
                                 </TableCell>
                                 <TableCell>
-                                    <div className="flex flex-wrap gap-2">
-                                        <Button asChild size="sm" variant="outline">
-                                            <Link to={`/admin/people/${person.id}/edit`}>Edit</Link>
+                                    <div className="flex flex-nowrap gap-2">
+                                        <Button
+                                            asChild
+                                            size="icon"
+                                            variant="outline"
+                                            className="h-8 w-8"
+                                            aria-label="Edit person"
+                                            title="Edit"
+                                        >
+                                            <Link to={`/admin/people/${person.id}/edit`}>
+                                                <Pencil className="size-4" />
+                                            </Link>
                                         </Button>
                                         <Button
-                                            size="sm"
+                                            size="icon"
                                             variant="destructive"
+                                            className="h-8 w-8"
                                             onClick={() => handleDeleteClick(person)}
+                                            aria-label="Delete person"
+                                            title="Delete"
                                         >
-                                            Delete
+                                            <Trash2 className="size-4" />
                                         </Button>
                                     </div>
                                 </TableCell>
