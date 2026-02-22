@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Link, useSearchParams, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { useEffect, useState } from "react";
 import { getCurrentUser, roles } from "@/lib/api";
-import { subscribeToHealthStatus, getHealthStatus } from "@/lib/backendHealth";
+import { getHealthStatus, subscribeToHealthStatus } from "@/lib/backendHealth";
 
 type BackendStatus = "checking" | "up" | "down";
 export type ErrorType = "unauthorized" | "service_unavailable" | "not_found";
@@ -49,7 +49,7 @@ export default function ErrorPage({ errorType: propErrorType }: ErrorPageProps =
     const [searchParams] = useSearchParams();
 
     // Use props if provided, otherwise fall back to searchParams (for backward compatibility)
-    const errorType = propErrorType || (searchParams.get("type") as ErrorType) || "unauthorized";
+    const errorType = (propErrorType ?? (searchParams.get("type") as ErrorType)) || "unauthorized";
 
     const [backendStatus, setBackendStatus] = useState<BackendStatus>(() => getHealthStatus());
 
@@ -127,7 +127,7 @@ export default function ErrorPage({ errorType: propErrorType }: ErrorPageProps =
                 </div>
 
                 {/* Backend Status Alert */}
-                {isBackendDown && (
+                {isBackendDown ? (
                     <Alert variant="destructive" className="flex">
                         <span className="material-symbols-outlined text-base mr-2">cloud_off</span>
                         <AlertDescription className="text-center block">
@@ -141,7 +141,7 @@ export default function ErrorPage({ errorType: propErrorType }: ErrorPageProps =
                             .
                         </AlertDescription>
                     </Alert>
-                )}
+                ) : null}
 
                 {backendStatus === "checking" && (
                     <Alert>
@@ -151,7 +151,7 @@ export default function ErrorPage({ errorType: propErrorType }: ErrorPageProps =
                 )}
 
                 {/* Additional Info */}
-                {!isBackendDown && config.showContactInfo && (
+                {!isBackendDown && config.showContactInfo ? (
                     <div className="bg-muted/50 border border-border rounded-lg p-4">
                         <p className="text-sm text-muted-foreground">
                             This page requires administrative privileges. If you believe you should have access, please
@@ -162,7 +162,7 @@ export default function ErrorPage({ errorType: propErrorType }: ErrorPageProps =
                             for assistance.
                         </p>
                     </div>
-                )}
+                ) : null}
 
                 {/* Action Buttons */}
                 <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center pt-2 sm:pt-4">
@@ -171,7 +171,9 @@ export default function ErrorPage({ errorType: propErrorType }: ErrorPageProps =
                             <Button
                                 variant="outline"
                                 className="w-full px-4 sm:px-6 py-3 sm:py-5 sm:w-auto hover:bg-transparent hover:text-forground ring-1 hover:ring-2 hover:ring-border"
-                                onClick={() => navigate(-1)}
+                                onClick={() => {
+                                    void navigate(-1);
+                                }}
                             >
                                 <span className="material-symbols-outlined text-lg sm:text-xl mr-2">arrow_back</span>
                                 Go Back

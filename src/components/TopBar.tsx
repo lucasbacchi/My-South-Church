@@ -39,7 +39,11 @@ export default function TopBar() {
 
             return () => clearTimeout(timeoutId);
         } else {
-            setShowLoader(false);
+            const timeoutId = setTimeout(() => {
+                setShowLoader(false);
+            }, 0);
+
+            return () => clearTimeout(timeoutId);
         }
     }, [navigation.state]);
 
@@ -116,7 +120,7 @@ export default function TopBar() {
                 </div>
 
                 {/* Progress bar for navigation loading */}
-                {showLoader && (
+                {showLoader ? (
                     <div className="absolute bottom-0 left-0 w-full h-1 bg-transparent z-40 overflow-hidden">
                         <div
                             className="h-full bg-linear-to-r from-transparent via-primary to-transparent w-1/3"
@@ -125,7 +129,7 @@ export default function TopBar() {
                             }}
                         />
                     </div>
-                )}
+                ) : null}
             </div>
 
             <AccountDrawer onClose={onAccountClose} isOpen={accountIsOpen} />

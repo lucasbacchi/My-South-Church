@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router";
-import { ArrowLeft, ChevronDown, ChevronUp, Check, X, HelpCircle, Pencil, Trash2 } from "lucide-react";
+import { ArrowLeft, Check, ChevronDown, ChevronUp, HelpCircle, Pencil, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -315,14 +315,18 @@ export default function PeopleListPage() {
 
         try {
             const text = await file.text();
-            const parsed = JSON.parse(text);
-            const records = Array.isArray(parsed) ? parsed : parsed?.data;
+            const parsed: unknown = JSON.parse(text);
+            const recordsCandidate: unknown = Array.isArray(parsed)
+                ? parsed
+                : parsed && typeof parsed === "object" && "data" in parsed
+                  ? (parsed as { data: unknown }).data
+                  : undefined;
 
-            if (!Array.isArray(records)) {
+            if (!Array.isArray(recordsCandidate)) {
                 throw new Error("Expected a JSON array of records.");
             }
 
-            const result = await importPeople(records);
+            const result = await importPeople(recordsCandidate);
             setImportResult(result);
             clearPeopleCache();
             const refreshed = await getPeople({ force: true });
@@ -371,13 +375,27 @@ export default function PeopleListPage() {
                     </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    <Button type="button" variant="outline" onClick={handleExportClick} disabled={isExporting}>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                            void handleExportClick();
+                        }}
+                        disabled={isExporting}
+                    >
                         {isExporting ? "Exporting..." : "Export JSON"}
                     </Button>
                     <Button type="button" variant="outline" onClick={handleImportClick} disabled={isImporting}>
                         {isImporting ? "Importing..." : "Import JSON"}
                     </Button>
-                    <Button type="button" variant="outline" onClick={handleVerifyAllClick} disabled={isVerifyingAll}>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                            void handleVerifyAllClick();
+                        }}
+                        disabled={isVerifyingAll}
+                    >
                         {isVerifyingAll ? "Verifying..." : "Verify All Accounts"}
                     </Button>
                     <input
@@ -385,7 +403,9 @@ export default function PeopleListPage() {
                         type="file"
                         accept="application/json"
                         className="hidden"
-                        onChange={handleImportFileChange}
+                        onChange={(event) => {
+                            void handleImportFileChange(event);
+                        }}
                     />
                     <Button asChild>
                         <Link to="/admin/people/new">New Person</Link>
@@ -700,30 +720,33 @@ export default function PeopleListPage() {
                                     ? true
                                     : page === 1 || page === totalPages || Math.abs(page - pageIndex) <= 1
                             )
-                            .reduce<(number | "ellipsis")[]>((acc, page) => {
-                                const prev = acc[acc.length - 1];
-                                if (typeof prev === "number" && page - prev > 1) {
-                                    acc.push("ellipsis");
-                                }
-                                acc.push(page);
-                                return acc;
-                            }, [])
-                            .map((page, index) =>
-                                page === "ellipsis" ? (
-                                    <PaginationItem key={`ellipsis-${index}`}>
+                            .reduce<({ type: "page"; value: number } | { type: "ellipsis"; key: string })[]>(
+                                (acc, page) => {
+                                    const prev = acc[acc.length - 1];
+                                    if (prev?.type === "page" && page - prev.value > 1) {
+                                        acc.push({ type: "ellipsis", key: `ellipsis-${prev.value}-${page}` });
+                                    }
+                                    acc.push({ type: "page", value: page });
+                                    return acc;
+                                },
+                                []
+                            )
+                            .map((item) =>
+                                item.type === "ellipsis" ? (
+                                    <PaginationItem key={item.key}>
                                         <PaginationEllipsis />
                                     </PaginationItem>
                                 ) : (
-                                    <PaginationItem key={page}>
+                                    <PaginationItem key={item.value}>
                                         <PaginationLink
                                             href="#"
-                                            isActive={pageIndex === page}
+                                            isActive={pageIndex === item.value}
                                             onClick={(event) => {
                                                 event.preventDefault();
-                                                setPageIndex(page);
+                                                setPageIndex(item.value);
                                             }}
                                         >
-                                            {page}
+                                            {item.value}
                                         </PaginationLink>
                                     </PaginationItem>
                                 )
@@ -748,7 +771,9 @@ export default function PeopleListPage() {
                         <AlertDialogDescription>
                             Are you sure you want to delete{" "}
                             <span className="font-semibold">
-                                {personToDelete && `${personToDelete.firstName} ${personToDelete.lastName}`.trim()}
+                                {personToDelete
+                                    ? `${personToDelete.firstName} ${personToDelete.lastName}`.trim()
+                                    : null}
                             </span>
                             ? This action cannot be undone.
                         </AlertDialogDescription>

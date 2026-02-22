@@ -88,7 +88,7 @@ export async function requireAdminClientLoader({
         }
 
         return { user, currentUser };
-    } catch (error) {
+    } catch {
         // If getCurrentUser fails due to backend being down, show service unavailable
         return {
             error: {

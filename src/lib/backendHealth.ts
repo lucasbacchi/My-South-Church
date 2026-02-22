@@ -56,7 +56,7 @@ export function getHealthStatus(): HealthStatus {
 /**
  * Check backend health with configurable timeout
  */
-export async function checkBackendHealth(timeoutMs: number = 5000): Promise<boolean> {
+export async function checkBackendHealth(timeoutMs = 5000): Promise<boolean> {
     try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
@@ -109,6 +109,16 @@ export async function performInitialHealthCheck(): Promise<void> {
     }
 }
 
+async function runHealthCheckInterval(): Promise<void> {
+    const isHealthy = await checkBackendHealth();
+
+    if (!isHealthy && consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
+        notifyListeners("down");
+    } else if (isHealthy && currentStatus === "down") {
+        notifyListeners("up");
+    }
+}
+
 /**
  * Start periodic health monitoring
  * This runs in the background and updates status if backend goes down
@@ -118,14 +128,8 @@ export function startHealthMonitoring(): void {
         return; // Already monitoring
     }
 
-    checkIntervalId = window.setInterval(async () => {
-        const isHealthy = await checkBackendHealth();
-
-        if (!isHealthy && consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) {
-            notifyListeners("down");
-        } else if (isHealthy && currentStatus === "down") {
-            notifyListeners("up");
-        }
+    checkIntervalId = window.setInterval(() => {
+        void runHealthCheckInterval();
     }, CHECK_INTERVAL);
 }
 
