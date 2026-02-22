@@ -26,7 +26,7 @@
         "paths": {
             "@/*": ["./src/*"]
         },
-        "types": ["vite/client", "google.accounts"],
+        "types": ["vite/client"],
         "rootDirs": [".", "./.react-router/types"]
     }
 }

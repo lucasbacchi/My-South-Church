@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState, type ChangeEvent } from "react";
+import { type ChangeEvent, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
-import { ArrowLeft, ChevronDown, ChevronUp, Plus, Pencil } from "lucide-react";
+import { ArrowLeft, ChevronDown, ChevronUp, Pencil, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -14,7 +14,7 @@ import {
     PaginationPrevious,
 } from "@/components/ui/pagination";
 import { requireAdminClientLoader } from "@/lib/clientLoaders";
-import { getGroups, peekGroupsCache, type Group } from "@/lib/groups";
+import { type Group, getGroups, peekGroupsCache } from "@/lib/groups";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const clientLoader = requireAdminClientLoader;
@@ -182,7 +182,7 @@ export default function GroupListPage() {
                 </div>
             </div>
 
-            {error && <div className="rounded-md bg-red-50 p-4 text-sm text-red-700">{error}</div>}
+            {error ? <div className="rounded-md bg-red-50 p-4 text-sm text-red-700">{error}</div> : null}
 
             <div className="flex items-center gap-4">
                 <Input
@@ -232,12 +232,12 @@ export default function GroupListPage() {
                                                     to={`/admin/groups/${group.id}/view`}
                                                     className="font-medium hover:underline"
                                                 >
-                                                    {group.name || "—"}
+                                                    {group.name ?? "—"}
                                                 </Link>
                                             </TableCell>
-                                            <TableCell>{group.email || "—"}</TableCell>
+                                            <TableCell>{group.email ?? "—"}</TableCell>
                                             <TableCell className="max-w-xs truncate">
-                                                {group.description || "—"}
+                                                {group.description ?? "—"}
                                             </TableCell>
                                             <TableCell
                                                 className="sticky right-0 z-10 bg-background text-right"

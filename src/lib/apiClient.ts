@@ -1,4 +1,5 @@
 import { auth } from "../firebase";
+import { getHealthStatus } from "./backendHealth";
 
 // Use localhost for local development, production URL otherwise
 const API_BASE_URL = (() => {
@@ -31,6 +32,11 @@ export async function getAuthHeaders(includeContentType = false): Promise<Header
 }
 
 export async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
+    // Fail fast if backend is known to be down
+    if (getHealthStatus() === "down") {
+        throw new Error("Backend service is unavailable");
+    }
+
     const response = await fetch(`${API_BASE_URL}${path}`, options);
 
     if (!response.ok) {
@@ -46,6 +52,11 @@ export async function apiRequest<T>(path: string, options: RequestInit = {}): Pr
 }
 
 export async function apiRequestBlob(path: string, options: RequestInit = {}): Promise<Blob> {
+    // Fail fast if backend is known to be down
+    if (getHealthStatus() === "down") {
+        throw new Error("Backend service is unavailable");
+    }
+
     const response = await fetch(`${API_BASE_URL}${path}`, options);
 
     if (!response.ok) {

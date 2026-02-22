@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
+import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router";
-import { ArrowLeft, ChevronDown, ChevronUp, Check, X, HelpCircle } from "lucide-react";
+import { ArrowLeft, Check, ChevronDown, ChevronUp, HelpCircle, Pencil, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -117,6 +117,20 @@ function compareDates(a: string | null, b: string | null, direction: SortDirecti
     const dateB = parseDate(b);
     const comparison = dateA - dateB;
     return direction === "asc" ? comparison : -comparison;
+}
+
+const ROLE_PRIORITY = ["SUPER_ADMIN", "ADMIN", "USER"];
+
+function getPrimaryRole(roles: string[]) {
+    if (roles.length === 0) return null;
+
+    for (const role of ROLE_PRIORITY) {
+        if (roles.includes(role)) {
+            return role;
+        }
+    }
+
+    return [...roles].sort((a, b) => a.localeCompare(b))[0] ?? null;
 }
 
 export default function PeopleListPage() {
@@ -301,14 +315,18 @@ export default function PeopleListPage() {
 
         try {
             const text = await file.text();
-            const parsed = JSON.parse(text);
-            const records = Array.isArray(parsed) ? parsed : parsed?.data;
+            const parsed: unknown = JSON.parse(text);
+            const recordsCandidate: unknown = Array.isArray(parsed)
+                ? parsed
+                : parsed && typeof parsed === "object" && "data" in parsed
+                  ? (parsed as { data: unknown }).data
+                  : undefined;
 
-            if (!Array.isArray(records)) {
+            if (!Array.isArray(recordsCandidate)) {
                 throw new Error("Expected a JSON array of records.");
             }
 
-            const result = await importPeople(records);
+            const result = await importPeople(recordsCandidate);
             setImportResult(result);
             clearPeopleCache();
             const refreshed = await getPeople({ force: true });
@@ -357,13 +375,27 @@ export default function PeopleListPage() {
                     </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    <Button type="button" variant="outline" onClick={handleExportClick} disabled={isExporting}>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                            void handleExportClick();
+                        }}
+                        disabled={isExporting}
+                    >
                         {isExporting ? "Exporting..." : "Export JSON"}
                     </Button>
                     <Button type="button" variant="outline" onClick={handleImportClick} disabled={isImporting}>
                         {isImporting ? "Importing..." : "Import JSON"}
                     </Button>
-                    <Button type="button" variant="outline" onClick={handleVerifyAllClick} disabled={isVerifyingAll}>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                            void handleVerifyAllClick();
+                        }}
+                        disabled={isVerifyingAll}
+                    >
                         {isVerifyingAll ? "Verifying..." : "Verify All Accounts"}
                     </Button>
                     <input
@@ -371,7 +403,9 @@ export default function PeopleListPage() {
                         type="file"
                         accept="application/json"
                         className="hidden"
-                        onChange={handleImportFileChange}
+                        onChange={(event) => {
+                            void handleImportFileChange(event);
+                        }}
                     />
                     <Button asChild>
                         <Link to="/admin/people/new">New Person</Link>
@@ -582,13 +616,35 @@ export default function PeopleListPage() {
                                 <TableCell>{formatDate(person.dateOfBirth)}</TableCell>
                                 <TableCell>{formatDateTime(person.lastLogin)}</TableCell>
                                 <TableCell>
-                                    <div className="flex flex-wrap gap-1">
+                                    <div className="flex flex-nowrap gap-1">
                                         {person.roles.length > 0 ? (
-                                            person.roles.map((role) => (
-                                                <Badge key={`${person.id}-${role}`} variant="secondary">
-                                                    {role}
-                                                </Badge>
-                                            ))
+                                            (() => {
+                                                const primaryRole = getPrimaryRole(person.roles);
+                                                if (!primaryRole) {
+                                                    return <span className="text-xs text-muted-foreground">None</span>;
+                                                }
+
+                                                const remainingRoles = person.roles.filter(
+                                                    (role) => role !== primaryRole
+                                                );
+                                                const extraCount = remainingRoles.length;
+                                                const remainingLabel = remainingRoles.join(", ");
+
+                                                return (
+                                                    <>
+                                                        <Badge variant="secondary">{primaryRole}</Badge>
+                                                        {extraCount > 0 && (
+                                                            <Badge
+                                                                variant="outline"
+                                                                title={remainingLabel}
+                                                                aria-label={`Additional roles: ${remainingLabel}`}
+                                                            >
+                                                                +{extraCount}
+                                                            </Badge>
+                                                        )}
+                                                    </>
+                                                );
+                                            })()
                                         ) : (
                                             <span className="text-xs text-muted-foreground">None</span>
                                         )}
@@ -615,16 +671,28 @@ export default function PeopleListPage() {
                                     </div>
                                 </TableCell>
                                 <TableCell>
-                                    <div className="flex flex-wrap gap-2">
-                                        <Button asChild size="sm" variant="outline">
-                                            <Link to={`/admin/people/${person.id}/edit`}>Edit</Link>
+                                    <div className="flex flex-nowrap gap-2">
+                                        <Button
+                                            asChild
+                                            size="icon"
+                                            variant="outline"
+                                            className="h-8 w-8"
+                                            aria-label="Edit person"
+                                            title="Edit"
+                                        >
+                                            <Link to={`/admin/people/${person.id}/edit`}>
+                                                <Pencil className="size-4" />
+                                            </Link>
                                         </Button>
                                         <Button
-                                            size="sm"
+                                            size="icon"
                                             variant="destructive"
+                                            className="h-8 w-8"
                                             onClick={() => handleDeleteClick(person)}
+                                            aria-label="Delete person"
+                                            title="Delete"
                                         >
-                                            Delete
+                                            <Trash2 className="size-4" />
                                         </Button>
                                     </div>
                                 </TableCell>
@@ -652,30 +720,33 @@ export default function PeopleListPage() {
                                     ? true
                                     : page === 1 || page === totalPages || Math.abs(page - pageIndex) <= 1
                             )
-                            .reduce<(number | "ellipsis")[]>((acc, page) => {
-                                const prev = acc[acc.length - 1];
-                                if (typeof prev === "number" && page - prev > 1) {
-                                    acc.push("ellipsis");
-                                }
-                                acc.push(page);
-                                return acc;
-                            }, [])
-                            .map((page, index) =>
-                                page === "ellipsis" ? (
-                                    <PaginationItem key={`ellipsis-${index}`}>
+                            .reduce<({ type: "page"; value: number } | { type: "ellipsis"; key: string })[]>(
+                                (acc, page) => {
+                                    const prev = acc[acc.length - 1];
+                                    if (prev?.type === "page" && page - prev.value > 1) {
+                                        acc.push({ type: "ellipsis", key: `ellipsis-${prev.value}-${page}` });
+                                    }
+                                    acc.push({ type: "page", value: page });
+                                    return acc;
+                                },
+                                []
+                            )
+                            .map((item) =>
+                                item.type === "ellipsis" ? (
+                                    <PaginationItem key={item.key}>
                                         <PaginationEllipsis />
                                     </PaginationItem>
                                 ) : (
-                                    <PaginationItem key={page}>
+                                    <PaginationItem key={item.value}>
                                         <PaginationLink
                                             href="#"
-                                            isActive={pageIndex === page}
+                                            isActive={pageIndex === item.value}
                                             onClick={(event) => {
                                                 event.preventDefault();
-                                                setPageIndex(page);
+                                                setPageIndex(item.value);
                                             }}
                                         >
-                                            {page}
+                                            {item.value}
                                         </PaginationLink>
                                     </PaginationItem>
                                 )
@@ -700,7 +771,9 @@ export default function PeopleListPage() {
                         <AlertDialogDescription>
                             Are you sure you want to delete{" "}
                             <span className="font-semibold">
-                                {personToDelete && `${personToDelete.firstName} ${personToDelete.lastName}`.trim()}
+                                {personToDelete
+                                    ? `${personToDelete.firstName} ${personToDelete.lastName}`.trim()
+                                    : null}
                             </span>
                             ? This action cannot be undone.
                         </AlertDialogDescription>

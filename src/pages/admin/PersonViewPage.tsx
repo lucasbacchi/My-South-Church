@@ -218,7 +218,13 @@ export default function PersonViewPage() {
                             </div>
                         </CardContent>
                         <CardFooter className="flex flex-wrap gap-2">
-                            <Button type="button" onClick={void handleVerifyClick} disabled={isVerifying}>
+                            <Button
+                                type="button"
+                                onClick={() => {
+                                    void handleVerifyClick();
+                                }}
+                                disabled={isVerifying}
+                            >
                                 {isVerifying ? "Verifying..." : "Verify Google Account"}
                             </Button>
                             {verifyMessage ? (

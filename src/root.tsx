@@ -39,8 +39,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
 import { UserProvider } from "./contexts/UserContext";
 import MainLayout from "./layouts/MainLayout";
 import { type Route } from "./+types/root";
+import { useEffect } from "react";
+import { performInitialHealthCheck, startHealthMonitoring, stopHealthMonitoring } from "./lib/backendHealth";
 
 export default function Root() {
+    // Perform health check on app initialization
+    useEffect(() => {
+        void performInitialHealthCheck();
+        startHealthMonitoring();
+
+        return () => {
+            stopHealthMonitoring();
+        };
+    }, []);
+
     return (
         <UserProvider>
             <MainLayout>

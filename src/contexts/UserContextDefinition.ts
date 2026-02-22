@@ -7,7 +7,7 @@ import { type User } from "firebase/auth";
 export type ReactSetter<Data> = Dispatch<SetStateAction<Data | undefined>>;
 export type ContextData = [User | undefined | null, ReactSetter<User | undefined | null>, string | null | undefined];
 
-export const UserContext = createContext<ContextData>([undefined, () => {}, undefined]);
+export const UserContext = createContext<ContextData>([undefined, () => undefined, undefined]);
 
 export function useUser() {
     return useContext(UserContext);

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type SubmitEvent, type ChangeEvent } from "react";
+import { type ChangeEvent, type SubmitEvent, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -36,6 +36,20 @@ function normalizeOptional(value: string) {
     return trimmed.length > 0 ? trimmed : null;
 }
 
+const getNowMs = () => Date.now();
+
+function isDateValid(value: string, nowMs: number) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+    const [year, month, day] = value.split("-").map(Number);
+    const date = new Date(year, month - 1, day);
+    return (
+        date.getFullYear() === year &&
+        date.getMonth() === month - 1 &&
+        date.getDate() === day &&
+        date.getTime() <= nowMs
+    );
+}
+
 export default function PersonForm({
     initialValues,
     submitLabel,
@@ -50,8 +64,12 @@ export default function PersonForm({
     const [errors, setErrors] = useState<Partial<Record<keyof PersonFormValues, string>>>({});
 
     useEffect(() => {
-        setValues(initialValues);
-        setErrors({});
+        const timeoutId = setTimeout(() => {
+            setValues(initialValues);
+            setErrors({});
+        }, 0);
+
+        return () => clearTimeout(timeoutId);
     }, [initialValues]);
 
     const parsedRoles = useMemo(() => parseRolesInput(values.rolesInput), [values.rolesInput]);
@@ -78,7 +96,7 @@ export default function PersonForm({
                 return isPhoneValid(current.phoneNumber) ? undefined : "Enter a valid phone number.";
             case "dateOfBirth":
                 if (!current.dateOfBirth.trim()) return undefined;
-                return isDateValid(current.dateOfBirth) ? undefined : "Enter a valid date in the past.";
+                return isDateValid(current.dateOfBirth, getNowMs()) ? undefined : "Enter a valid date in the past.";
             case "firebaseUID":
                 if (!current.firebaseUID.trim()) return undefined;
                 return isFirebaseUidValid(current.firebaseUID)
@@ -100,18 +118,6 @@ export default function PersonForm({
         if (!/^[0-9+()\-\s.]+$/.test(trimmed)) return false;
         const digits = trimmed.replace(/\D/g, "");
         return digits.length >= 7 && digits.length <= 15;
-    };
-
-    const isDateValid = (value: string) => {
-        if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-        const [year, month, day] = value.split("-").map(Number);
-        const date = new Date(year, month - 1, day);
-        return (
-            date.getFullYear() === year &&
-            date.getMonth() === month - 1 &&
-            date.getDate() === day &&
-            date.getTime() <= Date.now()
-        );
     };
 
     const isFirebaseUidValid = (value: string) => /^[A-Za-z0-9_-]{1,128}$/.test(value.trim());
@@ -136,7 +142,7 @@ export default function PersonForm({
             nextErrors.phoneNumber = "Enter a valid phone number.";
         }
 
-        if (current.dateOfBirth.trim() && !isDateValid(current.dateOfBirth)) {
+        if (current.dateOfBirth.trim() && !isDateValid(current.dateOfBirth, getNowMs())) {
             nextErrors.dateOfBirth = "Enter a valid date in the past.";
         }
 
