@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireAdminClientLoader } from "@/lib/clientLoaders";
-import { getGroupsForMemberEmail, type GroupSummary } from "@/lib/groups";
+import { type GroupSummary, getGroupsForMemberEmail } from "@/lib/groups";
 import { getPerson, verifyGoogleAccount } from "@/lib/people";
 import { type Person } from "@/types/people";
 
@@ -187,7 +187,13 @@ export default function PersonViewPage() {
                             </div>
                         </CardContent>
                         <CardFooter className="flex flex-wrap gap-2">
-                            <Button type="button" onClick={handleVerifyClick} disabled={isVerifying}>
+                            <Button
+                                type="button"
+                                onClick={() => {
+                                    void handleVerifyClick();
+                                }}
+                                disabled={isVerifying}
+                            >
                                 {isVerifying ? "Verifying..." : "Verify Google Account"}
                             </Button>
                             {verifyMessage ? (

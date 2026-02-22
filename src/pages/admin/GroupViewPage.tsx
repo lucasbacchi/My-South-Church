@@ -6,12 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { requireAdminClientLoader } from "@/lib/clientLoaders";
 import {
-    getGroup,
-    getGroupMembers,
-    getGroupSettings,
     type Group,
     type GroupMember,
     type GroupSettings,
+    getGroup,
+    getGroupMembers,
+    getGroupSettings,
 } from "@/lib/groups";
 import { getPeople } from "@/lib/people";
 import type { Person } from "@/types/people";
@@ -35,14 +35,20 @@ export default function GroupViewPage() {
 
     useEffect(() => {
         if (!groupId) {
-            setError("Missing group ID.");
-            setIsLoading(false);
-            return;
+            const timeoutId = setTimeout(() => {
+                setError("Missing group ID.");
+                setIsLoading(false);
+            }, 0);
+
+            return () => clearTimeout(timeoutId);
         }
 
         let isMounted = true;
-        setIsLoading(true);
-        setError(null);
+        const timeoutId = setTimeout(() => {
+            if (!isMounted) return;
+            setIsLoading(true);
+            setError(null);
+        }, 0);
 
         getGroup(groupId)
             .then((data) => {
@@ -60,6 +66,7 @@ export default function GroupViewPage() {
 
         return () => {
             isMounted = false;
+            clearTimeout(timeoutId);
         };
     }, [groupId]);
 
@@ -67,8 +74,11 @@ export default function GroupViewPage() {
         if (!groupId) return;
 
         let isMounted = true;
-        setIsMembersLoading(true);
-        setMembersError(null);
+        const timeoutId = setTimeout(() => {
+            if (!isMounted) return;
+            setIsMembersLoading(true);
+            setMembersError(null);
+        }, 0);
 
         getGroupMembers(groupId)
             .then((data) => {
@@ -86,6 +96,7 @@ export default function GroupViewPage() {
 
         return () => {
             isMounted = false;
+            clearTimeout(timeoutId);
         };
     }, [groupId]);
 
@@ -93,8 +104,11 @@ export default function GroupViewPage() {
         if (!groupId) return;
 
         let isMounted = true;
-        setIsSettingsLoading(true);
-        setSettingsError(null);
+        const timeoutId = setTimeout(() => {
+            if (!isMounted) return;
+            setIsSettingsLoading(true);
+            setSettingsError(null);
+        }, 0);
 
         getGroupSettings(groupId)
             .then((data) => {
@@ -112,12 +126,16 @@ export default function GroupViewPage() {
 
         return () => {
             isMounted = false;
+            clearTimeout(timeoutId);
         };
     }, [groupId]);
 
     useEffect(() => {
         let isMounted = true;
-        setIsPeopleLoading(true);
+        const timeoutId = setTimeout(() => {
+            if (!isMounted) return;
+            setIsPeopleLoading(true);
+        }, 0);
 
         getPeople()
             .then((data) => {
@@ -136,6 +154,7 @@ export default function GroupViewPage() {
 
         return () => {
             isMounted = false;
+            clearTimeout(timeoutId);
         };
     }, []);
 
@@ -394,7 +413,7 @@ export default function GroupViewPage() {
                                     <div>
                                         <h3 className="font-semibold mb-3">Membership & Access</h3>
                                         <div className="grid grid-cols-2 gap-3">
-                                            {settings.whoCanJoin && (
+                                            {settings.whoCanJoin ? (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
                                                         Who Can Join
@@ -413,8 +432,8 @@ export default function GroupViewPage() {
                                                         })()}
                                                     </div>
                                                 </div>
-                                            )}
-                                            {settings.whoCanAdd && (
+                                            ) : null}
+                                            {settings.whoCanAdd ? (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
                                                         Who Can Add Members
@@ -433,8 +452,8 @@ export default function GroupViewPage() {
                                                         })()}
                                                     </div>
                                                 </div>
-                                            )}
-                                            {settings.whoCanInvite && (
+                                            ) : null}
+                                            {settings.whoCanInvite ? (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
                                                         Who Can Invite
@@ -453,8 +472,8 @@ export default function GroupViewPage() {
                                                         })()}
                                                     </div>
                                                 </div>
-                                            )}
-                                            {settings.whoCanLeaveGroup && (
+                                            ) : null}
+                                            {settings.whoCanLeaveGroup ? (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
                                                         Who Can Leave Group
@@ -473,8 +492,8 @@ export default function GroupViewPage() {
                                                         })()}
                                                     </div>
                                                 </div>
-                                            )}
-                                            {settings.whoCanApproveMembers && (
+                                            ) : null}
+                                            {settings.whoCanApproveMembers ? (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
                                                         Who Can Approve Members
@@ -495,8 +514,8 @@ export default function GroupViewPage() {
                                                         })()}
                                                     </div>
                                                 </div>
-                                            )}
-                                            {settings.whoCanModifyMembers && (
+                                            ) : null}
+                                            {settings.whoCanModifyMembers ? (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
                                                         Who Can Modify Members
@@ -517,7 +536,7 @@ export default function GroupViewPage() {
                                                         })()}
                                                     </div>
                                                 </div>
-                                            )}
+                                            ) : null}
                                             {settings.allowExternalMembers !== undefined && (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
@@ -547,7 +566,7 @@ export default function GroupViewPage() {
                                     <div>
                                         <h3 className="font-semibold mb-3">Visibility & Directory</h3>
                                         <div className="grid grid-cols-2 gap-3">
-                                            {settings.whoCanDiscoverGroup && (
+                                            {settings.whoCanDiscoverGroup ? (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
                                                         Who Can Discover Group
@@ -568,8 +587,8 @@ export default function GroupViewPage() {
                                                         })()}
                                                     </div>
                                                 </div>
-                                            )}
-                                            {settings.whoCanViewGroup && (
+                                            ) : null}
+                                            {settings.whoCanViewGroup ? (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
                                                         Who Can View Group
@@ -588,8 +607,8 @@ export default function GroupViewPage() {
                                                         })()}
                                                     </div>
                                                 </div>
-                                            )}
-                                            {settings.whoCanViewMembership && (
+                                            ) : null}
+                                            {settings.whoCanViewMembership ? (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
                                                         Who Can View Membership
@@ -610,7 +629,7 @@ export default function GroupViewPage() {
                                                         })()}
                                                     </div>
                                                 </div>
-                                            )}
+                                            ) : null}
                                             {settings.showInGroupDirectory !== undefined && (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
@@ -662,7 +681,7 @@ export default function GroupViewPage() {
                                     <div>
                                         <h3 className="font-semibold mb-3">Posting & Messaging</h3>
                                         <div className="grid grid-cols-2 gap-3">
-                                            {settings.whoCanPostMessage && (
+                                            {settings.whoCanPostMessage ? (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
                                                         Who Can Post Message
@@ -681,8 +700,8 @@ export default function GroupViewPage() {
                                                         })()}
                                                     </div>
                                                 </div>
-                                            )}
-                                            {settings.whoCanPostAnnouncements && (
+                                            ) : null}
+                                            {settings.whoCanPostAnnouncements ? (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
                                                         Who Can Post Announcements
@@ -703,8 +722,8 @@ export default function GroupViewPage() {
                                                         })()}
                                                     </div>
                                                 </div>
-                                            )}
-                                            {settings.whoCanApproveMessages && (
+                                            ) : null}
+                                            {settings.whoCanApproveMessages ? (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
                                                         Who Can Approve Messages
@@ -725,8 +744,8 @@ export default function GroupViewPage() {
                                                         })()}
                                                     </div>
                                                 </div>
-                                            )}
-                                            {settings.whoCanDeleteAnyPost && (
+                                            ) : null}
+                                            {settings.whoCanDeleteAnyPost ? (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
                                                         Who Can Delete Any Post
@@ -747,7 +766,7 @@ export default function GroupViewPage() {
                                                         })()}
                                                     </div>
                                                 </div>
-                                            )}
+                                            ) : null}
                                             {settings.allowWebPosting !== undefined && (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
@@ -790,7 +809,7 @@ export default function GroupViewPage() {
                                                     </div>
                                                 </div>
                                             )}
-                                            {settings.whoCanContactOwner && (
+                                            {settings.whoCanContactOwner ? (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
                                                         Who Can Contact Owner
@@ -811,7 +830,7 @@ export default function GroupViewPage() {
                                                         })()}
                                                     </div>
                                                 </div>
-                                            )}
+                                            ) : null}
                                         </div>
                                     </div>
 
@@ -819,7 +838,7 @@ export default function GroupViewPage() {
                                     <div>
                                         <h3 className="font-semibold mb-3">Moderation</h3>
                                         <div className="grid grid-cols-2 gap-3">
-                                            {settings.messageModerationLevel && (
+                                            {settings.messageModerationLevel ? (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
                                                         Message Moderation Level
@@ -840,8 +859,8 @@ export default function GroupViewPage() {
                                                         })()}
                                                     </div>
                                                 </div>
-                                            )}
-                                            {settings.spamModerationLevel && (
+                                            ) : null}
+                                            {settings.spamModerationLevel ? (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
                                                         Spam Moderation Level
@@ -862,8 +881,8 @@ export default function GroupViewPage() {
                                                         })()}
                                                     </div>
                                                 </div>
-                                            )}
-                                            {settings.whoCanModerateContent && (
+                                            ) : null}
+                                            {settings.whoCanModerateContent ? (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
                                                         Who Can Moderate Content
@@ -884,8 +903,8 @@ export default function GroupViewPage() {
                                                         })()}
                                                     </div>
                                                 </div>
-                                            )}
-                                            {settings.whoCanModerateMembers && (
+                                            ) : null}
+                                            {settings.whoCanModerateMembers ? (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
                                                         Who Can Moderate Members
@@ -906,7 +925,7 @@ export default function GroupViewPage() {
                                                         })()}
                                                     </div>
                                                 </div>
-                                            )}
+                                            ) : null}
                                             {settings.sendMessageDenyNotification !== undefined && (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
@@ -978,7 +997,7 @@ export default function GroupViewPage() {
                                                     </div>
                                                 </div>
                                             )}
-                                            {settings.replyTo && (
+                                            {settings.replyTo ? (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">Reply To</div>
                                                     <div className="flex items-center gap-2">
@@ -995,8 +1014,8 @@ export default function GroupViewPage() {
                                                         })()}
                                                     </div>
                                                 </div>
-                                            )}
-                                            {settings.defaultSender && (
+                                            ) : null}
+                                            {settings.defaultSender ? (
                                                 <div>
                                                     <div className="text-muted-foreground text-xs mb-1">
                                                         Default Sender
@@ -1015,7 +1034,7 @@ export default function GroupViewPage() {
                                                         })()}
                                                     </div>
                                                 </div>
-                                            )}
+                                            ) : null}
                                         </div>
                                     </div>
                                 </div>

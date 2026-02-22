@@ -1,5 +1,5 @@
 import { Outlet, useLoaderData } from "react-router";
-import { requireAdminClientLoader, type AdminLoaderData, type ErrorLoaderData } from "../../lib/clientLoaders";
+import { type AdminLoaderData, type ErrorLoaderData, requireAdminClientLoader } from "../../lib/clientLoaders";
 import ErrorPage from "../ErrorPage";
 
 // eslint-disable-next-line react-refresh/only-export-components

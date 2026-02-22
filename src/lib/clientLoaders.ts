@@ -3,8 +3,6 @@ import { getUser } from "../firebase";
 import { getCurrentUser, roles } from "./api";
 import { getHealthStatus } from "./backendHealth";
 
-/* eslint-disable @typescript-eslint/only-throw-error */
-
 export type ErrorType = "unauthorized" | "service_unavailable" | "not_found";
 
 export interface LoaderError {
@@ -39,6 +37,8 @@ export async function requireAuthClientLoader({ request }: { request: Request })
         const url = new URL(request.url);
         const redirectTo = url.pathname + url.search;
         const searchParams = new URLSearchParams({ redirect: redirectTo });
+        // react-router uses Response throws for redirects.
+        // eslint-disable-next-line @typescript-eslint/only-throw-error
         throw redirect(`/signin?${searchParams.toString()}`);
     }
 
@@ -71,6 +71,8 @@ export async function requireAdminClientLoader({
 
     if (!user) {
         const searchParams = new URLSearchParams({ redirect: originalPath });
+        // react-router uses Response throws for redirects.
+        // eslint-disable-next-line @typescript-eslint/only-throw-error
         throw redirect(`/signin?${searchParams.toString()}`);
     }
 

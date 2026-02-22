@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireAdminClientLoader } from "@/lib/clientLoaders";
-import { getGroup, type Group } from "@/lib/groups";
+import { type Group, getGroup } from "@/lib/groups";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const clientLoader = requireAdminClientLoader;
@@ -16,14 +16,20 @@ export default function GroupEditPage() {
 
     useEffect(() => {
         if (!groupId) {
-            setError("Missing group ID.");
-            setIsLoading(false);
-            return;
+            const timeoutId = setTimeout(() => {
+                setError("Missing group ID.");
+                setIsLoading(false);
+            }, 0);
+
+            return () => clearTimeout(timeoutId);
         }
 
         let isMounted = true;
-        setIsLoading(true);
-        setError(null);
+        const timeoutId = setTimeout(() => {
+            if (!isMounted) return;
+            setIsLoading(true);
+            setError(null);
+        }, 0);
 
         getGroup(groupId)
             .then((data) => {
@@ -41,6 +47,7 @@ export default function GroupEditPage() {
 
         return () => {
             isMounted = false;
+            clearTimeout(timeoutId);
         };
     }, [groupId]);
 
