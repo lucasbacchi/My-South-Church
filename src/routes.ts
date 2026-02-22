@@ -7,7 +7,6 @@ export default [
     route("drive", "./pages/DrivePage.tsx"),
     route("signin", "./pages/SignInPage.tsx"),
     route("account", "./pages/AccountPage.tsx"),
-    route("unauthorized", "./pages/UnauthorizedPage.tsx"),
     route("admin", "./pages/admin/AdminLayout.tsx", [
         index("./pages/admin/AdminRedirect.tsx"),
         route("dashboard", "./pages/admin/AdminDashboardPage.tsx"),
