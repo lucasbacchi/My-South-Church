@@ -48,6 +48,16 @@ export async function getPerson(personId: string): Promise<Person> {
     return apiRequest<Person>(`/people/id/${personId}`, { method: "GET", headers });
 }
 
+export async function getPersonByFirebaseUID(firebaseUID: string): Promise<Person | null> {
+    try {
+        const people = await getPeople();
+        return people.find((p) => p.firebaseUID === firebaseUID) ?? null;
+    } catch (error) {
+        console.error("Failed to find person by Firebase UID:", error);
+        return null;
+    }
+}
+
 export async function createPerson(payload: PersonUpsertInput): Promise<Person> {
     const headers = await getAuthHeaders(true);
     const created = await apiRequest<Person>("/people", {

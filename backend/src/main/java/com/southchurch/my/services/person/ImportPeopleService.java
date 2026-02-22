@@ -243,7 +243,7 @@ public class ImportPeopleService implements Command<List<JsonNode>, ImportPeople
     /**
      * Returns the given string with whitespace removed from the beginning and end,
      * and normalized to the following format if the string is a valid phone number:
-     * XXX-XXX-XXXX.
+     * 123-456-7890.
      * If the string is null or whitespace only, this method returns null.
      * If the string is not a valid phone number, this method returns the original
      * string with whitespace removed from the beginning and end.

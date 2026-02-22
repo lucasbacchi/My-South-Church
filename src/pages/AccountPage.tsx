@@ -4,9 +4,13 @@ import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../contexts/UserContextDefinition";
 import { requireAuthClientLoader } from "../lib/clientLoaders";
 import { getCurrentUser, roles } from "../lib/api";
+import { getPersonByFirebaseUID, updatePerson } from "../lib/people";
+import type { PersonUpsertInput } from "../types/people";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const clientLoader = requireAuthClientLoader;
+
+type SaveMessage = { type: "success" | "error"; text: string } | null;
 
 export default function AccountPage() {
     const [user, , cachedPhotoURL] = useContext(UserContext);
@@ -16,10 +20,9 @@ export default function AccountPage() {
     const [primaryEmail, setPrimaryEmail] = useState("");
     const [secondaryEmail, setSecondaryEmail] = useState("");
     const [phone, setPhone] = useState("");
-    const [address, setAddress] = useState("");
-    const [city, setCity] = useState("");
-    const [state, setState] = useState("");
-    const [zip, setZip] = useState("");
+    const [personId, setPersonId] = useState<string | null>(null);
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveMessage, setSaveMessage] = useState<SaveMessage>(null);
 
     useEffect(() => {
         if (user?.uid) {
@@ -35,6 +38,36 @@ export default function AccountPage() {
         }
     }, [user?.uid]);
 
+    useEffect(() => {
+        if (user?.uid && !personId) {
+            void (async () => {
+                try {
+                    const person = await getPersonByFirebaseUID(user.uid);
+                    if (!person) {
+                        console.error("No person found for current user");
+                        return;
+                    }
+                    setPersonId(person.id);
+                    setFirstName(person.firstName ?? "");
+                    setLastName(person.lastName ?? "");
+                    setPrimaryEmail(person.primaryEmail ?? "");
+                    setSecondaryEmail(person.secondaryEmail ?? "");
+                    setPhone(person.phoneNumber ?? "");
+                    // Note: address fields are not in the Person model
+                    // If you need these, you'll need to add them to the backend
+                } catch (error) {
+                    console.error("Failed to load person data:", error);
+                }
+            })();
+        }
+    }, [user?.uid, personId]);
+
+    useEffect(() => {
+        if (user?.email) {
+            setPrimaryEmail(user.email);
+        }
+    }, [user?.email]);
+
     // Account Form Functions
     function handleFirstNameChange(e: React.ChangeEvent<HTMLInputElement>) {
         setFirstName(e.target.value);
@@ -42,26 +75,63 @@ export default function AccountPage() {
     function handleLastNameChange(e: React.ChangeEvent<HTMLInputElement>) {
         setLastName(e.target.value);
     }
-    function handlePrimaryEmailChange(e: React.ChangeEvent<HTMLInputElement>) {
-        setPrimaryEmail(e.target.value);
-    }
     function handleSecondaryEmailChange(e: React.ChangeEvent<HTMLInputElement>) {
         setSecondaryEmail(e.target.value);
     }
     function handlePhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
         setPhone(e.target.value);
     }
-    function handleAddressChange(e: React.ChangeEvent<HTMLInputElement>) {
-        setAddress(e.target.value);
+
+    async function handleSaveChanges() {
+        if (!personId) {
+            setSaveMessage({ type: "error", text: "Unable to save: Person ID not found" });
+            return;
+        }
+
+        setIsSaving(true);
+        setSaveMessage(null);
+
+        try {
+            const payload: PersonUpsertInput = {
+                firstName,
+                lastName,
+                primaryEmail: user?.email ?? primaryEmail,
+                secondaryEmail: secondaryEmail === "" ? null : secondaryEmail,
+                phoneNumber: phone || null,
+                dateOfBirth: null,
+                firebaseUID: user?.uid ?? null,
+                roles: userRoles,
+            };
+
+            await updatePerson(personId, payload);
+            setSaveMessage({ type: "success", text: "Changes saved successfully!" });
+            setTimeout(() => setSaveMessage(null), 3000);
+        } catch (error) {
+            console.error("Failed to save changes:", error);
+            setSaveMessage({
+                type: "error",
+                text: error instanceof Error ? error.message : "Failed to save changes",
+            });
+        } finally {
+            setIsSaving(false);
+        }
     }
-    function handleCityChange(e: React.ChangeEvent<HTMLInputElement>) {
-        setCity(e.target.value);
-    }
-    function handleStateChange(e: React.ChangeEvent<HTMLInputElement>) {
-        setState(e.target.value);
-    }
-    function handleZipChange(e: React.ChangeEvent<HTMLInputElement>) {
-        setZip(e.target.value);
+
+    function handleDiscard() {
+        void (async () => {
+            try {
+                const person = await getPersonByFirebaseUID(user?.uid ?? "");
+                if (person) {
+                    setFirstName(person.firstName ?? "");
+                    setLastName(person.lastName ?? "");
+                    setSecondaryEmail(person.secondaryEmail ?? "");
+                    setPhone(person.phoneNumber ?? "");
+                }
+            } catch (error) {
+                console.error("Failed to reload person data:", error);
+            }
+        })();
+        setSaveMessage(null);
     }
 
     return (
@@ -124,6 +194,24 @@ export default function AccountPage() {
                         </div>
                         <div className="border-t border-border" />
 
+                        {!saveMessage
+                            ? null
+                            : (() => {
+                                  const msg = { ...saveMessage };
+                                  const isSuccess = msg.type === "success";
+                                  return (
+                                      <div
+                                          className={`p-4 rounded-lg ${
+                                              isSuccess
+                                                  ? "bg-green-500/15 border border-green-500/40 text-green-700 dark:text-green-400"
+                                                  : "bg-red-500/15 border border-red-500/40 text-red-700 dark:text-red-400"
+                                          }`}
+                                      >
+                                          {msg.text}
+                                      </div>
+                                  );
+                              })()}
+
                         <div className="pt-2">
                             <h3 className="text-lg font-semibold text-foreground mb-4">Personal Information</h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
@@ -174,9 +262,13 @@ export default function AccountPage() {
                                         type="email"
                                         placeholder="Primary Email"
                                         value={primaryEmail}
-                                        onChange={handlePrimaryEmailChange}
-                                        className="w-full border border-border rounded-lg px-4 py-2.5 bg-input text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
+                                        readOnly
+                                        className="w-full border border-border rounded-lg px-4 py-2.5 bg-muted text-foreground placeholder-muted-foreground opacity-75 cursor-not-allowed"
                                     />
+                                    <p className="text-xs text-muted-foreground mt-2">
+                                        Your primary email is tied to your Google account. To change it, update your
+                                        Google account settings.
+                                    </p>
                                 </div>
                                 <div className="form-group sm:col-span-2">
                                     <label
@@ -208,69 +300,20 @@ export default function AccountPage() {
                             </div>
                         </div>
 
-                        <div className="pt-2">
-                            <h3 className="text-lg font-semibold text-foreground mb-4">Address</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                                <div className="form-group sm:col-span-2">
-                                    <label htmlFor="address" className="text-sm font-medium text-foreground mb-2 block">
-                                        Street Address
-                                    </label>
-                                    <input
-                                        type="text"
-                                        placeholder="Street Address"
-                                        value={address}
-                                        onChange={handleAddressChange}
-                                        className="w-full border border-border rounded-lg px-4 py-2.5 bg-input text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="city" className="text-sm font-medium text-foreground mb-2 block">
-                                        City
-                                    </label>
-                                    <input
-                                        type="text"
-                                        placeholder="City"
-                                        value={city}
-                                        onChange={handleCityChange}
-                                        className="w-full border border-border rounded-lg px-4 py-2.5 bg-input text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="state" className="text-sm font-medium text-foreground mb-2 block">
-                                        State
-                                    </label>
-                                    <input
-                                        type="text"
-                                        placeholder="State"
-                                        value={state}
-                                        onChange={handleStateChange}
-                                        className="w-full border border-border rounded-lg px-4 py-2.5 bg-input text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
-                                    />
-                                </div>
-                                <div className="form-group">
-                                    <label htmlFor="zip" className="text-sm font-medium text-foreground mb-2 block">
-                                        Zip Code
-                                    </label>
-                                    <input
-                                        type="text"
-                                        placeholder="Zip Code"
-                                        value={zip}
-                                        onChange={handleZipChange}
-                                        className="w-full border border-border rounded-lg px-4 py-2.5 bg-input text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
                         <div className="flex gap-3 pt-6 border-t border-border">
                             <Button
-                                onClick={() => alert("Save Changes clicked")}
-                                className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2.5 rounded-lg transition-all"
+                                onClick={() => void handleSaveChanges()}
+                                disabled={isSaving}
+                                className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-2.5 rounded-lg transition-all disabled:opacity-50"
                             >
                                 <span className="material-symbols-outlined mr-2">save</span>
-                                Save Changes
+                                {isSaving ? "Saving..." : "Save Changes"}
                             </Button>
-                            <Button variant="outline" className="flex-1 font-semibold py-2.5 rounded-lg transition-all">
+                            <Button
+                                onClick={handleDiscard}
+                                variant="outline"
+                                className="flex-1 font-semibold py-2.5 rounded-lg transition-all"
+                            >
                                 <span className="material-symbols-outlined mr-2">close</span>
                                 Discard
                             </Button>
