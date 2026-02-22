@@ -1,21 +1,28 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../contexts/UserContextDefinition";
 import { Link } from "react-router";
 import { signOutUser } from "../firebase";
-import {
-    Sheet,
-    SheetClose,
-    SheetContent,
-    SheetDescription,
-    SheetFooter,
-    SheetHeader,
-    SheetTitle,
-} from "@/components/ui/sheet";
+import { getCurrentUser, roles } from "../lib/api";
+import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function AccountDrawer(props: { onClose: () => void; isOpen: boolean }) {
     const [user, , cachedPhotoURL] = useContext(UserContext);
+    const [userRoles, setUserRoles] = useState<roles[]>([]);
+
+    useEffect(() => {
+        if (user?.uid) {
+            void getCurrentUser()
+                .then((currentUser) => {
+                    if (currentUser) {
+                        setUserRoles(currentUser.roles);
+                    }
+                })
+                .catch((error) => {
+                    console.error("Failed to fetch user roles:", error);
+                });
+        }
+    }, [user?.uid]);
 
     if (!user) {
         return null;
@@ -23,51 +30,84 @@ export default function AccountDrawer(props: { onClose: () => void; isOpen: bool
 
     return (
         <Sheet open={props.isOpen} onOpenChange={(open) => !open && props.onClose()}>
-            <SheetContent>
-                <SheetHeader>
-                    <SheetTitle>Your Account</SheetTitle>
+            <SheetContent className="flex flex-col gap-0 h-full">
+                <SheetHeader className="border-b border-border pb-4 flex">
+                    <SheetTitle className="text-2xl p-0">Account</SheetTitle>
                 </SheetHeader>
-                <div className="flex flex-col gap-4 items-center my-6">
-                    <Avatar className="w-24 h-24">
-                        <AvatarImage
+
+                <div className="flex-1 overflow-auto py-8 px-0">
+                    {/* Profile Section */}
+                    <div className="px-6 mb-8">
+                        <img
                             key={cachedPhotoURL ?? user.photoURL ?? "fallback"}
                             src={cachedPhotoURL ?? user.photoURL ?? ""}
                             alt={user.displayName ?? ""}
+                            className="mx-auto mb-4 rounded-full w-20 h-20 object-cover shadow-md ring-2"
                         />
-                        <AvatarFallback>{user.displayName?.slice(0, 2).toUpperCase() ?? "U"}</AvatarFallback>
-                    </Avatar>
-                    <div className="text-center">
-                        <p className="font-medium">{user.displayName}</p>
-                        <p className="text-sm text-muted-foreground">{user.email}</p>
+                        <p className="font-semibold text-foreground text-lg text-center">{user.displayName}</p>
+                        <p className="text-sm text-muted-foreground break-all text-center">{user.email}</p>
+                        <div className="mt-3 flex flex-wrap gap-2 justify-center">
+                            {userRoles.includes(roles.SUPER_ADMIN) && (
+                                <div className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-500/15 border border-purple-500/40 rounded-full text-xs text-purple-700 dark:text-purple-400 font-medium">
+                                    Super Admin
+                                </div>
+                            )}
+                            {userRoles.includes(roles.ADMIN) && !userRoles.includes(roles.SUPER_ADMIN) && (
+                                <div className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-500/15 border border-blue-500/40 rounded-full text-xs text-blue-700 dark:text-blue-400 font-medium">
+                                    Admin
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Navigation Section */}
+                    <div className="space-y-1 px-6">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide px-2 py-2">
+                            Navigation
+                        </p>
+                        <Link
+                            to="/account"
+                            onClick={props.onClose}
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-primary text-sm text-foreground font-medium transition-colors"
+                        >
+                            <span className="material-symbols-outlined text-lg">person</span>
+                            Account Settings
+                        </Link>
+                        <Link
+                            to="/admin/dashboard"
+                            onClick={props.onClose}
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-primary text-sm text-foreground font-medium transition-colors"
+                        >
+                            <span className="material-symbols-outlined text-lg">admin_panel_settings</span>
+                            Admin Dashboard
+                        </Link>
                     </div>
                 </div>
-                <SheetFooter>
-                    <div className="flex flex-col gap-2 w-full">
+
+                {/* Action Buttons */}
+                <div className="border-t border-border pt-6 space-y-2 px-6">
+                    <Button
+                        variant="destructive"
+                        className="w-full font-semibold py-2.5 rounded-lg transition-all"
+                        onClick={() => {
+                            void signOutUser();
+                            props.onClose();
+                        }}
+                    >
+                        <span className="material-symbols-outlined mr-2">logout</span>
+                        Sign Out
+                    </Button>
+                    <SheetClose asChild>
                         <Button
-                            asChild
-                            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                            variant="outline"
+                            className="w-full font-semibold py-2.5 rounded-lg transition-all"
                             onClick={props.onClose}
                         >
-                            <Link to="/account">Account Settings</Link>
+                            <span className="material-symbols-outlined mr-2">close</span>
+                            Close
                         </Button>
-                        <Button
-                            asChild
-                            className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground"
-                            onClick={props.onClose}
-                        >
-                            <Link to="/admin/dashboard">Admin Settings</Link>
-                        </Button>
-                        <Button variant="destructive" className="w-full" onClick={() => void signOutUser()}>
-                            Logout
-                        </Button>
-                        <SheetClose asChild>
-                            <Button variant="outline" className="w-full" onClick={props.onClose}>
-                                Close
-                            </Button>
-                        </SheetClose>
-                    </div>
-                </SheetFooter>
-                <SheetDescription className="sr-only">View and manage your account settings</SheetDescription>
+                    </SheetClose>
+                </div>
             </SheetContent>
         </Sheet>
     );

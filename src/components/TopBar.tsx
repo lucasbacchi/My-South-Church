@@ -101,7 +101,7 @@ export default function TopBar() {
                         </Link>
                     ) : (
                         <button
-                            className="flex items-center hover:transform-none rounded-none bg-transparent shadow-none justify-center size-16 sm:size-20 hover:bg-primary/10 transition-colors duration-200 cursor-pointer border-none p-0 group"
+                            className="flex items-center justify-center size-16 sm:size-20 transition-colors duration-200 cursor-pointer border-none bg-transparent shadow-none p-0 group focus:outline-none"
                             onClick={onAccountOpen}
                             type="button"
                         >
