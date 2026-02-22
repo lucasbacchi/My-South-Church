@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireAdminClientLoader } from "@/lib/clientLoaders";
-import { getGroupsForMemberEmail, type GroupSummary } from "@/lib/groups";
+import { type GroupSummary, getGroupsForMemberEmail } from "@/lib/groups";
 import { getPerson, verifyGoogleAccount } from "@/lib/people";
 import { type Person } from "@/types/people";
 
@@ -32,6 +32,23 @@ function formatVerifiedStatus(value: boolean | null | undefined) {
     if (value === true) return "Verified";
     if (value === false) return "Not a Google Account";
     return "Unknown";
+}
+
+function parseProblemDetailMessage(error: unknown) {
+    if (!(error instanceof Error)) return null;
+    const message = error.message?.trim();
+    if (!message) return null;
+    if (message.startsWith("{") && message.endsWith("}")) {
+        try {
+            const parsed = JSON.parse(message) as { detail?: string };
+            if (typeof parsed?.detail === "string" && parsed.detail.trim()) {
+                return parsed.detail.trim();
+            }
+        } catch {
+            return message;
+        }
+    }
+    return message;
 }
 
 export default function PersonViewPage() {
@@ -78,6 +95,15 @@ export default function PersonViewPage() {
     useEffect(() => {
         if (!person?.primaryEmail) {
             setGroups([]);
+            setGroupsError(null);
+            setIsGroupsLoading(false);
+            return;
+        }
+
+        if (person.googleAccountVerified === false) {
+            setGroups([]);
+            setGroupsError("This person does not have a Google Account, so groups cannot be shown.");
+            setIsGroupsLoading(false);
             return;
         }
 
@@ -92,7 +118,12 @@ export default function PersonViewPage() {
             })
             .catch((groupsFetchError) => {
                 if (!isMounted) return;
-                setGroupsError(groupsFetchError instanceof Error ? groupsFetchError.message : "Failed to load groups.");
+                const detail = parseProblemDetailMessage(groupsFetchError);
+                if (detail?.toLowerCase().includes("does not have a google account")) {
+                    setGroupsError("This person does not have a Google Account, so groups cannot be shown.");
+                    return;
+                }
+                setGroupsError(detail ?? "Failed to load groups.");
             })
             .finally(() => {
                 if (!isMounted) return;
@@ -102,7 +133,7 @@ export default function PersonViewPage() {
         return () => {
             isMounted = false;
         };
-    }, [person?.primaryEmail]);
+    }, [person?.primaryEmail, person?.googleAccountVerified]);
 
     const handleVerifyClick = async () => {
         if (!person) return;
@@ -187,7 +218,7 @@ export default function PersonViewPage() {
                             </div>
                         </CardContent>
                         <CardFooter className="flex flex-wrap gap-2">
-                            <Button type="button" onClick={handleVerifyClick} disabled={isVerifying}>
+                            <Button type="button" onClick={void handleVerifyClick} disabled={isVerifying}>
                                 {isVerifying ? "Verifying..." : "Verify Google Account"}
                             </Button>
                             {verifyMessage ? (
