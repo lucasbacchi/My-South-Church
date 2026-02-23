@@ -1,12 +1,21 @@
+import { useUser } from "../contexts/UserContextDefinition";
+import { useCurrentUserRoles } from "../hooks/use-current-user-roles";
+
 export default function Footer() {
+    const [user] = useUser();
+    const { isAdmin } = useCurrentUserRoles();
+    const gridClasses = user
+        ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+        : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-2";
+
     return (
         <footer className="bg-card/95 backdrop-blur-sm border-t border-border mt-auto shrink-0">
-            <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 py-8 sm:py-10 md:py-12">
+            <div className="max-w-6xl mx-auto px-8 py-8 sm:py-10 md:py-12">
                 {/* Main Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 md:gap-12 mb-6 sm:mb-8">
+                <div className={`grid ${gridClasses} gap-8 sm:gap-10 md:gap-12 mb-6 sm:mb-8`}>
                     {/* Brand Section */}
                     <div className="space-y-3">
-                        <h3 className="text-base sm:text-lg font-bold text-primary hover:text-secondary transition-colors">
+                        <h3 className="text-base sm:text-lg font-bold text-primary cursor-default transition-colors">
                             My South Church
                         </h3>
                         <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
@@ -55,10 +64,18 @@ export default function Footer() {
                             </li>
                             <li>
                                 <a
-                                    href="/groups"
+                                    href="/browse/groups"
                                     className="text-primary hover:text-secondary transition-colors hover:translate-x-1 inline-block"
                                 >
-                                    Groups
+                                    Browse Groups
+                                </a>
+                            </li>
+                            <li>
+                                <a
+                                    href="/browse/files"
+                                    className="text-primary hover:text-secondary transition-colors hover:translate-x-1 inline-block"
+                                >
+                                    Browse Files
                                 </a>
                             </li>
                             <li>
@@ -71,6 +88,40 @@ export default function Footer() {
                             </li>
                         </ul>
                     </div>
+
+                    {user ? (
+                        <div className="space-y-3">
+                            <h4 className="text-xs sm:text-sm font-bold text-foreground">My Pages</h4>
+                            <ul className="space-y-2 text-xs sm:text-sm">
+                                <li>
+                                    <a
+                                        href="/groups"
+                                        className="text-primary hover:text-secondary transition-colors hover:translate-x-1 inline-block"
+                                    >
+                                        My Groups
+                                    </a>
+                                </li>
+                                <li>
+                                    <a
+                                        href="/files"
+                                        className="text-primary hover:text-secondary transition-colors hover:translate-x-1 inline-block"
+                                    >
+                                        My Files
+                                    </a>
+                                </li>
+                                {isAdmin ? (
+                                    <li>
+                                        <a
+                                            href="/admin/dashboard"
+                                            className="text-primary hover:text-secondary transition-colors hover:translate-x-1 inline-block"
+                                        >
+                                            Admin Dashboard
+                                        </a>
+                                    </li>
+                                ) : null}
+                            </ul>
+                        </div>
+                    ) : null}
                 </div>
 
                 {/* Divider */}

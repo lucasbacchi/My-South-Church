@@ -9,7 +9,7 @@ export default function GroupsPage() {
             {/* Hero Section */}
             <div>
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-linear-to-r from-primary to-secondary bg-clip-text text-transparent">
-                    Your Groups
+                    My Groups
                 </h1>
                 <div className="h-1 w-16 sm:w-20 bg-linear-to-r from-primary to-secondary rounded-full" />
             </div>
@@ -18,10 +18,10 @@ export default function GroupsPage() {
             <div className="bg-linear-to-br from-primary/10 to-secondary/10 border border-primary/20 rounded-xl p-6 sm:p-8 shadow-md">
                 <h2 className="text-xl sm:text-2xl font-semibold text-foreground mb-2">Connect with Others</h2>
                 <p className="text-sm sm:text-base text-foreground/70 mb-4">
-                    Browse groups and find communities that interest you. Join a group to stay connected and engaged.
+                    Review the groups you belong to and stay connected with your ministry teams.
                 </p>
                 <button className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5">
-                    <span>Explore Groups</span>
+                    <span>View My Groups</span>
                     <span className="material-symbols-outlined text-lg">arrow_forward</span>
                 </button>
             </div>

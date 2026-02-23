@@ -46,23 +46,21 @@ export default function HomePage() {
                                 <span className="material-symbols-outlined text-5xl text-primary mb-2 block group-hover:text-secondary transition-colors">
                                     groups
                                 </span>
-                                <h3 className="text-xl font-bold text-foreground">Groups</h3>
-                                <p className="text-sm text-muted-foreground">
-                                    Connect with church groups and ministries
-                                </p>
+                                <h3 className="text-xl font-bold text-foreground">My Groups</h3>
+                                <p className="text-sm text-muted-foreground">View your church groups and ministries</p>
                                 <span className="material-symbols-outlined text-lg mt-4 text-primary group-hover:translate-x-1 transition-transform">
                                     arrow_forward
                                 </span>
                             </div>
                         </Link>
 
-                        <Link to="/drive" className="no-underline">
+                        <Link to="/files" className="no-underline">
                             <div className="feature-card group">
                                 <span className="material-symbols-outlined text-5xl text-secondary mb-2 block group-hover:text-accent transition-colors">
                                     folder_open
                                 </span>
-                                <h3 className="text-xl font-bold text-foreground">Resources</h3>
-                                <p className="text-sm text-muted-foreground">Access shared files and documents</p>
+                                <h3 className="text-xl font-bold text-foreground">My Files</h3>
+                                <p className="text-sm text-muted-foreground">Access files shared with your teams</p>
                                 <span className="material-symbols-outlined text-lg mt-4 text-secondary group-hover:translate-x-1 transition-transform">
                                     arrow_forward
                                 </span>
@@ -84,23 +82,29 @@ export default function HomePage() {
                     </>
                 ) : (
                     <>
-                        <div className="feature-card">
-                            <span className="material-symbols-outlined text-5xl text-primary mb-2 block">groups</span>
-                            <h3 className="text-xl font-bold text-foreground">Groups</h3>
-                            <p className="text-sm text-muted-foreground">
-                                Connect with church groups and ministries. Sign in to view your groups.
-                            </p>
-                        </div>
+                        <Link to="/browse/groups" className="no-underline">
+                            <div className="feature-card">
+                                <span className="material-symbols-outlined text-5xl text-primary mb-2 block">
+                                    groups
+                                </span>
+                                <h3 className="text-xl font-bold text-foreground">Browse Groups</h3>
+                                <p className="text-sm text-muted-foreground">
+                                    Explore public groups and ministries. Sign in to see your groups.
+                                </p>
+                            </div>
+                        </Link>
 
-                        <div className="feature-card">
-                            <span className="material-symbols-outlined text-5xl text-secondary mb-2 block">
-                                folder_open
-                            </span>
-                            <h3 className="text-xl font-bold text-foreground">Resources</h3>
-                            <p className="text-sm text-muted-foreground">
-                                Access shared files and documents. Sign in to manage your permissions.
-                            </p>
-                        </div>
+                        <Link to="/browse/files" className="no-underline">
+                            <div className="feature-card">
+                                <span className="material-symbols-outlined text-5xl text-secondary mb-2 block">
+                                    folder_open
+                                </span>
+                                <h3 className="text-xl font-bold text-foreground">Browse Files</h3>
+                                <p className="text-sm text-muted-foreground">
+                                    View public files and documents. Sign in to access shared files.
+                                </p>
+                            </div>
+                        </Link>
 
                         <div className="feature-card">
                             <span className="material-symbols-outlined text-5xl text-accent mb-2 block">security</span>

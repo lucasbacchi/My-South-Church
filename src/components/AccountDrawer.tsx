@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 export default function AccountDrawer(props: { onClose: () => void; isOpen: boolean }) {
     const [user, , cachedPhotoURL] = useContext(UserContext);
     const [userRoles, setUserRoles] = useState<roles[]>([]);
+    const isAdmin = userRoles.includes(roles.ADMIN) || userRoles.includes(roles.SUPER_ADMIN);
 
     useEffect(() => {
         if (user?.uid) {
@@ -79,14 +80,16 @@ export default function AccountDrawer(props: { onClose: () => void; isOpen: bool
                             <span className="material-symbols-outlined text-lg">person</span>
                             Account Settings
                         </Link>
-                        <Link
-                            to="/admin/dashboard"
-                            onClick={props.onClose}
-                            className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-primary text-sm text-foreground font-medium transition-colors"
-                        >
-                            <span className="material-symbols-outlined text-lg">admin_panel_settings</span>
-                            Admin Dashboard
-                        </Link>
+                        {isAdmin ? (
+                            <Link
+                                to="/admin/dashboard"
+                                onClick={props.onClose}
+                                className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-primary text-sm text-foreground font-medium transition-colors"
+                            >
+                                <span className="material-symbols-outlined text-lg">admin_panel_settings</span>
+                                Admin Dashboard
+                            </Link>
+                        ) : null}
                     </div>
                 </div>
 

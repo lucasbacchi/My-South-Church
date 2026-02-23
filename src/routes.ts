@@ -4,8 +4,10 @@ export default [
     index("./pages/HomePage.tsx"),
     route("about", "./pages/AboutPage.tsx"),
     route("resources", "./pages/ResourcesPage.tsx"),
+    route("browse/groups", "./pages/BrowseGroupsPage.tsx"),
+    route("browse/files", "./pages/BrowseFilesPage.tsx"),
     route("groups", "./pages/GroupsPage.tsx"),
-    route("drive", "./pages/DrivePage.tsx"),
+    route("files", "./pages/DrivePage.tsx"),
     route("signin", "./pages/SignInPage.tsx"),
     route("account", "./pages/AccountPage.tsx"),
     route("admin", "./pages/admin/AdminLayout.tsx", [

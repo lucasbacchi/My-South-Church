@@ -54,69 +54,76 @@ export default function TopBar() {
     return (
         <>
             <div className="sticky top-0 left-0 z-30">
-                <div className="flex relative bg-card/95 backdrop-blur-sm flex-row shadow-lg border-b border-border transition-all duration-200 items-stretch">
-                    <MobileNav />
-                    <Link
-                        to="/"
-                        className="flex items-center hover:opacity-85 transition-opacity duration-200 group px-3 sm:px-4 md:px-6"
-                    >
-                        <h1 className="text-primary text-xl py-5 sm:text-2xl md:text-4xl select-none font-bold group-hover:text-primary-lighter transition-colors">
-                            <span className="hidden sm:inline">My South Church</span>
-                            <span className="sm:hidden">MSC</span>
-                        </h1>
-                    </Link>
-                    <div className="flex grow" />
-                    <button
-                        onClick={toggleTheme}
-                        aria-label="Toggle color theme"
-                        className="flex items-center shadow-none transform-none focus:outline-none gap-1 rounded-full hover:border-primary/50 transition-all duration-200 group mx-4 bg-transparent border-none p-0 cursor-pointer"
-                        type="button"
-                    >
-                        <span
-                            className={`material-symbols-outlined text-sm sm:text-base transition-transform duration-300 ${theme === "dark" ? "scale-100 opacity-100" : "scale-0 opacity-0"}`}
-                        >
-                            dark_mode
-                        </span>
-                        <div
-                            className={`relative w-8 h-4 sm:w-10 sm:h-5 rounded-full transition-colors duration-300 ${theme === "dark" ? "bg-primary/30" : "bg-primary/30"}`}
-                        >
-                            <div
-                                className={`absolute top-px w-3 h-3 sm:w-4.5 sm:h-4.5 rounded-full bg-primary transition-all duration-300 transform ${theme === "dark" ? "translate-x-0.5 sm:translate-x-0" : "translate-x-4 sm:translate-x-6"}`}
-                            />
+                <div className="relative bg-card/95 backdrop-blur-sm shadow-lg border-b border-border transition-all duration-200">
+                    <div className="relative flex items-center justify-between w-full mx-auto">
+                        <div className="flex items-center">
+                            <MobileNav />
                         </div>
-                        <span
-                            className={`material-symbols-outlined text-black text-sm sm:text-base transition-transform duration-300 ${theme === "light" ? "scale-100 opacity-100" : "scale-0 opacity-0"}`}
-                        >
-                            light_mode
-                        </span>
-                    </button>
-                    {!user ? (
-                        <Link
-                            to="/signin"
-                            className="flex items-center justify-center size-16 sm:size-20 hover:bg-primary/10 transition-colors duration-200 cursor-pointer group"
-                        >
-                            <span className="material-symbols-outlined text-foreground text-2xl! sm:text-3xl! select-none group-hover:scale-110 transition-transform">
-                                account_circle
-                            </span>
-                        </Link>
-                    ) : (
-                        <button
-                            className="flex items-center justify-center size-16 sm:size-20 transition-colors duration-200 cursor-pointer border-none bg-transparent shadow-none p-0 group focus:outline-none"
-                            onClick={onAccountOpen}
-                            type="button"
-                        >
-                            <Avatar className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 ring-2 transition-all duration-200 group-hover:shadow-lg">
-                                <AvatarImage
-                                    key={cachedPhotoURL ?? user.photoURL ?? "fallback"}
-                                    src={cachedPhotoURL ?? user.photoURL ?? ""}
-                                    alt={user.displayName ?? ""}
-                                />
-                                <AvatarFallback className="bg-linear-to-br from-primary-darker to-secondary-darker text-primary-foreground font-semibold">
-                                    {user.displayName?.slice(0, 2).toUpperCase() ?? "U"}
-                                </AvatarFallback>
-                            </Avatar>
-                        </button>
-                    )}
+                        <div className="inset-0 flex pointer-events-none">
+                            <Link
+                                to="/"
+                                className="flex hover:opacity-85 transition-opacity duration-200 group px-2 sm:px-6 pointer-events-auto"
+                            >
+                                <h1 className="text-primary text-xl py-5 sm:text-2xl md:text-4xl select-none font-bold group-hover:text-primary-lighter transition-colors">
+                                    <span>My South Church</span>
+                                </h1>
+                            </Link>
+                        </div>
+                        <div className="grow" />
+                        <div className="flex items-center gap-2 sm:gap-3">
+                            <button
+                                onClick={toggleTheme}
+                                aria-label="Toggle color theme"
+                                className="flex items-center shadow-none transform-none focus:outline-none gap-1 rounded-full hover:border-primary/50 transition-all duration-200 group bg-transparent border-none p-0 cursor-pointer"
+                                type="button"
+                            >
+                                <span
+                                    className={`material-symbols-outlined text-sm sm:text-base transition-transform duration-300 ${theme === "dark" ? "scale-100 opacity-100" : "scale-0 opacity-0"}`}
+                                >
+                                    dark_mode
+                                </span>
+                                <div
+                                    className={`relative w-8 h-4 sm:w-10 sm:h-5 rounded-full transition-colors duration-300 ${theme === "dark" ? "bg-primary/30" : "bg-primary/30"}`}
+                                >
+                                    <div
+                                        className={`absolute top-px w-3.5 h-3.5 sm:w-4.5 sm:h-4.5 rounded-full bg-primary transition-all duration-300 transform ${theme === "dark" ? "translate-x-0 sm:translate-x-0" : "translate-x-5 sm:translate-x-6"}`}
+                                    />
+                                </div>
+                                <span
+                                    className={`material-symbols-outlined text-black text-sm sm:text-base transition-transform duration-300 ${theme === "light" ? "scale-100 opacity-100" : "scale-0 opacity-0"}`}
+                                >
+                                    light_mode
+                                </span>
+                            </button>
+                            {!user ? (
+                                <Link
+                                    to="/signin"
+                                    className="flex items-center justify-center size-16 sm:size-20 hover:bg-primary/10 transition-colors duration-200 cursor-pointer group"
+                                >
+                                    <span className="material-symbols-outlined text-foreground text-2xl! sm:text-3xl! select-none group-hover:scale-110 transition-transform">
+                                        account_circle
+                                    </span>
+                                </Link>
+                            ) : (
+                                <button
+                                    className="flex items-center justify-center size-16 sm:size-20 transition-colors duration-200 cursor-pointer border-none bg-transparent shadow-none p-0 group focus:outline-none"
+                                    onClick={onAccountOpen}
+                                    type="button"
+                                >
+                                    <Avatar className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 ring-2 transition-all duration-200 group-hover:shadow-lg">
+                                        <AvatarImage
+                                            key={cachedPhotoURL ?? user.photoURL ?? "fallback"}
+                                            src={cachedPhotoURL ?? user.photoURL ?? ""}
+                                            alt={user.displayName ?? ""}
+                                        />
+                                        <AvatarFallback className="bg-linear-to-br from-primary-darker to-secondary-darker text-primary-foreground font-semibold">
+                                            {user.displayName?.slice(0, 2).toUpperCase() ?? "U"}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                </button>
+                            )}
+                        </div>
+                    </div>
                 </div>
 
                 {/* Progress bar for navigation loading */}
