@@ -1,9 +1,36 @@
-import { useCallback, useContext, useEffect, useState } from "react";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import {
+    GoogleAuthProvider,
+    browserLocalPersistence,
+    getRedirectResult,
+    setPersistence,
+    signInWithCredential,
+    signInWithPopup,
+    signInWithRedirect,
+} from "firebase/auth";
 import { UserContext } from "../contexts/UserContextDefinition";
 import { useNavigate, useSearchParams } from "react-router";
 
 import { auth } from "../firebase";
+
+// Type declaration for Google Sign-In
+declare global {
+    interface Window {
+        google?: {
+            accounts: {
+                id: {
+                    initialize: (config: Record<string, unknown>) => void;
+                    prompt: (callback?: (notification: Record<string, unknown>) => void) => void;
+                    renderButton: (element: HTMLElement, options: Record<string, unknown>) => void;
+                    cancel: () => void;
+                    disableAutoSelect: () => void;
+                };
+            };
+        };
+    }
+}
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined;
 
 export default function SignIn() {
     const [user] = useContext(UserContext);
@@ -11,6 +38,7 @@ export default function SignIn() {
     const [searchParams] = useSearchParams();
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const oneTapInitializedRef = useRef(false);
 
     // Get the redirect URL from query params
     const redirectTo = searchParams.get("redirect") ?? "/";
@@ -22,23 +50,117 @@ export default function SignIn() {
         }
     }, [user, navigate, redirectTo]);
 
-    // Handle Google Sign-In with popup
-    const handleGoogleSignIn = useCallback(async () => {
+    // Handle redirect result from Google Sign-In (production only)
+    useEffect(() => {
+        let isMounted = true;
+
+        const handleRedirectResult = async () => {
+            try {
+                await setPersistence(auth, browserLocalPersistence);
+                const result = await getRedirectResult(auth);
+
+                if (result && isMounted) {
+                    setIsLoading(false);
+                }
+            } catch (err) {
+                const errorMessage =
+                    err instanceof Error ? err.message : "Failed to complete sign in. Please try again.";
+                if (isMounted) {
+                    setError(errorMessage);
+                    setIsLoading(false);
+                }
+                console.error(err);
+            }
+        };
+
+        void handleRedirectResult();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
+    // Handle One-Tap callback
+    const handleOneTapCallback = useCallback(async (response: Record<string, unknown>) => {
+        try {
+            const idToken = typeof response.credential === "string" ? response.credential : null;
+            if (!idToken) {
+                throw new Error("Missing One-Tap credential.");
+            }
+
+            setIsLoading(true);
+            setError(null);
+
+            const credential = GoogleAuthProvider.credential(idToken);
+            await signInWithCredential(auth, credential);
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : "Failed to sign in. Please try again.";
+            setError(errorMessage);
+            setIsLoading(false);
+            console.error(err);
+        }
+    }, []);
+
+    // Initialize Google One-Tap UI
+    useEffect(() => {
+        if (oneTapInitializedRef.current || !window.google || !GOOGLE_CLIENT_ID) return;
+
+        oneTapInitializedRef.current = true;
+
+        try {
+            window.google.accounts.id.initialize({
+                client_id: GOOGLE_CLIENT_ID,
+                callback: handleOneTapCallback,
+                auto_select: true,
+                itp_support: true,
+                use_fedcm_for_prompt: true,
+            });
+
+            // Display One-Tap UI (FedCM-compatible, no status callback needed)
+            window.google.accounts.id.prompt();
+        } catch (error) {
+            console.error("Failed to initialize Google One-Tap:", error);
+        }
+    }, [handleOneTapCallback]);
+
+    // Handle Google Sign-In button click
+    // Uses popup on localhost (more reliable), redirect on production
+    const handleRedirectSignIn = useCallback(async () => {
         try {
             setIsLoading(true);
             setError(null);
 
+            // Cancel One-Tap to avoid interference
+            window.google?.accounts.id.cancel();
+            window.google?.accounts.id.disableAutoSelect();
+
+            // Create provider with custom parameters
             const provider = new GoogleAuthProvider();
-            await signInWithPopup(auth, provider);
-            // UserContext will automatically update via onAuthStateChanged
-            // The useEffect above will handle the redirect
+            provider.addScope("email");
+            provider.addScope("profile");
+            provider.setCustomParameters({
+                prompt: "select_account",
+            });
+
+            await setPersistence(auth, browserLocalPersistence);
+
+            // Use popup on localhost (avoids cross-origin storage issues), redirect on production
+            const isLocalhost = window.location.hostname.includes("localhost");
+
+            if (isLocalhost) {
+                // Popup works reliably on localhost
+                await signInWithPopup(auth, provider);
+                setIsLoading(false);
+            } else {
+                // Redirect for better UX on production (same domain, no cross-origin issues)
+                await signInWithRedirect(auth, provider);
+            }
         } catch (err) {
             const errorMessage =
                 err instanceof Error ? err.message : "Failed to sign in with Google. Please try again.";
             setError(errorMessage);
-            console.error("Google Sign-In Error:", err);
-        } finally {
             setIsLoading(false);
+            console.error(err);
         }
     }, []);
 
@@ -56,14 +178,30 @@ export default function SignIn() {
 
             {/* Google Sign-In Container */}
             <div className="flex flex-col items-center gap-4 w-full">
-                <p className="text-center text-sm text-muted-foreground">Sign in with your Google account</p>
+                <div className="text-center space-y-1">
+                    <p className="text-sm text-muted-foreground">One-Tap Sign In Enabled</p>
+                    <p className="text-xs text-muted-foreground/70">Look for the Google prompt in your browser</p>
+                </div>
 
-                {/* Custom Google Sign-In Button */}
+                {/* One-Tap UI Container - Google will inject here */}
+                {/* <div id="g_container" className="w-full flex justify-center" /> */}
+
+                {/* Fallback Button if One-Tap doesn't appear */}
+                <div className="relative w-full">
+                    <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-border" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                        <span className="px-2 bg-background text-muted-foreground">OR</span>
+                    </div>
+                </div>
+
+                {/* Google Account Chooser Button */}
                 <button
-                    onClick={() => void handleGoogleSignIn()}
+                    onClick={() => void handleRedirectSignIn()}
                     disabled={isLoading}
-                    className="flex items-center justify-center gap-3 px-6 py-2.5 bg-white border border-gray-300 rounded-lg shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200 active:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed"
-                    aria-label="Sign in with Google"
+                    className="w-full flex items-center justify-center gap-3 px-6 py-2.5 bg-white border border-gray-300 rounded-lg shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200 active:bg-gray-100 disabled:opacity-60 disabled:cursor-not-allowed"
+                    aria-label="Choose Google account"
                 >
                     {/* Google Logo */}
                     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" className="w-5 h-5">
@@ -88,7 +226,7 @@ export default function SignIn() {
 
                     {/* Text */}
                     <span className="text-gray-700 font-medium text-sm">
-                        {isLoading ? "Signing in..." : "Sign in with Google"}
+                        {isLoading ? "Signing in..." : "Continue with Google"}
                     </span>
                 </button>
             </div>
