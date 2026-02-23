@@ -4,6 +4,7 @@ import { NavLink } from "react-router";
 const navPages: string[][] = [
     ["Home", "home", "/"],
     ["About", "info", "/about"],
+    ["Resources", "menu_book", "/resources"],
     ["Google Groups", "email", "/groups"],
     ["Google Drive", "folder", "/drive"],
 ];

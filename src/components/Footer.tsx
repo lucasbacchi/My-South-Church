@@ -63,7 +63,7 @@ export default function Footer() {
                             </li>
                             <li>
                                 <a
-                                    href="/drive"
+                                    href="/resources"
                                     className="text-primary hover:text-secondary transition-colors hover:translate-x-1 inline-block"
                                 >
                                     Resources

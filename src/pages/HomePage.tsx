@@ -1,6 +1,5 @@
 import { Link } from "react-router";
 import { useUser } from "../contexts/UserContextDefinition";
-import { Button } from "../components/ui/button";
 
 export default function HomePage() {
     const [user] = useUser();
@@ -19,40 +18,17 @@ export default function HomePage() {
                 <div className="h-1 w-16 sm:w-20 bg-linear-to-r from-primary to-secondary rounded-full" />
                 <p className="text-base sm:text-lg text-muted-foreground mt-3 sm:mt-4 max-w-2xl">
                     {user
-                        ? "Your gateway to South Church community, resources, and fellowship"
-                        : "Connect with our community and manage your church groups and resources"}
+                        ? "Your gateway to South Church resources"
+                        : "The easiest way to view and manage your church groups and resources"}
                 </p>
             </div>
-
-            {/* Login Prompt for Unauthenticated Users */}
-            {!user && (
-                <div className="bg-linear-to-r from-primary/10 via-secondary/10 to-accent/10 border-2 border-primary/30 rounded-xl p-6 sm:p-8">
-                    <div className="flex flex-col md:flex-row items-center gap-6">
-                        <div className="shrink-0">
-                            <span className="material-symbols-outlined text-6xl sm:text-7xl text-primary">login</span>
-                        </div>
-                        <div className="grow text-center md:text-left">
-                            <h2 className="text-2xl font-bold text-foreground mb-2">Sign In to Get Started</h2>
-                            <p className="text-foreground/80 mb-4">
-                                Access your groups, manage drive permissions, and stay connected with the South Church
-                                community. Please sign in with your primary email address.
-                            </p>
-                            <Link to="/signin">
-                                <Button size="lg" className="gap-2">
-                                    <span className="material-symbols-outlined text-sm">account_circle</span>
-                                    Sign In with Google
-                                </Button>
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* Main Content Card */}
             <div className="card">
                 <p className="text-lg text-foreground leading-relaxed">
-                    My South Church is a community platform that allows members of South Church in Andover to access
-                    information about the church and its ministries all in one place.
+                    My South Church is a platform that allows members of South Church in Andover to access information
+                    about the church and its ministries all in one place. Volunteers get easy access to tools and
+                    resources to support their ministries.
                 </p>
                 <p className="text-foreground/80 leading-relaxed mt-4">
                     {user
@@ -130,12 +106,39 @@ export default function HomePage() {
                             <span className="material-symbols-outlined text-5xl text-accent mb-2 block">security</span>
                             <h3 className="text-xl font-bold text-foreground">Secure Access</h3>
                             <p className="text-sm text-muted-foreground">
-                                Your data is protected. Sign in with your church email to get started.
+                                Sign in with your primary email address to get started.
                             </p>
                         </div>
                     </>
                 )}
             </div>
+
+            {/* Login Prompt for Unauthenticated Users */}
+            {!user && (
+                <Link to="/signin" className="no-underline">
+                    <div className="bg-linear-to-r from-primary/10 via-secondary/10 to-accent/10 border-2 border-primary/30 rounded-xl p-6 sm:p-8 cursor-pointer hover:border-primary/60 hover:shadow-lg hover:bg-linear-to-r hover:from-primary/15 hover:via-secondary/15 hover:to-accent/15 transition-all duration-200 active:scale-95">
+                        <div className="flex flex-col md:flex-row items-center gap-10">
+                            <div className="shrink-0">
+                                <span className="material-symbols-outlined text-2xl! sm:text-4xl! mt-1 text-primary">
+                                    login
+                                </span>
+                            </div>
+                            <div className="grow text-center md:text-left">
+                                <h2 className="text-2xl font-bold text-foreground mb-2">Sign In to Get Started</h2>
+                                <p className="text-foreground/80">
+                                    Access your groups, drive files, and more. Please sign in with your primary email
+                                    address.
+                                </p>
+                            </div>
+                            <div className="shrink-0">
+                                <span className="material-symbols-outlined text-3xl! sm:text-4xl! mt-1 text-primary group-hover:translate-x-1 transition-transform">
+                                    arrow_forward
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </Link>
+            )}
 
             {/* Call to Action Section - Only for authenticated users */}
             {user ? (
@@ -173,9 +176,10 @@ export default function HomePage() {
                         <div className="flex items-center gap-4">
                             <span className="material-symbols-outlined text-5xl text-accent">info</span>
                             <div>
-                                <h3 className="text-xl font-bold text-foreground">Learn More About Us</h3>
+                                <h3 className="text-xl font-bold text-foreground">Learn More About My South Church</h3>
                                 <p className="text-sm text-muted-foreground">
-                                    Discover our mission, values, and what makes South Church special.
+                                    Take a look at the about page to learn more about the platform, how to use it, and
+                                    who to contact for help.
                                 </p>
                             </div>
                             <span className="material-symbols-outlined text-2xl text-accent ml-auto">
