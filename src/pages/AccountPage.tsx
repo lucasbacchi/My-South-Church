@@ -6,6 +6,7 @@ import { requireAuthClientLoader } from "../lib/clientLoaders";
 import { getCurrentUser, roles } from "../lib/api";
 import { getPersonByFirebaseUID, updatePerson } from "../lib/people";
 import type { PersonUpsertInput } from "../types/people";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const clientLoader = requireAuthClientLoader;
@@ -160,12 +161,16 @@ export default function AccountPage() {
 
                     <div className="bg-card border border-border rounded-2xl p-6 sm:p-8 shadow-lg flex flex-col gap-6">
                         <div className="text-center pb-6 sm:pb-8">
-                            <img
-                                key={cachedPhotoURL ?? user.photoURL ?? "fallback"}
-                                src={(cachedPhotoURL ?? user.photoURL)?.replace(/=s\d+-c$/, "=s240-c") ?? ""}
-                                alt="user profile"
-                                className="mx-auto mb-4 sm:mb-6 rounded-full w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 object-cover shadow-md ring-3"
-                            />
+                            <Avatar className="mx-auto mb-4 sm:mb-6 w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 ring-3 shadow-md">
+                                <AvatarImage
+                                    key={cachedPhotoURL ?? user.photoURL ?? "fallback"}
+                                    src={(cachedPhotoURL ?? user.photoURL)?.replace(/=s\d+-c$/, "=s240-c") ?? ""}
+                                    alt="user profile"
+                                />
+                                <AvatarFallback className="bg-linear-to-br from-primary-darker to-secondary-darker text-primary-foreground font-semibold text-4xl sm:text-5xl md:text-6xl">
+                                    {user.displayName?.slice(0, 2).toUpperCase() ?? "U"}
+                                </AvatarFallback>
+                            </Avatar>
                             <p className="text-2xl sm:text-3xl font-bold text-foreground">{user.displayName}</p>
                             <p className="text-muted-foreground mt-2">{user.email}</p>
                             <div className="mt-4 flex flex-wrap gap-2 justify-center">

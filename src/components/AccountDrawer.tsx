@@ -3,8 +3,9 @@ import { UserContext } from "../contexts/UserContextDefinition";
 import { Link } from "react-router";
 import { signOutUser } from "../firebase";
 import { getCurrentUser, roles } from "../lib/api";
-import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function AccountDrawer(props: { onClose: () => void; isOpen: boolean }) {
     const [user, , cachedPhotoURL] = useContext(UserContext);
@@ -33,17 +34,22 @@ export default function AccountDrawer(props: { onClose: () => void; isOpen: bool
             <SheetContent className="flex flex-col gap-0 h-full">
                 <SheetHeader className="border-b border-border pb-4 flex">
                     <SheetTitle className="text-2xl p-0">Account</SheetTitle>
+                    <SheetDescription>Manage your account settings and preferences</SheetDescription>
                 </SheetHeader>
 
                 <div className="flex-1 overflow-auto py-8 px-0">
                     {/* Profile Section */}
                     <div className="px-6 mb-8">
-                        <img
-                            key={cachedPhotoURL ?? user.photoURL ?? "fallback"}
-                            src={cachedPhotoURL ?? user.photoURL ?? ""}
-                            alt={user.displayName ?? ""}
-                            className="mx-auto mb-4 rounded-full w-20 h-20 object-cover shadow-md ring-2"
-                        />
+                        <Avatar className="mx-auto mb-4 w-20 h-20 ring-2 shadow-md">
+                            <AvatarImage
+                                key={cachedPhotoURL ?? user.photoURL ?? "fallback"}
+                                src={cachedPhotoURL ?? user.photoURL ?? ""}
+                                alt={user.displayName ?? ""}
+                            />
+                            <AvatarFallback className="bg-linear-to-br from-primary-darker to-secondary-darker text-primary-foreground font-semibold text-2xl">
+                                {user.displayName?.slice(0, 2).toUpperCase() ?? "U"}
+                            </AvatarFallback>
+                        </Avatar>
                         <p className="font-semibold text-foreground text-lg text-center">{user.displayName}</p>
                         <p className="text-sm text-muted-foreground break-all text-center">{user.email}</p>
                         <div className="mt-3 flex flex-wrap gap-2 justify-center">
