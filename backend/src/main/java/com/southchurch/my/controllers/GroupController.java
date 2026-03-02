@@ -18,6 +18,7 @@ import com.southchurch.my.dto.group.BulkMembershipResponse;
 import com.southchurch.my.dto.group.CreateGroupCommand;
 import com.southchurch.my.dto.group.GroupAliasCommand;
 import com.southchurch.my.dto.group.RemoveMemberFromGroupCommand;
+import com.southchurch.my.dto.group.UpdateGroupSettingsCommand;
 import com.southchurch.my.services.group.AddGroupAliasService;
 import com.southchurch.my.services.group.AddMemberToGroupService;
 import com.southchurch.my.services.group.AddMembersToGroupsBulkService;
@@ -32,10 +33,13 @@ import com.southchurch.my.services.group.GetMembersByGroupIdService;
 import com.southchurch.my.services.group.RemoveGroupAliasService;
 import com.southchurch.my.services.group.RemoveMemberFromGroupService;
 import com.southchurch.my.services.group.RemoveMembersFromGroupsBulkService;
+import com.southchurch.my.services.group.UpdateGroupSettingsService;
 
 import java.util.List;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PutMapping;
+
 
 
 @RestController
@@ -55,6 +59,7 @@ public class GroupController {
     private final AddGroupAliasService addGroupAliasService;
     private final GetGroupAliasesService getGroupAliasesService;
     private final RemoveGroupAliasService removeGroupAliasService;
+    private final UpdateGroupSettingsService updateGroupSettingsService;
 
     // Constructor injection
     public GroupController(
@@ -71,7 +76,8 @@ public class GroupController {
             RemoveMembersFromGroupsBulkService removeMembersFromGroupsBulkService,
             AddGroupAliasService addGroupAliasService,
             GetGroupAliasesService getGroupAliasesService,
-            RemoveGroupAliasService removeGroupAliasService) {
+            RemoveGroupAliasService removeGroupAliasService,
+            UpdateGroupSettingsService updateGroupSettingsService) {
         this.getGroupsService = getGroupsService;
         this.getMembersByGroupIdService = getMembersByGroupIdService;
         this.getGroupsForMemberEmailService = getGroupsForMemberEmailService;
@@ -86,6 +92,7 @@ public class GroupController {
         this.addGroupAliasService = addGroupAliasService;
         this.getGroupAliasesService = getGroupAliasesService;
         this.removeGroupAliasService = removeGroupAliasService;
+        this.updateGroupSettingsService = updateGroupSettingsService;
     }
 
     /**
@@ -210,6 +217,13 @@ public class GroupController {
             @PathVariable String alias,
             @AuthenticationPrincipal Jwt principal) {
         return removeGroupAliasService.execute(new GroupAliasCommand(groupId, alias));
+    }
+
+    @PutMapping("/groups/{groupId}/settings")
+    public ResponseEntity<Groups> updateGroupSettings(@PathVariable String groupId, 
+            @RequestBody Groups settings,
+            @AuthenticationPrincipal Jwt principal) {
+        return updateGroupSettingsService.execute(new UpdateGroupSettingsCommand(groupId, settings));
     }
 
 }
