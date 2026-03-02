@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.southchurch.my.dto.PersonRequest;
+import com.southchurch.my.dto.person.PersonRequest;
 import com.southchurch.my.exceptions.ErrorMessages;
 import com.southchurch.my.exceptions.PersonNotValidException;
 import com.southchurch.my.models.Role;

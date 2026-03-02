@@ -1,4 +1,4 @@
-package com.southchurch.my.dto;
+package com.southchurch.my.dto.person;
 
 import java.util.UUID;
 

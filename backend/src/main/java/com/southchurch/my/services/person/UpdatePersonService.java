@@ -15,12 +15,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.southchurch.my.Command;
-import com.southchurch.my.dto.UpdatePersonCommand;
+import com.southchurch.my.dto.person.PersonRequest;
+import com.southchurch.my.dto.person.PersonResponse;
+import com.southchurch.my.dto.person.UpdatePersonCommand;
 import com.southchurch.my.exceptions.ErrorMessages;
 import com.southchurch.my.exceptions.PersonNotFoundException;
 import com.southchurch.my.exceptions.PersonNotValidException;
-import com.southchurch.my.dto.PersonRequest;
-import com.southchurch.my.dto.PersonResponse;
 import com.southchurch.my.models.Person;
 import com.southchurch.my.models.Role;
 import com.southchurch.my.repositories.PeopleRepository;

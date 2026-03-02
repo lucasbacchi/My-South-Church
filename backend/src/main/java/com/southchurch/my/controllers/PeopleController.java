@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.southchurch.my.dto.PersonRequest;
-import com.southchurch.my.dto.PersonResponse;
-import com.southchurch.my.dto.UpdatePersonCommand;
 import com.southchurch.my.dto.imports.ImportPeopleResult;
+import com.southchurch.my.dto.person.PersonRequest;
+import com.southchurch.my.dto.person.PersonResponse;
+import com.southchurch.my.dto.person.UpdatePersonCommand;
 import com.southchurch.my.services.person.CreatePersonService;
 import com.southchurch.my.services.person.DeletePersonService;
 import com.southchurch.my.services.person.GetCurrentPersonService;

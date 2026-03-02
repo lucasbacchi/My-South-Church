@@ -12,7 +12,7 @@ import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.services.directory.Directory;
 import com.google.api.services.directory.model.Member;
 import com.southchurch.my.Command;
-import com.southchurch.my.dto.AddMemberToGroupCommand;
+import com.southchurch.my.dto.group.AddMemberToGroupCommand;
 import com.southchurch.my.exceptions.ErrorMessages;
 import com.southchurch.my.exceptions.GoogleWorkspaceException;
 
@@ -36,7 +36,7 @@ public class AddMemberToGroupService implements Command<AddMemberToGroupCommand,
         }
 
         String groupId = safe(input.getGroupKey());
-        String memberEmail = safe(input.getMemberEmail());
+        String memberEmail = safe(input.getMemberEmail()).toLowerCase();
         String role = safe(input.getRole()); 
 
         if (groupId.isEmpty()) throw new IllegalArgumentException("groupId must not be blank");
@@ -45,7 +45,7 @@ public class AddMemberToGroupService implements Command<AddMemberToGroupCommand,
         // default role if not specified
         String normalizedRole = role.isEmpty() ? "MEMBER" : role.toUpperCase();
 
-        return ResponseEntity.status(HttpStatus.OK).body(addMember(groupId, memberEmail, normalizedRole));
+        return ResponseEntity.status(HttpStatus.CREATED).body(addMember(groupId, memberEmail, normalizedRole));
     }
 
     private Member addMember(String groupId, String memberEmail, String role) {

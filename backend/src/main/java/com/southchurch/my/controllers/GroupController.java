@@ -11,17 +11,22 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.api.services.directory.model.Group;
 import com.google.api.services.directory.model.Member;
 import com.google.api.services.groupssettings.model.Groups;
-import com.southchurch.my.dto.AddMemberToGroupCommand;
-import com.southchurch.my.dto.BulkMembershipRequest;
-import com.southchurch.my.dto.BulkMembershipResponse;
+import com.southchurch.my.dto.group.AddMemberToGroupCommand;
+import com.southchurch.my.dto.group.BulkMembershipRequest;
+import com.southchurch.my.dto.group.BulkMembershipResponse;
+import com.southchurch.my.dto.group.CreateGroupCommand;
+import com.southchurch.my.dto.group.RemoveMemberFromGroupCommand;
 import com.southchurch.my.services.group.AddMemberToGroupService;
 import com.southchurch.my.services.group.AddMembersToGroupsBulkService;
+import com.southchurch.my.services.group.CreateGroupService;
 import com.southchurch.my.services.group.DeleteGroupService;
 import com.southchurch.my.services.group.GetGroupByIdService;
 import com.southchurch.my.services.group.GetGroupSettingsService;
 import com.southchurch.my.services.group.GetGroupsForMemberEmailService;
 import com.southchurch.my.services.group.GetGroupsService;
 import com.southchurch.my.services.group.GetMembersByGroupIdService;
+import com.southchurch.my.services.group.RemoveMemberFromGroupService;
+import com.southchurch.my.services.group.RemoveMembersFromGroupsBulkService;
 
 import java.util.List;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -39,6 +44,9 @@ public class GroupController {
     private final AddMemberToGroupService addMemberToGroupService;
     private final AddMembersToGroupsBulkService addMembersToGroupsBulkService;
     private final DeleteGroupService deleteGroupService;
+    private final RemoveMemberFromGroupService removeMemberFromGroupService;
+    private final CreateGroupService createGroupService;
+    private final RemoveMembersFromGroupsBulkService removeMembersFromGroupsBulkService;
 
     // Constructor injection
     public GroupController(
@@ -49,7 +57,10 @@ public class GroupController {
             GetGroupSettingsService getGroupSettingsService,
             AddMemberToGroupService addMemberToGroupService,
             AddMembersToGroupsBulkService addMembersToGroupsBulkService,
-            DeleteGroupService deleteGroupService) {
+            DeleteGroupService deleteGroupService,
+            RemoveMemberFromGroupService removeMemberFromGroupService,
+            CreateGroupService createGroupService,
+            RemoveMembersFromGroupsBulkService removeMembersFromGroupsBulkService) {
         this.getGroupsService = getGroupsService;
         this.getMembersByGroupIdService = getMembersByGroupIdService;
         this.getGroupsForMemberEmailService = getGroupsForMemberEmailService;
@@ -58,6 +69,9 @@ public class GroupController {
         this.addMemberToGroupService = addMemberToGroupService;
         this.addMembersToGroupsBulkService = addMembersToGroupsBulkService;
         this.deleteGroupService = deleteGroupService;
+        this.removeMemberFromGroupService = removeMemberFromGroupService;
+        this.createGroupService = createGroupService;
+        this.removeMembersFromGroupsBulkService = removeMembersFromGroupsBulkService;
     }
 
     /**
@@ -143,5 +157,25 @@ public class GroupController {
             @AuthenticationPrincipal Jwt principal) {
         return deleteGroupService.execute(groupId);
     }
+
+    @DeleteMapping("/groups/{groupId}/members/{memberEmail}")
+    public ResponseEntity<Void> removeMemberFromGroup(@PathVariable String groupId,
+            @PathVariable String memberEmail, @AuthenticationPrincipal Jwt principal) {
+        return removeMemberFromGroupService.execute(new RemoveMemberFromGroupCommand(groupId, memberEmail));
+    }
+
+    @PostMapping("/groups/create")
+    public ResponseEntity<Group> createGroup(@RequestBody CreateGroupCommand request,
+            @AuthenticationPrincipal Jwt principal
+    ) {
+        return createGroupService.execute(request);
+    }
+
+    @DeleteMapping("/groups/members/bulk")
+    public ResponseEntity<BulkMembershipResponse> bulkRemove(@RequestBody BulkMembershipRequest request,
+            @AuthenticationPrincipal Jwt principal
+    ) {
+        return removeMembersFromGroupsBulkService.execute(request);
+    }    
 
 }

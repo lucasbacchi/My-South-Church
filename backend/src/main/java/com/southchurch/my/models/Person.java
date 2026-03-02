@@ -6,7 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-import com.southchurch.my.dto.PersonRequest;
+import com.southchurch.my.dto.person.PersonRequest;
 
 import jakarta.persistence.*;
 import lombok.Data;

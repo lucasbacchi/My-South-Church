@@ -16,9 +16,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.southchurch.my.Command;
-import com.southchurch.my.dto.PersonRequest;
-import com.southchurch.my.dto.UpdatePersonCommand;
 import com.southchurch.my.dto.imports.ImportPeopleResult;
+import com.southchurch.my.dto.person.PersonRequest;
+import com.southchurch.my.dto.person.UpdatePersonCommand;
 import com.southchurch.my.models.Person;
 import com.southchurch.my.repositories.PeopleRepository;
 
