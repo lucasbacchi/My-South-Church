@@ -16,6 +16,7 @@ import com.southchurch.my.dto.group.AddMemberToGroupCommand;
 import com.southchurch.my.dto.group.BulkMembershipRequest;
 import com.southchurch.my.dto.group.BulkMembershipResponse;
 import com.southchurch.my.dto.group.CreateGroupCommand;
+import com.southchurch.my.dto.group.EffectiveIdentitiesResponse;
 import com.southchurch.my.dto.group.GroupAliasCommand;
 import com.southchurch.my.dto.group.RemoveMemberFromGroupCommand;
 import com.southchurch.my.dto.group.UpdateGroupSettingsCommand;
@@ -27,6 +28,7 @@ import com.southchurch.my.services.group.DeleteGroupService;
 import com.southchurch.my.services.group.GetGroupAliasesService;
 import com.southchurch.my.services.group.GetGroupByIdService;
 import com.southchurch.my.services.group.GetGroupSettingsService;
+import com.southchurch.my.services.group.GetEffectiveIdentitiesService;
 import com.southchurch.my.services.group.GetGroupsForMemberEmailService;
 import com.southchurch.my.services.group.GetGroupsService;
 import com.southchurch.my.services.group.GetMembersByGroupIdService;
@@ -58,6 +60,7 @@ public class GroupController {
     private final GetGroupAliasesService getGroupAliasesService;
     private final RemoveGroupAliasService removeGroupAliasService;
     private final UpdateGroupSettingsService updateGroupSettingsService;
+    private final GetEffectiveIdentitiesService getEffectiveIdentitiesService;
 
     // Constructor injection
     public GroupController(
@@ -75,7 +78,8 @@ public class GroupController {
             AddGroupAliasService addGroupAliasService,
             GetGroupAliasesService getGroupAliasesService,
             RemoveGroupAliasService removeGroupAliasService,
-            UpdateGroupSettingsService updateGroupSettingsService) {
+            UpdateGroupSettingsService updateGroupSettingsService,
+            GetEffectiveIdentitiesService getEffectiveIdentitiesService) {
         this.getGroupsService = getGroupsService;
         this.getMembersByGroupIdService = getMembersByGroupIdService;
         this.getGroupsForMemberEmailService = getGroupsForMemberEmailService;
@@ -91,6 +95,7 @@ public class GroupController {
         this.getGroupAliasesService = getGroupAliasesService;
         this.removeGroupAliasService = removeGroupAliasService;
         this.updateGroupSettingsService = updateGroupSettingsService;
+        this.getEffectiveIdentitiesService = getEffectiveIdentitiesService;
     }
 
     /**
@@ -156,6 +161,12 @@ public class GroupController {
     public ResponseEntity<List<Group>> getGroupsForMember(@PathVariable String memberEmail,
             @AuthenticationPrincipal Jwt principal) {
         return getGroupsForMemberEmailService.execute(memberEmail);
+    }
+
+    @GetMapping("/identities/{email}")
+    public ResponseEntity<EffectiveIdentitiesResponse> getEffectiveIdentities(@PathVariable String email,
+            @AuthenticationPrincipal Jwt principal) {
+        return getEffectiveIdentitiesService.execute(email);
     }
 
     @PostMapping("/groups/members")
