@@ -17,9 +17,11 @@ public class DeleteGroupService implements Command<String, Void> {
 
     private final Directory directory;
     private static final Logger logger = LoggerFactory.getLogger(DeleteGroupService.class);
+
     public DeleteGroupService(Directory directory) {
         this.directory = directory;
     }
+
     @Override
     public ResponseEntity<Void> execute(String groupKey) {
 
@@ -31,11 +33,11 @@ public class DeleteGroupService implements Command<String, Void> {
 
         delete(groupKey.trim());
 
-        return ResponseEntity.noContent().build(); //204
+        return ResponseEntity.noContent().build(); // 204
     }
 
     private void delete(String groupKey) {
-        
+
         try {
             directory.groups().delete(groupKey).execute();
 
@@ -50,8 +52,7 @@ public class DeleteGroupService implements Command<String, Void> {
             throw new GoogleWorkspaceException(
                     "Google Workspace call failed while deleting group: " + groupKey,
                     502,
-                    e
-            );
+                    e);
         }
     }
 

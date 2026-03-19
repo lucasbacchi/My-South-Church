@@ -40,8 +40,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 
-
-
 @RestController
 public class GroupController {
 
@@ -165,14 +163,13 @@ public class GroupController {
             @AuthenticationPrincipal Jwt principal) {
         return addMemberToGroupService.execute(request);
     }
-    
+
     @PostMapping("/groups/members/bulk")
     public ResponseEntity<BulkMembershipResponse> bulkAdd(@RequestBody BulkMembershipRequest request,
-            @AuthenticationPrincipal Jwt principal
-    ) {
+            @AuthenticationPrincipal Jwt principal) {
         return addMembersToGroupsBulkService.execute(request);
     }
-    
+
     @DeleteMapping("/groups/{groupId}")
     public ResponseEntity<Void> deleteGroup(@PathVariable String groupId,
             @AuthenticationPrincipal Jwt principal) {
@@ -187,18 +184,16 @@ public class GroupController {
 
     @PostMapping("/groups/create")
     public ResponseEntity<Group> createGroup(@RequestBody CreateGroupCommand request,
-            @AuthenticationPrincipal Jwt principal
-    ) {
+            @AuthenticationPrincipal Jwt principal) {
         return createGroupService.execute(request);
     }
 
     @DeleteMapping("/groups/members/bulk")
     public ResponseEntity<BulkMembershipResponse> bulkRemove(@RequestBody BulkMembershipRequest request,
-            @AuthenticationPrincipal Jwt principal
-    ) {
+            @AuthenticationPrincipal Jwt principal) {
         return removeMembersFromGroupsBulkService.execute(request);
     }
-    
+
     @GetMapping("/groups/{groupId}/aliases")
     public ResponseEntity<List<String>> getGroupAliases(@PathVariable String groupId,
             @AuthenticationPrincipal Jwt principal) {
@@ -220,7 +215,7 @@ public class GroupController {
     }
 
     @PutMapping("/groups/{groupId}/settings")
-    public ResponseEntity<Groups> updateGroupSettings(@PathVariable String groupId, 
+    public ResponseEntity<Groups> updateGroupSettings(@PathVariable String groupId,
             @RequestBody Groups settings,
             @AuthenticationPrincipal Jwt principal) {
         return updateGroupSettingsService.execute(new UpdateGroupSettingsCommand(groupId, settings));

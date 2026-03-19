@@ -31,7 +31,7 @@ public class CreateGroupService implements Command<CreateGroupCommand, Group> {
 
         logger.info("Executing " + getClass() + " input : " + request);
 
-        if(request == null){
+        if (request == null) {
             throw new IllegalArgumentException(ErrorMessages.REQUEST_BODY_REQUIRED.getMessage());
         }
 
@@ -39,20 +39,22 @@ public class CreateGroupService implements Command<CreateGroupCommand, Group> {
         String email = safe(request.getEmail()).toLowerCase();
         String description = safe(request.getDescription());
 
-        if (name.isEmpty()) throw new IllegalArgumentException("name must not be blank");
-        if (email.isEmpty()) throw new IllegalArgumentException("email must not be blank");
+        if (name.isEmpty())
+            throw new IllegalArgumentException("name must not be blank");
+        if (email.isEmpty())
+            throw new IllegalArgumentException("email must not be blank");
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createGroup(name, email, description));
 
     }
 
     private Group createGroup(String name, String email, String description) {
-       
-        try{
+
+        try {
             Group group = new Group();
             group.setName(name);
             group.setEmail(email);
-            if(!description.isEmpty()){
+            if (!description.isEmpty()) {
                 group.setDescription(description);
             }
             return directory.groups().insert(group).execute();
@@ -70,8 +72,7 @@ public class CreateGroupService implements Command<CreateGroupCommand, Group> {
             throw new GoogleWorkspaceException(
                     "Google Workspace call failed while creating group",
                     502,
-                    e
-            );
+                    e);
         }
     }
 

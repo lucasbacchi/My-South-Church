@@ -94,11 +94,10 @@ public class AddMembersToGroupsBulkService implements Command<BulkMembershipRequ
                 requested,
                 succeeded.get(),
                 failed.get(),
-                alreadyExists.get()
-        );
+                alreadyExists.get());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new BulkMembershipResponse(results, summary));
-    } 
+    }
 
     private BulkMembershipResponse.Result addOne(
             String groupKey,
@@ -106,8 +105,7 @@ public class AddMembersToGroupsBulkService implements Command<BulkMembershipRequ
             String role,
             AtomicInteger succeeded,
             AtomicInteger failed,
-            AtomicInteger alreadyExists
-    ) {
+            AtomicInteger alreadyExists) {
         try {
             Member m = new Member();
             m.setEmail(memberEmail);
@@ -133,16 +131,19 @@ public class AddMembersToGroupsBulkService implements Command<BulkMembershipRequ
 
         } catch (IOException e) {
             failed.incrementAndGet();
-            return new BulkMembershipResponse.Result(memberEmail, groupKey, 502, "Upstream error calling Google Workspace");
+            return new BulkMembershipResponse.Result(memberEmail, groupKey, 502,
+                    "Upstream error calling Google Workspace");
         }
     }
 
     private List<String> normalize(List<String> input, boolean isEmail) {
         List<String> out = new ArrayList<>();
         for (String s : input) {
-            if (s == null) continue;
+            if (s == null)
+                continue;
             String v = s.trim();
-            if (v.isEmpty()) continue;
+            if (v.isEmpty())
+                continue;
             out.add(isEmail ? v.toLowerCase() : v);
         }
         return out;

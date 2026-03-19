@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UpdateGroupSettingsCommand {
-    
+
     private String groupKey;
     private Groups settings;
 

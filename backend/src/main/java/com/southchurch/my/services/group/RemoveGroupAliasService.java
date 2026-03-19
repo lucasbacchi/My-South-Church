@@ -27,7 +27,7 @@ public class RemoveGroupAliasService implements Command<GroupAliasCommand, Void>
 
     @Override
     public ResponseEntity<Void> execute(GroupAliasCommand input) {
-       
+
         logger.info("Executing " + getClass() + " input : " + input);
 
         if (input == null) {
@@ -37,8 +37,10 @@ public class RemoveGroupAliasService implements Command<GroupAliasCommand, Void>
         String groupKey = safe(input.getGroupKey());
         String alias = safe(input.getAlias()).toLowerCase();
 
-        if (groupKey.isEmpty()) throw new IllegalArgumentException("groupKey must not be blank");
-        if (alias.isEmpty()) throw new IllegalArgumentException("alias must not be blank");
+        if (groupKey.isEmpty())
+            throw new IllegalArgumentException("groupKey must not be blank");
+        if (alias.isEmpty())
+            throw new IllegalArgumentException("alias must not be blank");
 
         try {
             directory.groups().aliases().delete(groupKey, alias).execute();

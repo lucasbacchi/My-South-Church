@@ -30,19 +30,17 @@ public class RemoveMemberFromGroupService implements Command<RemoveMemberFromGro
 
         logger.info("Executing " + getClass() + " input : " + input);
 
-
         if (input == null) {
             throw new IllegalArgumentException(ErrorMessages.REQUEST_BODY_REQUIRED.getMessage());
         }
 
-
         String groupKey = safe(input.getGroupKey());
         String memberEmail = safe(input.getMemberEmail()).toLowerCase();
 
-
-        if (groupKey.isEmpty()) throw new IllegalArgumentException("groupKey must not be blank");
-        if (memberEmail.isEmpty()) throw new IllegalArgumentException("memberEmail must not be blank");
-
+        if (groupKey.isEmpty())
+            throw new IllegalArgumentException("groupKey must not be blank");
+        if (memberEmail.isEmpty())
+            throw new IllegalArgumentException("memberEmail must not be blank");
 
         removeMember(groupKey, memberEmail);
 
@@ -50,25 +48,24 @@ public class RemoveMemberFromGroupService implements Command<RemoveMemberFromGro
     }
 
     private void removeMember(String groupKey, String memberEmail) {
-       try{
-           directory.members().delete(groupKey, memberEmail).execute();
+        try {
+            directory.members().delete(groupKey, memberEmail).execute();
 
-       } catch (GoogleJsonResponseException e) {
+        } catch (GoogleJsonResponseException e) {
             if (e.getStatusCode() == 404) {
                 throw new GoogleWorkspaceException("Member not found in group (or group not found).", 404, e);
             }
-           String msg = (e.getDetails() != null && e.getDetails().getMessage() != null)
-                   ? e.getDetails().getMessage()
-                   : "Google Directory API error while removing member: " + memberEmail;
+            String msg = (e.getDetails() != null && e.getDetails().getMessage() != null)
+                    ? e.getDetails().getMessage()
+                    : "Google Directory API error while removing member: " + memberEmail;
 
-           throw new GoogleWorkspaceException(msg, e.getStatusCode(), e);
-       } catch (IOException e) {
-           throw new GoogleWorkspaceException(
-                   "Google Workspace call failed while removing member: " + memberEmail,
-                   502,
-                   e
-           );
-       }
+            throw new GoogleWorkspaceException(msg, e.getStatusCode(), e);
+        } catch (IOException e) {
+            throw new GoogleWorkspaceException(
+                    "Google Workspace call failed while removing member: " + memberEmail,
+                    502,
+                    e);
+        }
     }
 
     private static String safe(String s) {

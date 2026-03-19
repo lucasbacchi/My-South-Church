@@ -83,8 +83,7 @@ public class RemoveMembersFromGroupsBulkService implements Command<BulkMembershi
                 requested,
                 succeeded.get(),
                 failed.get(),
-                notFound.get()
-        );
+                notFound.get());
 
         return ResponseEntity.status(HttpStatus.OK).body(new BulkMembershipResponse(results, summary));
     }
@@ -94,8 +93,7 @@ public class RemoveMembersFromGroupsBulkService implements Command<BulkMembershi
             String memberEmail,
             AtomicInteger succeeded,
             AtomicInteger failed,
-            AtomicInteger notFound
-    ) {
+            AtomicInteger notFound) {
         try {
             directory.members().delete(groupKey, memberEmail).execute();
             succeeded.incrementAndGet();
@@ -117,16 +115,19 @@ public class RemoveMembersFromGroupsBulkService implements Command<BulkMembershi
 
         } catch (IOException e) {
             failed.incrementAndGet();
-            return new BulkMembershipResponse.Result(memberEmail, groupKey, 502, "Upstream error calling Google Workspace");
+            return new BulkMembershipResponse.Result(memberEmail, groupKey, 502,
+                    "Upstream error calling Google Workspace");
         }
     }
 
     private List<String> normalize(List<String> input, boolean isEmail) {
         List<String> out = new ArrayList<>();
         for (String s : input) {
-            if (s == null) continue;
+            if (s == null)
+                continue;
             String v = s.trim();
-            if (v.isEmpty()) continue;
+            if (v.isEmpty())
+                continue;
             out.add(isEmail ? v.toLowerCase() : v);
         }
         return out;

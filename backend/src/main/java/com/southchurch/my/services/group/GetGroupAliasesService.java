@@ -25,24 +25,23 @@ public class GetGroupAliasesService implements Query<String, List<String>> {
         this.directory = directory;
     }
 
-
     @Override
     public ResponseEntity<List<String>> execute(String groupKey) {
 
         logger.info("Executing " + getClass() + " input : " + groupKey);
 
-        if(groupKey == null || groupKey.isBlank()){
+        if (groupKey == null || groupKey.isBlank()) {
             throw new IllegalArgumentException("groupKey must not be blank");
         }
 
-        try{
+        try {
             Aliases response = directory.groups().aliases().list(groupKey).execute();
-           
+
             List<String> aliases = response.getAliases() == null
-                ? List.of()
-                : response.getAliases().stream()
-                    .map(a -> (String) ((java.util.Map<?, ?>) a).get("alias"))
-                    .toList();
+                    ? List.of()
+                    : response.getAliases().stream()
+                            .map(a -> (String) ((java.util.Map<?, ?>) a).get("alias"))
+                            .toList();
 
             return ResponseEntity.status(HttpStatus.OK).body(aliases);
 

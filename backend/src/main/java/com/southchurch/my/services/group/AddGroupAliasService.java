@@ -31,17 +31,19 @@ public class AddGroupAliasService implements Command<GroupAliasCommand, Alias> {
 
         logger.info("Executing " + getClass() + " input : " + input);
 
-        if(input == null) {
+        if (input == null) {
             throw new IllegalArgumentException(ErrorMessages.REQUEST_BODY_REQUIRED.getMessage());
         }
 
         String groupKey = safe(input.getGroupKey());
         String alias = safe(input.getAlias()).toLowerCase();
 
-        if (groupKey.isEmpty()) throw new IllegalArgumentException("groupKey must not be blank");
-        if (alias.isEmpty()) throw new IllegalArgumentException("alias must not be blank");
+        if (groupKey.isEmpty())
+            throw new IllegalArgumentException("groupKey must not be blank");
+        if (alias.isEmpty())
+            throw new IllegalArgumentException("alias must not be blank");
 
-        try{
+        try {
             Alias aliasObj = new Alias();
             aliasObj.setAlias(alias);
 
@@ -61,7 +63,7 @@ public class AddGroupAliasService implements Command<GroupAliasCommand, Alias> {
 
         } catch (IOException e) {
             throw new GoogleWorkspaceException("Google Workspace call failed while adding alias", 502, e);
-        } 
+        }
     }
 
     private static String safe(String s) {

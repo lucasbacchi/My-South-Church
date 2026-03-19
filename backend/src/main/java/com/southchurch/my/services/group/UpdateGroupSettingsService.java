@@ -31,24 +31,26 @@ public class UpdateGroupSettingsService implements Command<UpdateGroupSettingsCo
 
     @Override
     public ResponseEntity<Groups> execute(UpdateGroupSettingsCommand input) {
-        
+
         logger.info("Executing " + getClass() + " input : " + input);
 
-        if(input == null) {
+        if (input == null) {
             throw new IllegalArgumentException(ErrorMessages.REQUEST_BODY_REQUIRED.getMessage());
         }
 
         String groupKey = input.getGroupKey() == null ? "" : input.getGroupKey().trim();
-        if(groupKey.isEmpty()) throw new IllegalArgumentException("groupKey must not be blank");
-        if(input.getSettings() == null) throw new IllegalArgumentException("settings must not be null");
+        if (groupKey.isEmpty())
+            throw new IllegalArgumentException("groupKey must not be blank");
+        if (input.getSettings() == null)
+            throw new IllegalArgumentException("settings must not be null");
 
         String groupEmail = resolveGroupEmail(groupKey);
 
-        try{
+        try {
 
             Groups updatedSettings = groupSettings.groups().update(groupEmail, input.getSettings()).execute();
             return ResponseEntity.status(HttpStatus.OK).body(updatedSettings);
-            
+
         } catch (GoogleJsonResponseException e) {
             if (e.getStatusCode() == 404) {
                 throw new GoogleWorkspaceException("Group not found: " + groupKey, 404, e);
@@ -62,23 +64,24 @@ public class UpdateGroupSettingsService implements Command<UpdateGroupSettingsCo
             throw new GoogleWorkspaceException(
                     "Google Groups Settings API call failed while updating group: " + groupEmail, 502, e);
         }
-       
+
     }
 
     private String resolveGroupEmail(String idOrEmail) {
-        
-        if(idOrEmail.contains("@")) {
+
+        if (idOrEmail.contains("@")) {
             return idOrEmail;
         }
 
         ResponseEntity<Group> resp = getGroupByIdService.execute(idOrEmail);
 
-        if(!resp.getStatusCode().is2xxSuccessful() || resp.getBody() == null) {
-            throw new GoogleWorkspaceException("Failed to resolve group email from id", resp.getStatusCode().value(), null);
+        if (!resp.getStatusCode().is2xxSuccessful() || resp.getBody() == null) {
+            throw new GoogleWorkspaceException("Failed to resolve group email from id", resp.getStatusCode().value(),
+                    null);
         }
 
         String email = resp.getBody().getEmail();
-        if(email == null || email.trim().isEmpty()) {
+        if (email == null || email.trim().isEmpty()) {
             throw new GoogleWorkspaceException("Resolved group has no email", 502, null);
         }
 

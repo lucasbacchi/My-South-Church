@@ -31,16 +31,18 @@ public class AddMemberToGroupService implements Command<AddMemberToGroupCommand,
 
         logger.info("Executing " + getClass() + " input : " + input);
 
-        if(input == null) {
+        if (input == null) {
             throw new IllegalArgumentException(ErrorMessages.REQUEST_BODY_REQUIRED.getMessage());
         }
 
         String groupId = safe(input.getGroupKey());
         String memberEmail = safe(input.getMemberEmail()).toLowerCase();
-        String role = safe(input.getRole()); 
+        String role = safe(input.getRole());
 
-        if (groupId.isEmpty()) throw new IllegalArgumentException("groupId must not be blank");
-        if (memberEmail.isEmpty()) throw new IllegalArgumentException("memberEmail must not be blank");
+        if (groupId.isEmpty())
+            throw new IllegalArgumentException("groupId must not be blank");
+        if (memberEmail.isEmpty())
+            throw new IllegalArgumentException("memberEmail must not be blank");
 
         // default role if not specified
         String normalizedRole = role.isEmpty() ? "MEMBER" : role.toUpperCase();
@@ -49,8 +51,8 @@ public class AddMemberToGroupService implements Command<AddMemberToGroupCommand,
     }
 
     private Member addMember(String groupId, String memberEmail, String role) {
-        
-        try{
+
+        try {
             Member member = new Member();
             member.setEmail(memberEmail);
             member.setRole(role); // (MEMBER, MANAGER, OWNER)
@@ -67,9 +69,8 @@ public class AddMemberToGroupService implements Command<AddMemberToGroupCommand,
             throw new GoogleWorkspaceException(
                     "Google Workspace call failed while adding member to group",
                     502,
-                    e
-            );
-        }    
+                    e);
+        }
     }
 
     private static String safe(String s) {
