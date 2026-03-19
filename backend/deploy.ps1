@@ -37,4 +37,6 @@ gcloud.cmd run deploy backend-api `
   --set-secrets="/app/certs/truststore.jks=AIVEN_TRUSTSTORE:latest" `
   --set-secrets="/app/secrets/google-key.json=GOOGLE_CREDENTIALS_JSON:latest" `
   --set-env-vars="GOOGLE_APPLICATION_CREDENTIALS=/app/secrets/google-key.json" `
-  --set-env-vars="GOOGLE_DRIVE_TEST_FILE_ID=GOOGLE_DRIVE_TEST_FILE_ID:latest"
+  --set-env-vars="GOOGLE_DRIVE_TEST_FILE_ID=GOOGLE_DRIVE_TEST_FILE_ID:latest" `
+  --set-env-vars="SPRINGDOC_API_DOCS_ENABLED=false" `
+  --set-env-vars="SPRINGDOC_SWAGGER_UI_ENABLED=false"

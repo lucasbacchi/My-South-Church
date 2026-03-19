@@ -78,7 +78,7 @@
 		<dependency>
 			<groupId>com.google.firebase</groupId>
 			<artifactId>firebase-admin</artifactId>
-			<version>9.2.0</version>
+			<version>9.8.0</version>
 		</dependency>
 
 		<dependency>
@@ -108,7 +108,7 @@
 		<dependency>
 			<groupId>com.google.auth</groupId>
 			<artifactId>google-auth-library-oauth2-http</artifactId>
-			<version>1.19.0</version>
+			<version>1.43.0</version>
 		</dependency>
 
 		<dependency>
@@ -130,7 +130,7 @@
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>33.1.0-jre</version>
+			<version>33.5.0-jre</version>
 		</dependency>
 	</dependencies>
 

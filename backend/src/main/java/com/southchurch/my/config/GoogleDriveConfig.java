@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpRequestInitializer;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.services.drive.Drive;
@@ -33,10 +34,17 @@ public class GoogleDriveConfig {
         GoogleCredentials scopedCredentials = credentials
                 .createScoped(Collections.singletonList(DriveScopes.DRIVE));
 
+        HttpCredentialsAdapter credentialsAdapter = new HttpCredentialsAdapter(scopedCredentials);
+        HttpRequestInitializer requestInitializer = request -> {
+            credentialsAdapter.initialize(request);
+            request.setConnectTimeout(20_000);
+            request.setReadTimeout(120_000);
+        };
+
         return new Drive.Builder(
                 GoogleNetHttpTransport.newTrustedTransport(),
                 JSON_FACTORY,
-                new HttpCredentialsAdapter(scopedCredentials))
+            requestInitializer)
                 .setApplicationName(APPLICATION_NAME)
                 .build();
     }
