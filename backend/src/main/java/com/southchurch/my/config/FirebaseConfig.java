@@ -6,6 +6,7 @@ import com.google.firebase.FirebaseOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import jakarta.annotation.PostConstruct;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.io.IOException;
  * Uses the same Google service account credentials as other Google services.
  */
 @Configuration
+@Profile("!test") // skip the entire config during tests
 public class FirebaseConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(FirebaseConfig.class);

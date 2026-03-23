@@ -6,6 +6,7 @@ import java.util.Collections;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpRequestInitializer;
@@ -17,6 +18,7 @@ import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.GoogleCredentials;
 
 @Configuration
+@Profile("!test")
 public class GoogleDriveConfig {
     private static final String APPLICATION_NAME = "My South Church Backend";
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();

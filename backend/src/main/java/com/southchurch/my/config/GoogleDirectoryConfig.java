@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
@@ -20,6 +21,7 @@ import com.google.api.services.cloudidentity.v1.CloudIdentity;
 import com.google.api.services.cloudidentity.v1.CloudIdentityScopes;
 
 @Configuration
+@Profile("!test")
 public class GoogleDirectoryConfig {
         private static final String APPLICATION_NAME = "My South Church Backend";
         private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
