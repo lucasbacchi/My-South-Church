@@ -7,9 +7,13 @@ on:
     branches: [ "dev" ]
 
 jobs:
-  test:
+  backend:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: backend
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -21,5 +25,5 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Run tests
+      - name: Run backend tests
         run: mvn test --no-transfer-progress
