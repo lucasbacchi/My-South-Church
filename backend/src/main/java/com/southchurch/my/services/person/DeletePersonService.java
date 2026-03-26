@@ -54,7 +54,7 @@ public class DeletePersonService implements Command<UUID, Void> {
             Person p = person.get();
 
             // Clear Firebase custom claims if person has Firebase UID
-            if (p.getFirebaseUID() != null && !p.getFirebaseUID().isEmpty()) {
+            if (p.getFirebaseUID() != null && !p.getFirebaseUID().isBlank()) {
                 firebaseClaimsService.clearRoles(p.getFirebaseUID());
             }
 
