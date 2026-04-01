@@ -29,6 +29,17 @@ public class UpdateGroupSettingsService implements Command<UpdateGroupSettingsCo
         this.getGroupByIdService = getGroupByIdService;
     }
 
+    /**
+     * Executes a Google Workspace Directory API call to update the settings of a group
+     * with the given ID.
+     *
+     * @param input the update group settings command containing the group key and
+     *         settings to update
+     * @return a ResponseEntity containing the updated group settings, or an error if
+     *         the call fails
+     * @throws IllegalArgumentException if the input is null, or if the groupKey or
+     *         settings are blank
+     */
     @Override
     public ResponseEntity<Groups> execute(UpdateGroupSettingsCommand input) {
 
@@ -67,6 +78,14 @@ public class UpdateGroupSettingsService implements Command<UpdateGroupSettingsCo
 
     }
 
+    /**
+     * Resolves the group email from the given ID or email.
+     * 
+     * @param idOrEmail the ID or email of the group to resolve the email for
+     * @return the resolved group email
+     * @throws GoogleWorkspaceException if the group id cannot be resolved to an
+     *                                  email
+     */
     private String resolveGroupEmail(String idOrEmail) {
 
         if (idOrEmail.contains("@")) {

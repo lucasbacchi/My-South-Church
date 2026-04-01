@@ -25,6 +25,13 @@ public class RemoveGroupAliasService implements Command<GroupAliasCommand, Void>
         this.directory = directory;
     }
 
+    /**
+     * Removes an alias from a group.
+     *
+     * @param input the remove group alias command containing the group key and alias
+     * @return a ResponseEntity containing no content, or an error if the call fails
+     * @throws IllegalArgumentException if the input is null, or if the groupKey or alias is blank
+     */
     @Override
     public ResponseEntity<Void> execute(GroupAliasCommand input) {
 

@@ -9,6 +9,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GoogleWorkspaceExceptionHandler {
 
+    /**
+     * Handle Google Workspace exception and return appropriate HTTP response.
+     * 
+     * @param ex The Google Workspace exception to handle.
+     * @return A ResponseEntity containing a ProblemDetail with the appropriate HTTP status and detail.
+     */
     @ExceptionHandler(GoogleWorkspaceException.class)
     public ResponseEntity<ProblemDetail> handleGoogleWorkspaceException(GoogleWorkspaceException ex) {
         HttpStatus status = switch (ex.getGoogleStatus()) {
@@ -24,6 +30,11 @@ public class GoogleWorkspaceExceptionHandler {
         return ResponseEntity.status(status).body(body);
     }
 
+    /**
+     * Handle Illegal Argument Exception and return appropriate HTTP response.
+     * 
+     * @return A ResponseEntity containing a ProblemDetail with the appropriate HTTP status and detail.
+     */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ProblemDetail> handleIllegalArg(IllegalArgumentException ex) {
         ProblemDetail body = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());

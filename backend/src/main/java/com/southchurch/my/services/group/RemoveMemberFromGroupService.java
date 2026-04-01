@@ -25,6 +25,13 @@ public class RemoveMemberFromGroupService implements Command<RemoveMemberFromGro
         this.directory = directory;
     }
 
+    /**
+     * Removes a member from a group.
+     *
+     * @param input the remove member from group command containing the group key and member email
+     * @return a ResponseEntity containing no content, or an error if the call fails
+     * @throws IllegalArgumentException if the input is null, or if the groupKey or memberEmail is blank
+     */
     @Override
     public ResponseEntity<Void> execute(RemoveMemberFromGroupCommand input) {
 
@@ -47,6 +54,13 @@ public class RemoveMemberFromGroupService implements Command<RemoveMemberFromGro
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+    /**
+     * Removes a member from a group.
+     * 
+     * @param groupKey the ID of the group to remove the member from
+     * @param memberEmail the email address of the member to remove
+     * @throws GoogleWorkspaceException if the call fails
+     */
     private void removeMember(String groupKey, String memberEmail) {
         try {
             directory.members().delete(groupKey, memberEmail).execute();

@@ -22,6 +22,13 @@ public class DeleteGroupService implements Command<String, Void> {
         this.directory = directory;
     }
 
+    /**
+     * Deletes a group using the given group key.
+     *
+     * @param groupKey the key of the group to delete
+     * @return a ResponseEntity containing no content, or an error if the call fails
+     * @throws IllegalArgumentException if the groupKey is null or empty
+     */
     @Override
     public ResponseEntity<Void> execute(String groupKey) {
 
@@ -36,6 +43,12 @@ public class DeleteGroupService implements Command<String, Void> {
         return ResponseEntity.noContent().build(); // 204
     }
 
+    /**
+     * Deletes a group using the given group key.
+     *
+     * @param groupKey the key of the group to delete
+     * @throws GoogleWorkspaceException if the call fails
+     */
     private void delete(String groupKey) {
 
         try {

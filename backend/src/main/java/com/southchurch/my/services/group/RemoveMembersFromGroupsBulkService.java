@@ -31,6 +31,13 @@ public class RemoveMembersFromGroupsBulkService implements Command<BulkMembershi
         this.directory = directory;
     }
 
+    /**
+     * Executes a bulk remove members from groups operation.
+     *
+     * @param request the bulk remove members from groups command containing the group key, member email and role
+     * @return a ResponseEntity containing the removed members, or an error if the call fails
+     * @throws IllegalArgumentException if the request is null or empty
+     */
     @Override
     public ResponseEntity<BulkMembershipResponse> execute(BulkMembershipRequest request) {
 
@@ -88,6 +95,16 @@ public class RemoveMembersFromGroupsBulkService implements Command<BulkMembershi
         return ResponseEntity.status(HttpStatus.OK).body(new BulkMembershipResponse(results, summary));
     }
 
+    /**
+     * Removes a single member from a group.
+     * 
+     * @param groupKey the key of the group to remove the member from
+     * @param memberEmail the email address of the member to remove
+     * @param succeeded the number of successfully removed members
+     * @param failed the number of members that failed to remove
+     * @param notFound the number of members that were not found in the group
+     * @return a BulkMembershipResponse.Result containing the result of the operation
+     */
     private BulkMembershipResponse.Result removeOne(
             String groupKey,
             String memberEmail,
@@ -120,6 +137,14 @@ public class RemoveMembersFromGroupsBulkService implements Command<BulkMembershi
         }
     }
 
+    /**
+     * Normalizes a list of strings by trimming each string and ignoring null, empty, or whitespace-only strings.
+     * If isEmail is true, the strings are also converted to lowercase.
+     * 
+     * @param input the list of strings to normalize
+     * @param isEmail whether to convert strings to lowercase
+     * @return the normalized list of strings
+    */
     private List<String> normalize(List<String> input, boolean isEmail) {
         List<String> out = new ArrayList<>();
         for (String s : input) {

@@ -26,6 +26,13 @@ public class AddGroupAliasService implements Command<GroupAliasCommand, Alias> {
         this.directory = directory;
     }
 
+    /**
+     * Executes a Google Workspace Directory API call to add an alias to a group.
+     *
+     * @param input the input to the query containing the group key and alias name
+     * @return a ResponseEntity containing the created alias, or an error if the call fails
+     * @throws IllegalArgumentException if the input is null, or if the groupKey or alias is blank
+     */
     @Override
     public ResponseEntity<Alias> execute(GroupAliasCommand input) {
 
@@ -66,6 +73,14 @@ public class AddGroupAliasService implements Command<GroupAliasCommand, Alias> {
         }
     }
 
+
+    /**
+     * Safely trims a given string to remove leading and trailing whitespace.
+     * If the given string is null, an empty string is returned.
+     *
+     * @param s the string to be trimmed
+     * @return the trimmed string, or an empty string if the given string is null
+     */
     private static String safe(String s) {
         return s == null ? "" : s.trim();
     }

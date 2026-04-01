@@ -80,6 +80,15 @@ public class GetGroupsService implements Query<Void, List<Group>> {
         }
     }
 
+    /**
+     * Checks if a user is a member of a group.
+     *
+     * @param userEmail the email address of the user to check
+     * @param groupEmail the email address of the group to check
+     * @return true if the user is a member of the group, false otherwise or if the call fails
+     * @throws IOException if the Google Workspace Directory API call fails
+     * @throws GeneralSecurityException if the Google Workspace Directory API call fails due to a security exception
+     */
     public boolean isMemberOfGroup(String userEmail, String groupEmail) throws IOException, GeneralSecurityException {
         try {
             return directory.members().hasMember(userEmail, groupEmail)
@@ -90,6 +99,15 @@ public class GetGroupsService implements Query<Void, List<Group>> {
         }
     }
 
+    /**
+     * Checks if a user is a member of a group, using the Cloud Identity
+     * service's checkTransitiveMembership method.
+     * 
+     * @param userEmail the email address of the user to check
+     * @param groupEmail the email address of the group to check
+     * @return true if the user is a member of the group, false otherwise or if the call fails
+     * @throws IOException if the Google Workspace Directory API call fails
+     */
     public boolean isMemberViaCloudIdentity(String userEmail, String groupEmail)
             throws IOException {
 
@@ -109,6 +127,12 @@ public class GetGroupsService implements Query<Void, List<Group>> {
         return response.getHasMembership() != null && response.getHasMembership();
     }
 
+    /**
+     * Tests the connectivity to the Google Workspace Directory API by fetching just one group from your domain.
+     * 
+     * @return a string indicating success or failure of the test, including the number of groups found.
+     * @throws IOException if the Google Workspace Directory API call fails
+     */
     public String runConnectivityTest() throws IOException {
         // Try to fetch just ONE group from your domain
         var groups = directory.groups().list()

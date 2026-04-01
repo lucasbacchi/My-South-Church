@@ -26,6 +26,20 @@ public class GoogleDirectoryConfig {
         private static final String APPLICATION_NAME = "My South Church Backend";
         private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
+        /**
+         * Creates a Directory client using the application default credentials.
+         * The client is used for interacting with the Google Workspace Admin SDK.
+         * The client is created with the following scopes:
+         *   ADMIN_DIRECTORY_GROUP_READONLY
+         *   ADMIN_DIRECTORY_GROUP
+         *   ADMIN_DIRECTORY_USER_READONLY
+         *   ADMIN_DIRECTORY_GROUP_MEMBER
+         *   ADMIN_DIRECTORY_GROUP_MEMBER_READONLY
+         *
+         * @return a Directory client
+         * @throws IOException if there is an IO error
+         * @throws GeneralSecurityException if there is a security error
+         */
         @Bean
         public Directory directoryClient() throws IOException, GeneralSecurityException {
                 GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
@@ -52,6 +66,15 @@ public class GoogleDirectoryConfig {
                                 .build();
         }
 
+        /**
+         * Creates a Cloud Identity client using the application default credentials.
+         *
+         * This client is used to make API calls to the Cloud Identity service.
+         *
+         * @return a CloudIdentity client
+         * @throws IOException if there is an IO error
+         * @throws GeneralSecurityException if there is a security error
+         */
         @Bean
         public CloudIdentity cloudIdentityClient() throws IOException, GeneralSecurityException {
                 GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();
@@ -75,6 +98,13 @@ public class GoogleDirectoryConfig {
                 return ciService;
         }
 
+        /**
+         * Builds a Groupssettings client using the application default credentials.
+         *
+         * @return a Groupssettings client
+         * @throws IOException if there is an IO error
+         * @throws GeneralSecurityException if there is a security error
+         */
         @Bean
         public Groupssettings groupsSettingsClient() throws IOException, GeneralSecurityException {
                 GoogleCredentials credentials = GoogleCredentials.getApplicationDefault();

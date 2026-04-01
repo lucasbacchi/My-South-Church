@@ -8,8 +8,8 @@ import lombok.Data;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class CreateGroupCommand {
 
-    private final String name;
-    private final String email;
-    private final String description;
+    private String name;
+    private String email;
+    private String description;
 
 }

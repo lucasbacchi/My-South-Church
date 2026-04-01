@@ -169,48 +169,111 @@ public class GroupController {
         return getEffectiveIdentitiesService.execute(email);
     }
 
+    /**
+     * Adds a member to a group.
+     * 
+     * @param request the add member to group command containing the group key,
+     *         member email and role
+     * @return a ResponseEntity containing the added member, or an error if the
+     *         call fails
+     * @throws IllegalArgumentException if the request is null or empty
+     */
     @PostMapping("/groups/members")
     public ResponseEntity<Member> addMemberToGroup(@RequestBody AddMemberToGroupCommand request,
             @AuthenticationPrincipal Jwt principal) {
         return addMemberToGroupService.execute(request);
     }
 
+    /**
+     * Adds multiple members to a group in a single call.
+     * 
+     * @param request the bulk add members to group command containing the group key,
+     *         member email and role
+     * @return a ResponseEntity containing the added members, or an error if the
+     *         call fails
+     * @throws IllegalArgumentException if the request is null or empty
+     */
     @PostMapping("/groups/members/bulk")
     public ResponseEntity<BulkMembershipResponse> bulkAdd(@RequestBody BulkMembershipRequest request,
             @AuthenticationPrincipal Jwt principal) {
         return addMembersToGroupsBulkService.execute(request);
     }
 
+    /**
+     * Deletes a group by its ID.
+     * 
+     * @param groupId the ID of the group to delete
+     * @return a ResponseEntity containing a void response, or an error if the
+     *         call fails
+     * @throws IllegalArgumentException if the groupId is null or empty
+     */
     @DeleteMapping("/groups/{groupId}")
     public ResponseEntity<Void> deleteGroup(@PathVariable String groupId,
             @AuthenticationPrincipal Jwt principal) {
         return deleteGroupService.execute(groupId);
     }
 
+    /**
+     * Removes a member from a group.
+     * 
+     * @param groupId the ID of the group to remove member from
+     * @param memberEmail the email address of the member to remove
+     * @return a ResponseEntity containing a void response, or an error if the
+     *         call fails
+     * @throws IllegalArgumentException if the groupId is null or empty
+     */
     @DeleteMapping("/groups/{groupId}/members/{memberEmail}")
     public ResponseEntity<Void> removeMemberFromGroup(@PathVariable String groupId,
             @PathVariable String memberEmail, @AuthenticationPrincipal Jwt principal) {
         return removeMemberFromGroupService.execute(new RemoveMemberFromGroupCommand(groupId, memberEmail));
     }
 
+    /**
+     * Creates a new group in Google Workspace.
+     * 
+     * @param request the create group command containing the group name, email and description
+     * @return a ResponseEntity containing the created group, or an error if the call fails
+     * @throws IllegalArgumentException if the request is null or empty
+     */
     @PostMapping("/groups/create")
     public ResponseEntity<Group> createGroup(@RequestBody CreateGroupCommand request,
             @AuthenticationPrincipal Jwt principal) {
         return createGroupService.execute(request);
     }
 
+    /**
+     * Removes multiple members from a group in a single call.
+     * 
+     * @param request the bulk remove members from group command containing the group key, member email and role
+     * @return a ResponseEntity containing the removed members, or an error if the call fails
+     * @throws IllegalArgumentException if the request is null or empty
+     */
     @DeleteMapping("/groups/members/bulk")
     public ResponseEntity<BulkMembershipResponse> bulkRemove(@RequestBody BulkMembershipRequest request,
             @AuthenticationPrincipal Jwt principal) {
         return removeMembersFromGroupsBulkService.execute(request);
     }
 
+    /**
+     * Fetches all aliases associated with a group.
+     * 
+     * @param groupId the ID of the group to fetch aliases for
+     * @return a ResponseEntity containing a list of all aliases associated with the group, or an error if the call fails
+     */
     @GetMapping("/groups/{groupId}/aliases")
     public ResponseEntity<List<String>> getGroupAliases(@PathVariable String groupId,
             @AuthenticationPrincipal Jwt principal) {
         return getGroupAliasesService.execute(groupId);
     }
 
+    /**
+     * Adds an alias to a group using the given group ID and alias name.
+     * 
+     * @param groupId the ID of the group to add the alias to
+     * @param request the create group alias command containing the alias name
+     * @return a ResponseEntity containing the created alias, or an error if the call fails
+     * @throws IllegalArgumentException if the request is null or empty
+     */
     @PostMapping("/groups/{groupId}/aliases")
     public ResponseEntity<Alias> addGroupAlias(@PathVariable String groupId,
             @RequestBody GroupAliasCommand request,
@@ -218,6 +281,13 @@ public class GroupController {
         return addGroupAliasService.execute(new GroupAliasCommand(groupId, request.getAlias()));
     }
 
+    /**
+     * Removes an alias from a group using the given group ID and alias name.
+     * 
+     * @param groupId the ID of the group to remove the alias from
+     * @param alias the alias name to remove
+     * @return a ResponseEntity containing a void response, or an error if the call fails
+     */
     @DeleteMapping("/groups/{groupId}/aliases/{alias}")
     public ResponseEntity<Void> removeGroupAlias(@PathVariable String groupId,
             @PathVariable String alias,
@@ -225,6 +295,15 @@ public class GroupController {
         return removeGroupAliasService.execute(new GroupAliasCommand(groupId, alias));
     }
 
+    /**
+     * Updates the settings for a group with the given ID.
+     * 
+     * @param groupId the ID of the group to update settings for
+     * @param settings the updated group settings
+     * @return a ResponseEntity containing the updated group settings, or an error if the
+     *         call fails
+     * @throws IllegalArgumentException if the groupId is null or empty
+     */
     @PutMapping("/groups/{groupId}/settings")
     public ResponseEntity<Groups> updateGroupSettings(@PathVariable String groupId,
             @RequestBody Groups settings,

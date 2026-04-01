@@ -26,6 +26,13 @@ public class AddMemberToGroupService implements Command<AddMemberToGroupCommand,
         this.directory = directory;
     }
 
+    /**
+     * Executes a Google Workspace Directory API call to add a member to a group.
+     * 
+     * @param input the input to the query containing the group key, member email, and role
+     * @return a ResponseEntity containing the created member, or an error if the call fails
+     * @throws IllegalArgumentException if the input is null, or if the groupKey, memberEmail, or role is blank
+     */
     @Override
     public ResponseEntity<Member> execute(AddMemberToGroupCommand input) {
 
@@ -50,6 +57,15 @@ public class AddMemberToGroupService implements Command<AddMemberToGroupCommand,
         return ResponseEntity.status(HttpStatus.CREATED).body(addMember(groupId, memberEmail, normalizedRole));
     }
 
+    /**
+     * Adds a member to a group.
+     * 
+     * @param groupId the ID of the group to add the member to
+     * @param memberEmail the email address of the member to add
+     * @param role the role of the member in the group (MEMBER, MANAGER, OWNER)
+     * @return the created member, or throws a GoogleWorkspaceException if the call fails
+     * @throws GoogleWorkspaceException if the call fails
+     */
     private Member addMember(String groupId, String memberEmail, String role) {
 
         try {
@@ -73,6 +89,13 @@ public class AddMemberToGroupService implements Command<AddMemberToGroupCommand,
         }
     }
 
+    /**
+     * Safely trims a given string to remove leading and trailing whitespace.
+     * If the given string is null, an empty string is returned.
+     * 
+     * @param s the string to be trimmed
+     * @return the trimmed string, or an empty string if the given string is null
+     */
     private static String safe(String s) {
         return s == null ? "" : s.trim();
     }

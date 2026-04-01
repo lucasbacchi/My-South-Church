@@ -26,6 +26,13 @@ public class CreateGroupService implements Command<CreateGroupCommand, Group> {
         this.directory = directory;
     }
 
+    /**
+     * Executes a Google Workspace Directory API call to create a new group with the given name, email address and description.
+     *
+     * @param request the create group command containing the group name, email address and description
+     * @return a ResponseEntity containing the created group, or an error if the call fails
+     * @throws IllegalArgumentException if the request is null or empty
+     */
     @Override
     public ResponseEntity<Group> execute(CreateGroupCommand request) {
 
@@ -48,6 +55,15 @@ public class CreateGroupService implements Command<CreateGroupCommand, Group> {
 
     }
 
+    /**
+     * Creates a new group with the given name, email address and description.
+     * 
+     * @param name the name of the group to create
+     * @param email the email address of the group to create
+     * @param description the description of the group to create (optional)
+     * @return the created group
+     * @throws GoogleWorkspaceException if the call fails
+     */
     private Group createGroup(String name, String email, String description) {
 
         try {

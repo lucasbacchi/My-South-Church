@@ -25,6 +25,13 @@ public class GetGroupAliasesService implements Query<String, List<String>> {
         this.directory = directory;
     }
 
+    /**
+     * Executes a Google Workspace Directory API call to list all aliases associated with a group.
+     * 
+     * @param groupKey the ID of the group to list aliases for
+     * @return a ResponseEntity containing a list of all aliases associated with the group, or an error if the call fails
+     * @throws IllegalArgumentException if the groupKey is null or empty
+     */
     @Override
     public ResponseEntity<List<String>> execute(String groupKey) {
 
